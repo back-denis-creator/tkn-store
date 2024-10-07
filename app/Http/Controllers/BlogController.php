@@ -46,7 +46,6 @@ class BlogController extends Controller
             'title' => $request->title,
             'content' => $request->content
         ]);
-        sleep(1);
 
         return redirect()->route('blogs.index')->with('message', 'Blog Created Successfully');
     }
@@ -85,7 +84,6 @@ class BlogController extends Controller
         $blog->title = $request->title;
         $blog->content = $request->content;
         $blog->save();
-        sleep(1);
 
         return redirect()->route('blogs.index')->with('message', 'Blog Updated Successfully');
     }
@@ -96,7 +94,6 @@ class BlogController extends Controller
     public function destroy(Blog $blog)
     {
         $blog->delete();
-        sleep(1);
 
         return redirect()->route('blogs.index')->with('message', 'Blog Delete Successfully');
     }

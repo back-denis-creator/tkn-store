@@ -20,20 +20,35 @@ const showingNavigationDropdown = ref(false);
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
+                                <Link href="/" >
+                                    <span class="sr-only">Your Company</span>
+                                    <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Logo" />
+                                </Link>
+                            </div>
+                            <!-- <div class="shrink-0 flex items-center">
+                                <Link href="/">
                                     <ApplicationLogo
                                         class="block h-9 w-auto fill-current text-gray-800"
                                     />
                                 </Link>
-                            </div>
+                            </div> -->
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                                    Кабінет
                                 </NavLink>
                                 <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
-                                    Blog
+                                    Новини
+                                </NavLink>
+                                <NavLink :href="route('products.index')" :active="route().current('products.index')">
+                                    Товари
+                                </NavLink>
+                                <NavLink :href="route('categories.index')" :active="route().current('categories.index')">
+                                    Категорії
+                                </NavLink>
+                                <NavLink :href="route('attributes.index')" :active="route().current('attributes.index')">
+                                    Атрибути
                                 </NavLink>
                             </div>
                         </div>
