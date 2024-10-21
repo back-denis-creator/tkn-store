@@ -5,26 +5,42 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-// use Spatie\Image\Enums\Fit;
-// use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Product extends Model implements HasMedia
+class Product extends Model
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory;
 
     protected $fillable = [
         'name',
-        'description'
+        'description',
+        'slug'
     ];
 
-    // public function registerMediaConversions(?Media $media = null): void
-    // {
-    //     $this->addMediaConversion('preview')
-    //         ->fit(Fit::Contain, 300, 300)
-    //         ->nonQueued();
-    // }
+    protected $appends = [
+        'default_image',
+        'default_price',
+    ];
+
+    public function getDefaultImageAttribute()
+    {
+        $sku = $this->defaultSku();
+        $media = $sku?->media;
+        if($media && count($media)) {
+            return $media[0]->original_url;
+        }
+        return null;
+    }
+
+    public function getDefaultPriceAttribute()
+    {
+        $sku = $this->defaultSku();
+        return $sku?->price;
+    }
+
+    public function defaultSku()
+    {
+        return $this->skus()->first();
+    }
 
     public function skus(): HasMany
     {

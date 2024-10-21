@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
- 
-class Sku extends Model
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
+class Sku extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'product_id',
@@ -18,6 +20,13 @@ class Sku extends Model
         'price',
     ];
  
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['media'];
+
     protected function price(): Attribute
     {
         return Attribute::make(

@@ -27,6 +27,10 @@ defineProps({
         type: String,
         required: true,
     },
+    productSlider: {
+        type: Array,
+        required: true
+    }
 });
 
 function handleImageError() {

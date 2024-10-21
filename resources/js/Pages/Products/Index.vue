@@ -9,139 +9,349 @@
         </template>
 
         <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
-                        <div class="mb-2 px-4">
-                            <Link :href="route('products.create')">
-                                <PrimaryButton>Створити товар</PrimaryButton>
-                            </Link>
+            <Card class="max-w-7xl mx-auto">
+                <template #content>
+                    <Toolbar class="mb-6">
+                        <template #start>
+                            <Button label="New" icon="pi pi-plus" class="mr-2" @click="openNew" />
+                            <Button label="Delete" icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                        </template>
+
+                        <template #end>
+                            <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" customUpload chooseLabel="Import" class="mr-2" auto :chooseButtonProps="{ severity: 'secondary' }" />
+                            <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+                        </template>
+                    </Toolbar>
+
+                    <DataTable
+                        :value="products"
+                        lazy
+                        paginator
+                        :first="offset"
+                        :rows="perPage"
+                        ref="dt"
+                        dataKey="id"
+                        :totalRecords="totalRecords"
+                        :loading="loading"
+                        @page="onPage($event)"
+                        v-model:selection="selectedCustomers"
+                        :selectAll="selectAll"
+                        @select-all-change="onSelectAllChange"
+                        @row-select="onRowSelect"
+                        @row-unselect="onRowUnselect"
+                        tableStyle="min-width: 75rem"
+                    >
+                        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                        <Column field="id" header="ID" sortable></Column>
+                        <Column field="default_image" header="Зображення">
+                            <template #body="{ data }">
+                                <img :src="data.default_image" class="rounded" style="width: 64px" />
+                            </template>
+                        </Column>
+                        <Column field="name" header="Імʼя"></Column>
+                        <!-- <Column field="description" header="Опис">
+                            <template #body="{ data }">
+                               <span v-html="data.description" />
+                            </template>
+                        </Column> -->
+                        <Column field="categories" header="Категорія">
+                            <template #body="{ data }">
+                                <div class="flex align-items-center gap-2">
+                                    <span v-for="(category, index) in data.categories" :key="category.id">{{ data.categories.length > 1 ? ((index + 1) === data.categories.length ? category.name : `${category.name}, `) : category.name }}</span>
+                                </div>
+                            </template>
+                        </Column>
+                        <Column :exportable="false">
+                            <template #body="slotProps">
+                                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
+                                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
+                            </template>
+                        </Column>
+                    </DataTable>
+                </template>
+            </Card>
+
+            <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true">
+                <div class="flex flex-col gap-6">
+                    <img v-if="product.image" :src="`https://primefaces.org/cdn/primevue/images/product/${product.image}`" :alt="product.image" class="block m-auto pb-4" />
+                    <div>
+                        <label for="name" class="block font-bold mb-3">Name</label>
+                        <InputText id="name" v-model.trim="product.name" required="true" autofocus :invalid="submitted && !product.name" fluid />
+                        <small v-if="submitted && !product.name" class="text-red-500">Name is required.</small>
+                    </div>
+                    <div>
+                        <label for="description" class="block font-bold mb-3">Description</label>
+                        <Textarea id="description" v-model="product.description" required="true" rows="3" cols="20" fluid />
+                    </div>
+                    <div>
+                        <label for="inventoryStatus" class="block font-bold mb-3">Inventory Status</label>
+                        <Select id="inventoryStatus" v-model="product.inventoryStatus" :options="statuses" optionLabel="label" placeholder="Select a Status" fluid></Select>
+                    </div>
+
+                    <div>
+                        <span class="block font-bold mb-4">Category</span>
+                        <div class="grid grid-cols-12 gap-4">
+                            <div class="flex items-center gap-2 col-span-6">
+                                <RadioButton id="category1" v-model="product.category" name="category" value="Accessories" />
+                                <label for="category1">Accessories</label>
+                            </div>
+                            <div class="flex items-center gap-2 col-span-6">
+                                <RadioButton id="category2" v-model="product.category" name="category" value="Clothing" />
+                                <label for="category2">Clothing</label>
+                            </div>
+                            <div class="flex items-center gap-2 col-span-6">
+                                <RadioButton id="category3" v-model="product.category" name="category" value="Electronics" />
+                                <label for="category3">Electronics</label>
+                            </div>
+                            <div class="flex items-center gap-2 col-span-6">
+                                <RadioButton id="category4" v-model="product.category" name="category" value="Fitness" />
+                                <label for="category4">Fitness</label>
+                            </div>
                         </div>
+                    </div>
 
-                        <section class="container px-4 mx-auto">
-                            <div class="flex flex-col mt-6">
-                                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                    <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                        <div class="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                                <thead class="bg-gray-50 dark:bg-gray-800">
-                                                    <tr>
-                                                        <th scope="col" class="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                                            <button class="flex items-center gap-x-3 focus:outline-none">
-                                                                <span>ID</span>
-                                                            </button>
-                                                        </th>
-                                                        <th scope="col" class="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                                            Імʼя
-                                                        </th>
-                                                        <th scope="col" class="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                                            Ціна
-                                                        </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                                            Опис
-                                                        </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                                            Категорія
-                                                        </th>
-                                                        <th scope="col" class="relative py-3.5 px-4">
-                                                            <span class="sr-only">Редагувати</span>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                                                    <tr v-for="product in products.data" :key="product.id">
-                                                        <td class="px-4 py-4 text-sm font-medium whitespace-nowrap">
-                                                            <div>
-                                                                <h2 class="font-medium text-gray-800 dark:text-white ">{{ product.id }}</h2>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-12 py-4 text-sm font-medium whitespace-nowrap">
-                                                            <h2 class="font-medium text-gray-800 dark:text-white ">{{ product.name }}</h2>
-                                                        </td>
-                                                        <td class="px-12 py-4 text-sm font-medium whitespace-nowrap">
-                                                            <h2 class="font-medium text-gray-800 dark:text-white ">{{ product.price }}</h2>
-                                                        </td>
-                                                        <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <div>
-                                                                <p class="text-gray-500 dark:text-gray-400">{{ product.description }}</p>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <div>
-                                                                <span class="text-gray-500 dark:text-gray-400" v-for="(category, index) in product.categories" :key="category.id">{{ product.categories.length > 1 ? ((index + 1) === product.categories.length ? category.name : `${category.name}, `) : category.name }}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <div class="flex justify-end">
-                                                                <Link
-                                                                    :href="route('products.edit', product.id)"
-                                                                    class="mx-1 px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
-                                                                >
-                                                                    Редагувати
-                                                                </Link>
-                                                                <button @click="destroy(product.id)" class="mx-1 px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-red-600 rounded-lg hover:bg-red-500 focus:outline-none focus:ring focus:ring-red-300 focus:ring-opacity-80">
-                                                                    Видалити
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Pagination -->
-                            <div class="flex items-center justify-between mt-6">
-                                <Link
-                                    :class="{'pointer-events-none': !products.prev_page_url}"
-                                    :href="products.prev_page_url || ''"
-                                    class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 rtl:-scale-x-100">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
-                                    </svg>
-                                    <span>
-                                        Назад
-                                    </span>
-                                </Link>
-                                <div class="items-center hidden md:flex gap-x-3">
-                                    <Link v-for="page in pages" :key="page.label" :href="page.url" class="px-2 py-1 text-sm" :class="!page.active ? 'text-gray-500 rounded-md dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100' : 'text-blue-500 rounded-md dark:bg-gray-800 bg-blue-100/60'">{{ page.label }}</Link>
-                                </div>
-                                <Link :class="{'pointer-events-none': !products.next_page_url}" :href="products.next_page_url || ''" class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">
-                                    <span>
-                                        Наступна
-                                    </span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 rtl:-scale-x-100">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
-                                    </svg>
-                                </Link>
-                            </div>
-                        </section>
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-6">
+                            <label for="price" class="block font-bold mb-3">Price</label>
+                            <InputNumber id="price" v-model="product.price" mode="currency" currency="USD" locale="en-US" fluid />
+                        </div>
+                        <div class="col-span-6">
+                            <label for="quantity" class="block font-bold mb-3">Quantity</label>
+                            <InputNumber id="quantity" v-model="product.quantity" integeronly fluid />
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <template #footer>
+                    <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+                    <Button label="Save" icon="pi pi-check" @click="saveProduct" />
+                </template>
+            </Dialog>
+
+            <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <div class="flex items-center gap-4">
+                    <i class="pi pi-exclamation-triangle !text-3xl" />
+                    <span v-if="product"
+                        >Are you sure you want to delete <b>{{ product.name }}</b
+                        >?</span
+                    >
+                </div>
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" text @click="deleteProductDialog = false" />
+                    <Button label="Yes" icon="pi pi-check" @click="deleteProduct" />
+                </template>
+            </Dialog>
+
+            <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <div class="flex items-center gap-4">
+                    <i class="pi pi-exclamation-triangle !text-3xl" />
+                    <span v-if="product">Are you sure you want to delete the selected products?</span>
+                </div>
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
+                    <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProducts" />
+                </template>
+            </Dialog>
         </div>
     </AuthenticatedLayout>
 </template>
+
 <script setup>
+import { router } from '@inertiajs/vue3';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
 const props = defineProps({
     products: {
         type: Object,
         default: () => ({}),
     },
 })
-const form = useForm({})
-const pages = computed(() => props.products.links.filter(({label}) => isNumeric(label)))
-const isNumeric = (value) => /^-?\d+$/.test(value)
-function destroy(id) {
-    if (confirm("Are you sure you want to Delete")) {
-        form.delete(route("products.destroy", id));
+const toast = useToast();
+const dt = ref();
+const loading = ref(false)
+const products = ref(props.products.data)
+const totalRecords = ref(props.products.total)
+const currentPage = ref(props.products.current_page)
+const perPage = ref(props.products.per_page)
+// Dialogs
+const productDialog = ref(false);
+const deleteProductDialog = ref(false);
+const deleteProductsDialog = ref(false);
+
+const product = ref({});
+const selectedProducts = ref();
+// const filters = ref({
+//     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+// });
+const submitted = ref(false);
+const statuses = ref([
+    {label: 'INSTOCK', value: 'instock'},
+    {label: 'LOWSTOCK', value: 'lowstock'},
+    {label: 'OUTOFSTOCK', value: 'outofstock'}
+]);
+const selectedCustomers = ref();
+const selectAll = ref(false);
+const filters = ref({
+    'name': {value: '', matchMode: 'contains'},
+    // 'categories': {value: '', matchMode: 'contains'},
+    'price': {value: '', matchMode: 'contains'}
+});
+const offset = computed(() => (perPage.value * (currentPage.value - 1)) > totalRecords.value ? totalRecords.value : (perPage.value * (currentPage.value - 1)))
+const lazyParams = ref({
+    first: offset.value,
+    page: 1,
+    rows: perPage.value,
+    sortField: null,
+    sortOrder: null,
+    filters: filters.value
+});
+
+const formatCurrency = (value) => {
+    if(value)
+        return value.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+    return;
+};
+const openNew = () => {
+    router.visit(route('products.create'))
+    // product.value = {};
+    // submitted.value = false;
+    // productDialog.value = true;
+};
+const hideDialog = () => {
+    productDialog.value = false;
+    submitted.value = false;
+};
+const saveProduct = () => {
+    submitted.value = true;
+
+    if (product?.value.name?.trim()) {
+        if (product.value.id) {
+            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
+            products.value[findIndexById(product.value.id)] = product.value;
+            toast.add({severity:'success', summary: 'Successful', detail: 'Product Updated', life: 3000});
+        }
+        else {
+            product.value.id = createId();
+            product.value.code = createId();
+            product.value.image = 'product-placeholder.svg';
+            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
+            products.value.push(product.value);
+            toast.add({severity:'success', summary: 'Successful', detail: 'Product Created', life: 3000});
+        }
+
+        productDialog.value = false;
+        product.value = {};
     }
+};
+const editProduct = (product) => {
+    router.visit(route('products.edit', product.id))
+    // product.value = {...prod};
+    // productDialog.value = true;
+};
+const confirmDeleteProduct = (prod) => {
+    product.value = prod;
+    deleteProductDialog.value = true;
+};
+const deleteProduct = () => {
+    products.value = products.value.filter(val => val.id !== product.value.id);
+    deleteProductDialog.value = false;
+    product.value = {};
+    toast.add({severity:'success', summary: 'Successful', detail: 'Product Deleted', life: 3000});
+};
+const findIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < products.value.length; i++) {
+        if (products.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
+const createId = () => {
+    let id = '';
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for ( var i = 0; i < 5; i++ ) {
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
 }
+const exportCSV = () => {
+    dt.value.exportCSV();
+};
+const confirmDeleteSelected = () => {
+    deleteProductsDialog.value = true;
+};
+const deleteSelectedProducts = () => {
+    products.value = products.value.filter(val => !selectedProducts.value.includes(val));
+    deleteProductsDialog.value = false;
+    selectedProducts.value = null;
+    toast.add({severity:'success', summary: 'Successful', detail: 'Products Deleted', life: 3000});
+};
+
+const getStatusLabel = (status) => {
+    switch (status) {
+        case 'INSTOCK':
+            return 'success';
+
+        case 'LOWSTOCK':
+            return 'warn';
+
+        case 'OUTOFSTOCK':
+            return 'danger';
+
+        default:
+            return null;
+    }
+};
+
+// const columns = ref([
+//     {field: 'name', header: 'Name'},
+//     {field: 'category.name', header: 'Category Nmae'},
+//     {field: 'price', header: 'Price'}
+// ]);
+
+const onPage = (event) => {
+    currentPage.value = event.page
+    router.visit(route('products.index', [{'page': event.page + 1}]))
+    lazyParams.value = event;
+};
+const onSort = (event) => {
+    console.log('onSort: ', event)
+    lazyParams.value = event;
+};
+const onFilter = (event) => {
+    console.log('onFilter: ', event)
+    lazyParams.value.filters = filters.value ;
+};
+const onSelectAllChange = (event) => {
+    selectAll.value = event.checked;
+    if (selectAll) {
+        // CustomerService.getCustomers().then(data => {
+        //     selectAll.value = true;
+        //     selectedCustomers.value = data.customers;
+        // });
+    }
+    else {
+        selectAll.value = false;
+        selectedCustomers.value = [];
+    }
+};
+const onRowSelect = () => {
+    console.log('onRowSelect')
+    selectAll.value = selectedCustomers.value.length === totalRecords.value;
+};
+const onRowUnselect = () => {
+    console.log('onRowUnselect')
+    selectAll.value = false;
+}
+// function destroy(id) {
+//     if (confirm("Are you sure you want to Delete")) {
+//         form.delete(route("products.destroy", id));
+//     }
+// }
 </script>

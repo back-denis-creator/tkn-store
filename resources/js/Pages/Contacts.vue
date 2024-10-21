@@ -19,7 +19,7 @@ defineProps({
 });
 </script>
 <template>
-    <Head title="Company" />
+    <Head title="Contacts" />
     <div class="bg-white">
         <NavBar />
     </div>

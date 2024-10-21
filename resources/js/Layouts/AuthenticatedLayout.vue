@@ -38,16 +38,16 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Кабінет
                                 </NavLink>
-                                <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
+                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('blogs.index')" :active="route().current('blogs.index')">
                                     Новини
                                 </NavLink>
-                                <NavLink :href="route('products.index')" :active="route().current('products.index')">
+                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('products.index')" :active="route().current('products.index')">
                                     Товари
                                 </NavLink>
-                                <NavLink :href="route('categories.index')" :active="route().current('categories.index')">
+                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('categories.index')" :active="route().current('categories.index')">
                                     Категорії
                                 </NavLink>
-                                <NavLink :href="route('attributes.index')" :active="route().current('attributes.index')">
+                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('attributes.index')" :active="route().current('attributes.index')">
                                     Атрибути
                                 </NavLink>
                             </div>
