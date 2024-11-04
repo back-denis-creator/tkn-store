@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Route;
 
 class RegisteredUserController extends Controller
 {
@@ -20,7 +21,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'cart' => fn() => session()->get('cart', []),
+        ]);
     }
 
     /**

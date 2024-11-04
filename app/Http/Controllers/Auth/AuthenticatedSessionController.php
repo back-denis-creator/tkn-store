@@ -19,8 +19,11 @@ class AuthenticatedSessionController extends Controller
     public function create(): Response
     {
         return Inertia::render('Auth/Login', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'cart' => fn() => session()->get('cart', []),
         ]);
     }
 
@@ -33,7 +36,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('profile.index', absolute: false));
     }
 
     /**

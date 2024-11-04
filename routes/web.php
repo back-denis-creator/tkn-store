@@ -3,6 +3,8 @@
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\NPController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Store\PageController;
@@ -12,14 +14,21 @@ use Inertia\Inertia;
 
 Route::get('/', [PageController::class, 'index']);
 Route::get('/catalog', [PageController::class, 'catalog'])->name('catalog');
+Route::get('/catalog/{productSlug}', [PageController::class, 'product'])->name('product');
 Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
+Route::get('/cart', [PageController::class, 'cart'])->name('cart');
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::delete('/cart/delete', [CartController::class, 'deleteFromCart'])->name('cart.delete');
+Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
+Route::post('/np-cities', [NPController::class, 'cities'])->name('np.cities');
+Route::post('/np-warehouses', [NPController::class, 'warehouses'])->name('np.warehouses');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'admin', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 

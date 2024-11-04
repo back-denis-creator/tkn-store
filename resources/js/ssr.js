@@ -8,6 +8,18 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import ToastService from 'primevue/toastservice'
 
+import Toast from 'primevue/toast';
+import Galleria from 'primevue/galleria';
+import OverlayBadge from 'primevue/overlaybadge';
+import Paginator from 'primevue/paginator';
+import Checkbox from 'primevue/checkbox';
+import Accordion from 'primevue/accordion';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent';
+import Slider from 'primevue/slider';
+import Tree from 'primevue/tree';
+import Carousel from 'primevue/carousel';
 import Editor from 'primevue/editor';
 Editor.methods.renderValue = function renderValue(value) {
     if (this.quill) {
@@ -58,6 +70,18 @@ createServer((page) =>
                     }
                 })
                 .use(ToastService)
+                .component('Toast', Toast)
+                .component('Galleria', Galleria)
+                .component('OverlayBadge', OverlayBadge)
+                .component('Paginator', Paginator)
+                .component('Checkbox', Checkbox)
+                .component('AccordionContent', AccordionContent)
+                .component('AccordionHeader', AccordionHeader)
+                .component('AccordionPanel', AccordionPanel)
+                .component('Accordion', Accordion)
+                .component('Slider', Slider)
+                .component('Tree', Tree)
+                .component('Carousel', Carousel)
                 .component('Editor', Editor)
                 .component('InputText', InputText)
                 .component('Button', Button)

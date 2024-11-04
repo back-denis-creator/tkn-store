@@ -12,9 +12,12 @@ class Attribute extends Model
 
     protected $fillable = [
         'name',
-        'description'
+        'description',
+        'unit_type'
     ];
- 
+
+    const COLOR = 'Колір';
+
     public function attributeOptions(): HasMany
     {
         return $this->hasMany(AttributeOption::class);

@@ -38,16 +38,16 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Кабінет
                                 </NavLink>
-                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('blogs.index')" :active="route().current('blogs.index')">
+                                <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
                                     Новини
                                 </NavLink>
-                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('products.index')" :active="route().current('products.index')">
+                                <NavLink :href="route('products.index')" :active="route().current('products.index')">
                                     Товари
                                 </NavLink>
-                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('categories.index')" :active="route().current('categories.index')">
+                                <NavLink :href="route('categories.index')" :active="route().current('categories.index')">
                                     Категорії
                                 </NavLink>
-                                <NavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('attributes.index')" :active="route().current('attributes.index')">
+                                <NavLink :href="route('attributes.index')" :active="route().current('attributes.index')">
                                     Атрибути
                                 </NavLink>
                             </div>
@@ -82,7 +82,7 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
+                                        <DropdownLink :href="route('profile.index')"> Profile </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
                                             Log Out
                                         </DropdownLink>
@@ -145,7 +145,7 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('profile.index')"> Profile </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 Log Out
                             </ResponsiveNavLink>

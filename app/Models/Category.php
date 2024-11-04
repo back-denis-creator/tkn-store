@@ -15,9 +15,21 @@ class Category extends Model
         'parent_id'
     ];
 
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['children'];
+
     public function parent()
     {
        return $this->hasOne(Category::class, 'id', 'parent_id');
+    }
+
+    public function children()
+    {
+       return $this->hasMany(Category::class, 'parent_id', 'id');
     }
 
     public function products()

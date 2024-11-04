@@ -5,17 +5,47 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+// import { ref } from "vue";
+
+// const src = ref(null);
+
+function onFileSelect(index, event) {
+    const file = event.files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        form.options[index].new_src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
 
 const props = defineProps({
     attribute: {
         type: Object,
         default: () => ({}),
     },
+    options: {
+        type: Array,
+        default: () => ([]),
+    },
+    color_groups: {
+        type: Array,
+        default: () => ([]),
+    }
 });
 
 const form = useForm({
     name: props.attribute.name,
     description: props.attribute.description,
+    options: [...props.options.map((option) => {
+        return {
+            id: option.id,
+            value: option.value,
+            attribute_id: option.attribute_id,
+            src: option.img_url ? option.img_url : null,
+            new_src: null,
+            meta: option.meta ? props.color_groups.find(({id}) => id === Number(option.meta)) : {}
+        }
+    })],
 });
 
 const submit = () => {
@@ -77,6 +107,21 @@ const submit = () => {
                                     {{ form.errors.description }}
                                 </div>
                             </div>
+
+                            <div class="my-6">
+                                <Accordion value="0">
+                                    <AccordionPanel v-for="(option, index) in form.options" :key="option.value" :value="option.value">
+                                        <AccordionHeader>{{ option.value }}</AccordionHeader>
+                                        <AccordionContent>
+                                            <Select v-model="option.meta" :options="color_groups" optionLabel="name" placeholder="Обрати группу" class="w-full" />
+                                            <FileUpload mode="basic" @select="onFileSelect(index, $event)" customUpload auto severity="secondary" class="p-button-outlined mt-4" />
+                                            <img v-if="option.new_src" :src="option.new_src" alt="Image" class="shadow-md rounded-xl w-full sm:w-64" />
+                                            <img v-else-if="option.src" :src="option.src" alt="Image" class="shadow-md rounded-xl w-full sm:w-64" />
+                                        </AccordionContent>
+                                    </AccordionPanel>
+                                </Accordion>
+                            </div>
+
                             <PrimaryButton
                                 type="submit"
                                 :class="{ 'opacity-25': form.processing }"

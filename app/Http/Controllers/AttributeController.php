@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attribute;
+use App\Models\AttributeOption;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -63,12 +64,26 @@ class AttributeController extends Controller
      */
     public function edit(Attribute $attribute)
     {
-        return Inertia::render(
-            'Attributes/Edit',
-            [
-                'attribute' => $attribute
-            ]
-        );
+        // Загружаем коллекцию AttributeOption с нужным attribute_id
+        $attributeOptions = AttributeOption::where('attribute_id', $attribute->id)->get();
+
+        // Получаем URL первого изображения для каждого элемента коллекции
+        $options = $attributeOptions->map(function ($attributeOption) {
+            return [
+                'id' => $attributeOption->id,
+                'value' => $attributeOption->value,
+                'meta' => $attributeOption->meta,
+                'img_url' => $attributeOption->getMedia('default')->first()?->getUrl(),
+            ];
+        });
+        $data = [
+            'attribute' => $attribute,
+            'options' => $options
+        ];
+        if($attribute->name === Attribute::COLOR) {
+            $data['color_groups'] = AttributeOption::COLOR_GROUPS;
+        }
+        return Inertia::render('Attributes/Edit', $data);
     }
 
     /**
@@ -84,6 +99,22 @@ class AttributeController extends Controller
         $attribute->name = $request->name;
         $attribute->description = $request->description;
         $attribute->save();
+
+        foreach ($request->options as $option) {
+            //Значение атрибута для обновления
+            $attributeOption = AttributeOption::find($option['id']);
+            //Обновление цвета
+            if($attributeOption && $attribute->name === Attribute::COLOR && $option['meta'] && $option['meta']['id']) {
+                //Группировка значений через мета
+                $attributeOption->update(['meta' => $option['meta']['id']]);
+            }
+            //Если есть картинка, устанавливаем ее значению
+            if($attributeOption && $option['new_src']) {
+                $attributeOption->clearMediaCollection();
+                //Картинка для значения атрибута
+                $attributeOption->addMediaFromBase64($option['new_src'])->toMediaCollection();
+            }
+        }
 
         return redirect()->route('attributes.index')->with('message', 'Attribute Updated Successfully');
     }

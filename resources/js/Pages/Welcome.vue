@@ -3,13 +3,23 @@
     <div class="bg-white">
         <NavBar />
         <WelcomeBlock />
+        <ConsBages />
+        <CathegoriesBlock />
         <ProductSlider />
+        <SpecialOfferCard />
+        <Recommendations />
+        <Footer />
     </div>
 </template>
 <script setup>
 import NavBar from '@/Components/NavBar.vue';
+import Footer from '@/Components/Footer.vue';
 import ProductSlider from '@/Components/ProductSlider.vue';
+import SpecialOfferCard from '@/Components/SpecialOfferCard.vue';
+import Recommendations from '@/Components/Recommendations.vue';
 import WelcomeBlock from '@/Components/WelcomeBlock.vue';
+import ConsBages from '@/Components/ConsBages.vue';
+import CathegoriesBlock from '@/Components/CathegoriesBlock.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({

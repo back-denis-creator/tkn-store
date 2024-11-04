@@ -69,6 +69,7 @@ const addVariation = (id) => {
             return {
                 name: attribute.name,
                 value: "",
+                unit: "",
                 id: attribute.id,
                 attribute_options: attribute.attribute_options.map((option) => {
                     return {
@@ -112,6 +113,7 @@ const variations = ref([{
         return {
             name: attribute.name,
             value: "",
+            unit: "",
             id: attribute.id,
             attribute_options: attribute.attribute_options.map((option, index) => {
                 return {
@@ -232,8 +234,16 @@ const onFilesVariation = (e) => {
                                         </div>
                                         <div class="ml-2">
                                             <div v-for="attribute in variation.attributes" :key="`${attribute.id}${variation.id}`" class="my-6">
-                                                <InputLabel :for="attribute.id + variation.id" :value="attribute.name" />
-                                                <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
+                                                <div class="flex gap-4">
+                                                    <div class="w-full">
+                                                        <InputLabel :value="attribute.name" />
+                                                        <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Розхід" />
+                                                        <InputText v-model="attribute.unit" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

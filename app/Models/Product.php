@@ -19,6 +19,8 @@ class Product extends Model
     protected $appends = [
         'default_image',
         'default_price',
+        'min_price',
+        'max_price',
     ];
 
     public function getDefaultImageAttribute()
@@ -35,6 +37,16 @@ class Product extends Model
     {
         $sku = $this->defaultSku();
         return $sku?->price;
+    }
+
+    public function getMinPriceAttribute()
+    {
+        return $this->skus()->min('price') / 100;
+    }
+
+    public function getMaxPriceAttribute()
+    {
+        return $this->skus()->max('price') / 100;
     }
 
     public function defaultSku()

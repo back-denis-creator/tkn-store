@@ -42,6 +42,6 @@ class Sku extends Model implements HasMedia
  
     public function attributeOptions(): BelongsToMany
     {
-        return $this->belongsToMany(AttributeOption::class);
+        return $this->belongsToMany(AttributeOption::class)->withPivot('unit');
     }
 }

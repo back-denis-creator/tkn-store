@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError.vue';
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import CheckboxArray from '@/Components/CheckboxArray.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { usePrimeVue } from 'primevue/config';
 
 const $primevue = usePrimeVue();
@@ -50,6 +50,7 @@ const form = useForm({
                 return {
                     name: attribute.name,
                     value: findedOption ? findedOption.value : '',
+                    unit: findedOption ? findedOption.pivot.unit : '',
                     id: attribute.id,
                     attribute_options: attribute.attribute_options.map(option => {
                         return {
@@ -64,6 +65,10 @@ const form = useForm({
             })
         }
     })]
+})
+
+onMounted(() => {
+    if(!form.variations.length) addVariation('new', true)
 })
 
 const selectedVariation = computed(() => form.variations.findIndex((({show}) => show)))
@@ -113,18 +118,19 @@ const deleteVariation = (index) => {
     }
 }
 
-const addVariation = (id) => {
+const addVariation = (id, show = false) => {
     form.variations.push({
         id,
         code: "",
         price: "",
-        show: false,
+        show: show,
         images: [],
         new_images: [],
         attributes: props.attributes.map((attribute, index) => {
             return {
                 name: attribute.name,
                 value: "",
+                unit: "",
                 id: attribute.id,
                 attribute_options: attribute.attribute_options.map((option) => {
                     return {
@@ -251,8 +257,18 @@ const deleteUploadedFileCallback = (index) => {
                                         </div>
                                         <div class="ml-2">
                                             <div v-for="attribute in variation.attributes" :key="`${attribute.id}${variation.id}`" class="my-6">
-                                                <InputLabel :for="attribute.id + variation.id" :value="attribute.name" />
-                                                <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
+                                                <!-- <InputLabel :for="attribute.id + variation.id" :value="attribute.name" /> -->
+                                                <!-- <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" /> -->
+                                                <div class="flex gap-4">
+                                                    <div class="w-full">
+                                                        <InputLabel :value="attribute.name" />
+                                                        <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Розхід" />
+                                                        <InputText v-model="attribute.unit" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

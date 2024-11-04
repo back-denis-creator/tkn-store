@@ -89,10 +89,10 @@ class ProductController extends Controller
                         'value'        => $attribute['value'],
                     ]);
                 }
-                if($option) array_push($optionIds, $option->id);
+                if($option) $optionIds[$option->id] = ['unit' => $attribute['unit']];
             }
 
-            $sku->attributeOptions()->sync(array_values($optionIds));
+            $sku->attributeOptions()->sync($optionIds);
         }
 
         if(!empty($request->category_ids)) {
@@ -188,13 +188,15 @@ class ProductController extends Controller
                             'value' => $attribute['value'],
                         ]);
                     }
-                    if($option) array_push($optionIds, $option->id);
+                    if($option) $optionIds[$option->id] = ['unit' => $attribute['unit']];
                 }
-                $sku->attributeOptions()->sync(array_values($optionIds));
+                $sku->attributeOptions()->sync($optionIds);
             }
-            $indexForDelete = array_search($sku->id, $request->delete_variations_ids);
-            if($indexForDelete > -1) {
-                $sku->delete();
+            if($request->has('delete_variations_ids')) {
+                $indexForDelete = array_search($sku->id, $request->delete_variations_ids);
+                if($indexForDelete > -1) {
+                    $sku->delete();
+                }
             }
         });
 
@@ -226,9 +228,9 @@ class ProductController extends Controller
                             'value' => $attribute['value'],
                         ]);
                     }
-                    if($option) array_push($optionIds, $option->id);
+                    if($option) $optionIds[$option->id] = ['unit' => $attribute['unit']];
                 }
-                $sku->attributeOptions()->sync(array_values($optionIds));
+                $sku->attributeOptions()->sync($optionIds);
             }
         }
 
