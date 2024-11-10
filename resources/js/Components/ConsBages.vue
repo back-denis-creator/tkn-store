@@ -1,11 +1,8 @@
 <template>
-        <!-- Cons bages -->
-
-        <section
+    <section
       class="container mx-auto my-8 flex flex-col justify-center gap-3 lg:flex-row"
     >
       <!-- 1 -->
-
       <div
         class="mx-5 flex flex-row items-center justify-center border-2 border-yellow-400 py-4 px-5"
       >
@@ -33,9 +30,7 @@
           </p>
         </div>
       </div>
-
       <!-- 2 -->
-
       <div
         class="mx-5 flex flex-row items-center justify-center border-2 border-yellow-400 py-4 px-5"
       >
@@ -63,9 +58,7 @@
           </p>
         </div>
       </div>
-
       <!-- 3 -->
-
       <div
         class="mx-5 flex flex-row items-center justify-center border-2 border-yellow-400 py-4 px-5"
       >
@@ -94,6 +87,4 @@
         </div>
       </div>
     </section>
-
-    <!-- /Cons bages  -->
 </template>

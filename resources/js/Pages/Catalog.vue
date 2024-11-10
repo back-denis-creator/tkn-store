@@ -62,23 +62,13 @@
             <div class="w-full">
                 <div class="mb-5 flex items-center justify-between px-5">
                     <div class="flex gap-3">
-                        <button class="flex items-center justify-center border px-6 py-2">
-                            Sort by
-                            <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="mx-2 h-4 w-4"
-                            >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                            />
-                            </svg>
-                        </button>
+                        <Select
+                            v-model="selectedSort"
+                            @update:modelValue="handleUpdateSort"
+                            :options="sorts"
+                            optionLabel="name"
+                            class=""
+                        />
 
                         <button
                             class="flex items-center justify-center border px-6 py-2 md:hidden"
@@ -102,7 +92,7 @@
                     </div>
 
                     <div class="hidden gap-3 lg:flex">
-                        <button class="border bg-amber-400 py-2 px-2">
+                        <!-- <button class="border bg-amber-400 py-2 px-2">
                             <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -134,7 +124,7 @@
                                 d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
                             />
                             </svg>
-                        </button>
+                        </button> -->
                     </div>
                 </div>
 
@@ -192,77 +182,14 @@
                             </p>
 
                             <div class="flex items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                    class="h-4 w-4 text-yellow-400"
-                                >
-                                    <path
-                                    fill-rule="evenodd"
-                                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                    clip-rule="evenodd"
-                                    />
-                                </svg>
-
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                    class="h-4 w-4 text-yellow-400"
-                                >
-                                    <path
-                                    fill-rule="evenodd"
-                                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                    clip-rule="evenodd"
-                                    />
-                                </svg>
-
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                    class="h-4 w-4 text-yellow-400"
-                                >
-                                    <path
-                                    fill-rule="evenodd"
-                                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                    clip-rule="evenodd"
-                                    />
-                                </svg>
-
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                    class="h-4 w-4 text-yellow-400"
-                                >
-                                    <path
-                                    fill-rule="evenodd"
-                                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                    clip-rule="evenodd"
-                                    />
-                                </svg>
-
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                    class="h-4 w-4 text-gray-200"
-                                >
-                                    <path
-                                    fill-rule="evenodd"
-                                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                    clip-rule="evenodd"
-                                    />
-                                </svg>
-                                <p class="text-sm text-gray-400">(38)</p>
+                                <Rating :defaultValue="product?.rating" readonly />
+                                <p class="ml-3 text-sm text-gray-400">(38)</p>
                             </div>
 
                             <div>
-                                <button class="my-5 h-10 w-full bg-emerald-500 text-white" @click="addToCart(product.id)">
+                                <Button class="my-5 h-10 w-full" @click="addToCart(product.id)">
                                     Додати у кошик
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -273,10 +200,12 @@
     </GuestLayout>
 </template>
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from "vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue'
+import { Head, Link, useForm, router } from '@inertiajs/vue3'
+import { ref, onMounted, computed } from "vue"
 import { useToast } from "primevue/usetoast"
+import Rating from 'primevue/rating'
+
 const toast = useToast()
 const props = defineProps({
     canLogin: {
@@ -303,6 +232,13 @@ const props = defineProps({
     }
 })
 
+const selectedSort = ref({ name: 'Назва (Я-А)', key: 'desc' })
+const sorts = ref([
+    { name: 'Назва (А-Я)', key: 'asc' },
+    { name: 'Назва (Я-А)', key: 'desc' },
+    { name: 'Ціна спадання', key: 'price-max-min' },
+    { name: 'Ціна зростання', key: 'price-min-max' },
+])
 const offset = computed(() => (props.products.per_page * (props.products.current_page - 1)) > props.products.total ? props.products.total : (props.products.per_page * (props.products.current_page - 1)))
 const form = useForm({
     product_id: null,
@@ -405,6 +341,10 @@ onMounted(() => {
         if (key === 'rows') {
             Object.assign(filter.value, { rows: value })
         }
+        if (key === 'sort') {
+            Object.assign(filter.value, { sort: value })
+            selectedSort.value = sorts.value.find(({key}) => key === value)
+        }
         props.filters.attributes.forEach((attribute) => {
             if(key.includes(attribute.slug)) {
                 if(key.includes('[')) {
@@ -427,7 +367,10 @@ onMounted(() => {
     })
     categories.value.forEach(node => expandParentNodes(node))
 })
-
+const handleUpdateSort = (sort) => {
+    Object.assign(filter.value, { sort: sort.key })
+    router.visit(route('catalog', filter.value), { preserveScroll: true })
+}
 const handleUpdateCategory = (e) => {
     Object.assign(filter.value, { category: Object.keys(selectedKey.value).filter((id) => selectedKey.value[id].checked) })
     delete filter.value.min_price

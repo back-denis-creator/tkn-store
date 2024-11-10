@@ -39,7 +39,7 @@ import DataTable from 'primevue/datatable';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import Column from 'primevue/column';
-import Rating from 'primevue/rating';
+// import Rating from 'primevue/rating';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';
@@ -91,7 +91,7 @@ createServer((page) =>
                 .component('IconField', IconField)
                 .component('InputIcon', InputIcon)
                 .component('Column', Column)
-                .component('Rating', Rating)
+                // .component('Rating', Rating)
                 .component('Tag', Tag)
                 .component('Dialog', Dialog)
                 .component('Textarea', Textarea)

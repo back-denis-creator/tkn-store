@@ -255,7 +255,56 @@
         <section
           class="hidden h-[600px] w-full max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10 md:grid overflow-auto"
         >
-          <table class="table-fixed">
+          <DataView :value="cart">
+              <template #list="slotProps">
+                  <div class="flex flex-col">
+                      <div v-for="(item, index) in slotProps.items" :key="index">
+                          <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4" :class="{ 'border-t border-surface-200 dark:border-surface-700': index !== 0 }">
+                              <div class="md:w-40 relative">
+                                  <img class="block xl:block mx-auto rounded w-full" :src="`https://primefaces.org/cdn/primevue/images/product/${item.image}`" :alt="item.name" />
+                                  <div class="absolute bg-black/70 rounded-border" style="left: 4px; top: 4px">
+                                      <!-- <Tag :value="item.inventoryStatus" :severity="getSeverity(item)"></Tag> -->
+                                  </div>
+                              </div>
+                              <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
+                                  <div class="flex flex-row md:flex-col justify-between items-start gap-2">
+                                      <div>
+                                          <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.category }}</span>
+                                          <div class="text-lg font-medium mt-2">{{ item.name }}</div>
+                                      </div>
+                                      <div class="bg-surface-100 p-1" style="border-radius: 30px">
+                                          <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2" style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
+                                              <span class="text-surface-900 font-medium text-sm">{{ item.rating }}</span>
+                                              <i class="pi pi-star-fill text-yellow-500"></i>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- md:items-end gap-8 -->
+                                  <div class="flex flex-col">
+                                    <InputGroup>
+                                        <InputGroupAddon>
+                                            <Button icon="pi pi-minus" severity="secondary" @click="updateQuantity(index, '-')" class="minus" />
+                                        </InputGroupAddon>
+                                        <InputText v-model="item.quantity" class="max-w-16 text-center" />
+                                        <InputGroupAddon>
+                                            <Button icon="pi pi-plus" severity="secondary" @click="updateQuantity(index, '+')" class="plus" />
+                                        </InputGroupAddon>
+                                    </InputGroup>
+
+                                      <!-- <span class="text-xl font-semibold">${{ item.price }}</span>
+                                      <div class="flex flex-row-reverse md:flex-row gap-2">
+                                          <Button icon="pi pi-heart" outlined></Button>
+                                          <Button icon="pi pi-shopping-cart" label="Buy Now" :disabled="item.inventoryStatus === 'OUTOFSTOCK'" class="flex-auto md:flex-initial whitespace-nowrap"></Button>
+                                      </div> -->
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </template>
+          </DataView>
+
+          <!-- <table class="table-fixed">
             <thead class="h-16 bg-neutral-100">
               <tr class="uppercase">
                 <th>Товар</th>
@@ -266,8 +315,6 @@
               </tr>
             </thead>
             <tbody>
-              <!-- 1 -->
-
               <tr class="h-[100px] border-b" v-for="(product, index) in cart">
                 <td class="align-middle">
                   <div class="flex">
@@ -322,47 +369,22 @@
                 </td>
               </tr>
             </tbody>
-          </table>
+          </table> -->
         </section>
         <!-- /Desktop cart table  -->
 
-        <!-- Summary  -->
-
-        <section class="mx-auto w-full px-4 md:max-w-[400px]">
-          <div class="">
-            <div class="border py-5 px-4 shadow-md">
-              <p class="font-bold uppercase">Сума Замовлення</p>
-
-              <div class="flex justify-between border-b py-5">
-                <p>Subtotal</p>
-                <p>$1280</p>
-              </div>
-
-              <div class="flex justify-between border-b py-5">
-                <p>Shipping</p>
-                <p>Free</p>
-              </div>
-
-              <div class="flex justify-between py-5">
-                <p>Total</p>
-                <p>$1280</p>
-              </div>
-
-                <Button class="w-full px-5 py-2" @click="goToCheckout()" :disabled="!cart.length">
-                    Оформити замовлення
-                </Button>
-            </div>
-          </div>
-        </section>
+        <Summary />
       </section>
-
-      <!-- /Summary -->
 
     </GuestLayout>
 </template>
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
+import Summary from '@/Components/Summary.vue';
+import DataView from 'primevue/dataview';
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 
 const props = defineProps({
     canLogin: {
@@ -413,3 +435,16 @@ const updateQuantity = (index, action) => {
 }
 
 </script>
+<style scoped>
+.p-inputgroupaddon {
+  padding: 0 !important;
+}
+.minus {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+.plus {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+</style>
