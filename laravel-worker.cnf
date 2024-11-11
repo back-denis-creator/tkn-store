@@ -1,9 +1,8 @@
 [program:laravel-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php artisan serve
+command=php /home/tg562619/denys.uno/www/artisan inertia:start-ssr
 autostart=true
 autorestart=true
-user=your-user
+user=www-data
 numprocs=1
 redirect_stderr=true
-stdout_logfile=/var/log/laravel-worker.log
+stdout_logfile=/home/tg562619/denys.uno/laravel-worker.log
