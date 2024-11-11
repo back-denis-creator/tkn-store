@@ -1,0 +1,9 @@
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php artisan serve
+autostart=true
+autorestart=true
+user=your-user
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/laravel-worker.log
