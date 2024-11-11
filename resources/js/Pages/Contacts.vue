@@ -21,7 +21,10 @@ defineProps({
 </script>
 <template>
     <GuestLayout>
-        <Head title="Contacts" />
+        <Head>
+            <title>Your page title</title>
+            <meta name="description" content="Your page description">
+        </Head>
         <template #header>
             <!-- BG Image, Contacts  -->
             <div class="relative">
