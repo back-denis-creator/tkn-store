@@ -101,5 +101,6 @@ createServer((page) =>
                 .component('Card', Card)
                 .component('AutoComplete', AutoComplete)
         },
-    })
+    }),
+    import.meta.env.VITE_INERTIA_SSR_PORT || 13714
 );
