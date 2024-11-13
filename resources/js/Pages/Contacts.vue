@@ -22,12 +22,31 @@ defineProps({
 <template>
     <GuestLayout>
         <Head>
+            <!-- <title>Контакти</title>
+            <meta property="og:type" content="article" />
+            <meta property="og:site_name" content="Смотреть фильмы и сериалы онлайн в хорошем качестве бесплатно"/>
+            <meta property="og:title" content="Татуировщик из Освенцима" />
+            <meta property="og:description" content="Смотреть онлайн сериал Татуировщик из Освенцима бесплатно в хорошем качестве! Желаем приятного просмотра." />
+            <meta property="og:image" content="https://lamafilm.club/wp-content/uploads/2024/05/5447301.jpg" />
+            <meta property="og:url" content="https://lamafilm.club/film/tatuirovshhik-iz-osvenczima/" /> -->
+
             <title>Контакти</title>
-            <meta property="og:type" content="website" />
-            <meta property="og:title" content="Fusion Backpack You'll Regret Not Having">
-            <meta property="og:url" content="https://og.demo.magefan.top/fusion-backpack.html">
+            <meta name="description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
+
+            <!-- Facebook Meta Tags -->
+            <meta property="og:url" content="https://denys.uno/contacts">
+            <meta property="og:type" content="website">
+            <meta property="og:title" content="Контакти">
             <meta property="og:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
             <meta property="og:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
+
+            <!-- Twitter Meta Tags -->
+            <meta name="twitter:card" content="summary_large_image">
+            <meta property="twitter:domain" content="denys.uno">
+            <meta property="twitter:url" content="https://denys.uno/contacts">
+            <meta name="twitter:title" content="Контакти">
+            <meta name="twitter:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
+            <meta name="twitter:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
         </Head>
         <template #header>
             <!-- BG Image, Contacts  -->
