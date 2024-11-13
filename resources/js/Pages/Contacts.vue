@@ -22,8 +22,12 @@ defineProps({
 <template>
     <GuestLayout>
         <Head>
-            <title>Your page title</title>
-            <meta name="description" content="Your page description">
+            <title>Контакти</title>
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content="Fusion Backpack You'll Regret Not Having">
+            <meta property="og:url" content="https://og.demo.magefan.top/fusion-backpack.html">
+            <meta property="og:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
+            <meta property="og:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
         </Head>
         <template #header>
             <!-- BG Image, Contacts  -->
