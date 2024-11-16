@@ -8,7 +8,9 @@ const form = useForm({ locale: '' })
 
 function changeLanguage(locale) {
   form.locale = locale
-  form.post('/set-locale', {
+  form.post('set-locale', {
+    preserveScroll: true,
+    only: ['locale'],
     onSuccess: () => {
       console.log(`Locale set to ${locale}`)
     },
@@ -93,9 +95,9 @@ const desktopMenuOpen = ref(false)
         <button class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
           {{ $t('Search') }}
         </button>
-        <button @click="changeLanguage('uk')">uk</button>
-        <button @click="changeLanguage('en')">en</button>
-        <button @click="changeLanguage('ru')">ru</button>
+        <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('uk')">uk</button>
+        <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('en')">en</button>
+        <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('ru')">ru</button>
       </form>
 
       <div class="hidden gap-3 md:!flex items-baseline">

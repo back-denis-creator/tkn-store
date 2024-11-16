@@ -62,7 +62,7 @@ createServer((page) =>
             return createSSRApp({ render: () => h(App, props) })
                 .use(plugin)
                 .use(i18nVue, {
-                    lang: () => props.initialPage.props.locale,
+                    lang: () => page.props.locale,
                     resolve: lang => {
                         const langs = import.meta.glob('../../lang/*.json', { eager: true })
                         return langs[`../../lang/${lang}.json`].default
