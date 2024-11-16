@@ -23,10 +23,14 @@ Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/np-cities', [NPController::class, 'cities'])->name('np.cities');
 Route::post('/np-warehouses', [NPController::class, 'warehouses'])->name('np.warehouses');
 
-Route::post('/set-locale', function (Illuminate\Http\Request $request) {
-    $locale = $request->input('locale');
-    session(['locale' => $locale]);
-})->name('set-locale');
+Route::get('/set-locale/{locale}', function ($locale) {
+    if (!in_array($locale, config('app.locales'))) {
+        abort(404);
+    }
+    app()->setLocale($locale);
+    session()->put('locale', $locale);
+    return redirect()->back();
+})->name('locale.set');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

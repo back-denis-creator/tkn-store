@@ -4,24 +4,12 @@ import { getActiveLanguage } from 'laravel-vue-i18n';
 import { Link, useForm } from '@inertiajs/vue3';
 const lang = getActiveLanguage(); 
 
-const form = useForm({ locale: '' })
+const form = useForm({})
 
 function changeLanguage(locale) {
-  form.locale = locale
-  form.post('set-locale', {
-    headers: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    },
+  form.get(route('locale.set', locale), {
     preserveScroll: true,
-    only: ['locale'],
-    onSuccess: () => {
-      console.log(`Locale set to ${locale}`)
-    },
-    onError: (errors) => {
-      console.error('Failed to change locale:', errors)
-    }
+    only: ['locale']
   })
 }
 const navigation = {
@@ -100,9 +88,15 @@ const desktopMenuOpen = ref(false)
         <button class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
           {{ $t('Search') }}
         </button>
-        <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('uk')">uk</button>
-        <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('en')">en</button>
-        <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('ru')">ru</button>
+        <!-- <Link :href="route('locale.set', 'uk')"> -->
+          <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('uk')">uk</button>
+        <!-- </Link> -->
+        <!-- <Link :href="route('locale.set', 'en')"> -->
+          <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('en')">en</button>
+        <!-- </Link> -->
+        <!-- <Link :href="route('locale.set', 'ru')"> -->
+          <button class="mx-1 bg-amber-400 hover:bg-yellow-300" @click="changeLanguage('ru')">ru</button>
+        <!-- </Link> -->
       </form>
 
       <div class="hidden gap-3 md:!flex items-baseline">

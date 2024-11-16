@@ -34,7 +34,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'locale' => fn () => session('locale', config('app.locale')),
+            'locale' => fn () => app()->getLocale(),
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
@@ -42,11 +42,11 @@ class HandleInertiaRequests extends Middleware
         ]);
     }
 
-    public function handle(Request $request, \Closure $next)
-    {
-        // Установка локали из сессии
-        $locale = session('locale', config('app.locale'));
-        app()->setLocale($locale);
-        return parent::handle($request, $next);
-    }
+    // public function handle(Request $request, \Closure $next)
+    // {
+    //     // Установка локали из сессии
+    //     $locale = session('locale', config('app.locale'));
+    //     app()->setLocale($locale);
+    //     return parent::handle($request, $next);
+    // }
 }
