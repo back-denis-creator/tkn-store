@@ -47,7 +47,6 @@ class HandleInertiaRequests extends Middleware
         // Установка локали из сессии
         $locale = session('locale', config('app.locale'));
         app()->setLocale($locale);
-
         return parent::handle($request, $next);
     }
 }

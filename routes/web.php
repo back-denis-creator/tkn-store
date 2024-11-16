@@ -26,7 +26,7 @@ Route::post('/np-warehouses', [NPController::class, 'warehouses'])->name('np.war
 Route::post('/set-locale', function (Illuminate\Http\Request $request) {
     $locale = $request->input('locale');
     session(['locale' => $locale]);
-    return back();
+    return back()->with('locale', $locale);
 })->name('set-locale');
 
 Route::get('/dashboard', function () {
