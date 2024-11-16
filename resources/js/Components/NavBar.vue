@@ -1,12 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getActiveLanguage } from 'laravel-vue-i18n';
+import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
 import { Link, usePage } from '@inertiajs/vue3';
 
 const lang = getActiveLanguage()
 const locale = usePage().props.locale
 onMounted(() => {
-  if(locale !== lang) window.location.reload()
+  if(locale !== lang) {
+    // window.location.reload()
+    loadLanguageAsync(locale)
+  }
 })
 
 const navigation = {
@@ -79,7 +82,6 @@ const desktopMenuOpen = ref(false)
           class="hidden h-9 border-inherit w-11/12 outline-none md:block"
           type="search"
           placeholder="Пошук"
-          :value="lang"
         />
 
         <button class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
