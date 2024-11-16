@@ -1,14 +1,64 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, useForm } from '@inertiajs/vue3';
+import SelectButton from 'primevue/selectbutton';
 
+const options = ref([
+    { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_5293_53603)">
+<rect width="24" height="24" rx="12" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H24V12H0V0Z" fill="#3A99FF"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0 12H24V24H0V12Z" fill="#FFDA2C"/>
+</g>
+<defs>
+<clipPath id="clip0_5293_53603">
+<rect width="24" height="24" rx="12" fill="white"/>
+</clipPath>
+</defs>
+</svg>`, value: 'uk' },
+    { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_5290_53556)">
+<rect width="24" height="24" rx="12" fill="#1A47B8"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0 16H24V24H0V16Z" fill="#F93939"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H24V8H0V0Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_5290_53556">
+<rect width="24" height="24" rx="12" fill="white"/>
+</clipPath>
+</defs>
+</svg>`, value: 'ru' },
+    { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<mask id="mask0_2283_149218" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+<circle cx="12" cy="12" r="12" fill="#C4C4C4"/>
+</mask>
+<g mask="url(#mask0_2283_149218)">
+<rect x="-3.78906" width="31.579" height="24" fill="url(#pattern2)"/>
+</g>
+<defs>
+<pattern id="pattern2" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_2283_149218" transform="matrix(0.0158333 0 0 0.0208333 -0.00666661 0)"/>
+</pattern>
+<image id="image0_2283_149218" width="64" height="48" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAwCAYAAAChS3wfAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGaSURBVHgB7Zi/SgNBEMa/kzMIiYWVBpJCxDZ9GgOiL6BY2Qu2koBd0t8D+AIWYiy1MViktEhjaUhlEQNCCu9QVIjuwh13kqSbnSWzP7g/e98Wy+x9M8N6ld3LCSzmrn8OSpYgnEwAtrfW5k7m1inQASiu5/XVrFf1czW/nJnErVPiqRygIh80ayhu5DF8jXDa6GA4ipJJnPrj/TEo0X9AfzBG72mkP9x2BpnF2aBTkuSA579F7B209Q7EpD3JoZvAm1YGlQ8VQauGRquLMPzCe/RtTE/zUOmBkqkB4M4JaVj6gEX2/H9m9gHcOcEU2gLcnp+nd09yoMT1AeomuQ/w45fYkzvVUiKqnVGL49IVnzdtUGJ9H8BSBguFHC6Cfb1D6qnGJnWTiO8D/PSA2/NpPWbl8AiUWN8HGCmD3J7nzAmuD4hfZtVhbv1tswxKPHcsLhzxAfA+fiZWW4AaZwEIxw/rZ5CM91IuuRwgGVcGx1fXoi3g+gAIx6c+dbUdVwYhHJcDqE9dbceVQQjH5QDqU1fbcRaAcMQH4BcJFg/2Rbu2uwAAAABJRU5ErkJggg=="/>
+</defs>
+</svg>`, value: 'en' },
+]);
+const form = useForm({})
 const activeLang = getActiveLanguage()
 const serverLang = usePage().props.locale
+const selectLang = ref(options.value.find(({value}) => value === serverLang))
 
 onMounted(() => {
   if(serverLang !== activeLang) loadLanguageAsync(serverLang)
 })
+
+const updateLang = (lang) => {
+  form.get(route('locale.set', lang.value), {
+    only: ['locale'],
+    preserveScroll: true
+  })
+}
 
 const navigation = {
     pages: [
@@ -85,17 +135,12 @@ const desktopMenuOpen = ref(false)
         <button class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
           {{ $t('Search') }}
         </button>
-        <Link :href="route('locale.set', 'uk')" :only="['locale']" preserve-scroll>
-          <button class="mx-1 bg-amber-400 hover:bg-yellow-300">uk</button>
-        </Link>
-        <Link :href="route('locale.set', 'en')" :only="['locale']" preserve-scroll>
-          <button class="mx-1 bg-amber-400 hover:bg-yellow-300">en</button>
-        </Link>
-        <Link :href="route('locale.set', 'ru')" :only="['locale']" preserve-scroll>
-          <button class="mx-1 bg-amber-400 hover:bg-yellow-300">ru</button>
-        </Link>
       </form>
-
+      <SelectButton v-model="selectLang" :options="options" @update:modelValue="updateLang" optionLabel="value" dataKey="value" aria-labelledby="custom">
+        <template #option="slotProps">
+            <div v-html="slotProps.option.icon"></div>
+        </template>
+      </SelectButton>
       <div class="hidden gap-3 md:!flex items-baseline">
         <!-- <a
           href="wishlist.html"
