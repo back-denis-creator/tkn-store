@@ -50,7 +50,7 @@ import InputNumber from 'primevue/inputnumber';
 import Card from 'primevue/card';
 import AutoComplete from 'primevue/autocomplete';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Casanel';
 
 createServer((page) =>
     createInertiaApp({
@@ -59,7 +59,8 @@ createServer((page) =>
         title: (title) => `${title} - ${appName}`,
         resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
         setup({ App, props, plugin }) {
-            return createSSRApp({ render: () => h(App, props) })
+            const app = createSSRApp({ render: () => h(App, props) })
+            return app
                 .use(plugin)
                 .use(i18nVue, {
                     lang: page.props.locale,

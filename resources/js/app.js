@@ -58,13 +58,17 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        return createSSRApp({ render: () => h(App, props) })
+        const app = createSSRApp({ render: () => h(App, props) })
+        return app
             .use(plugin)
             .use(i18nVue, {
               lang: props.initialPage.props.locale,
               resolve: async lang => {
                   const langs = import.meta.glob('../../lang/*.json')
                   return await langs[`../../lang/${lang}.json`]()
+              },
+              onLoad: () => {
+                app.mount(el) // Mounted here so translations are loaded before vue.
               }
             })
             .use(ZiggyVue)
@@ -104,7 +108,6 @@ createInertiaApp({
             .component('InputNumber', InputNumber)
             .component('Card', Card)
             .component('AutoComplete', AutoComplete)
-            .mount(el);
     },
     progress: {
         color: '#4B5563',
