@@ -34,10 +34,20 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'locale' => fn () => session('locale', config('app.locale')),
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
         ]);
+    }
+
+    public function handle(Request $request, \Closure $next)
+    {
+        // Установка локали из сессии
+        $locale = session('locale', config('app.locale'));
+        app()->setLocale($locale);
+
+        return parent::handle($request, $next);
     }
 }

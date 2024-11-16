@@ -4,6 +4,7 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import createServer from '@inertiajs/vue3/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { i18nVue } from 'laravel-vue-i18n'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import ToastService from 'primevue/toastservice'
@@ -60,6 +61,13 @@ createServer((page) =>
         setup({ App, props, plugin }) {
             return createSSRApp({ render: () => h(App, props) })
                 .use(plugin)
+                .use(i18nVue, {
+                    lang: () => props.initialPage.props.locale,
+                    resolve: lang => {
+                        const langs = import.meta.glob('../../lang/*.json', { eager: true })
+                        return langs[`../../lang/${lang}.json`].default
+                    },
+                })
                 .use(ZiggyVue, {
                     ...page.props.ziggy,
                     location: new URL(page.props.ziggy.location),

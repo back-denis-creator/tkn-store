@@ -23,6 +23,13 @@ Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/np-cities', [NPController::class, 'cities'])->name('np.cities');
 Route::post('/np-warehouses', [NPController::class, 'warehouses'])->name('np.warehouses');
 
+Route::post('/set-locale', function (Illuminate\Http\Request $request) {
+    $locale = $request->input('locale');
+    session(['locale' => $locale]);
+    app()->setLocale($locale);
+    return back();
+});
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'admin', 'verified'])->name('dashboard');

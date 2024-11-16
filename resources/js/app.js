@@ -6,6 +6,7 @@ import { createSSRApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { i18nVue } from 'laravel-vue-i18n'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import ToastService from 'primevue/toastservice'
@@ -51,7 +52,7 @@ import InputNumber from 'primevue/inputnumber';
 import Card from 'primevue/card';
 import AutoComplete from 'primevue/autocomplete';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Casanel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -59,6 +60,13 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         return createSSRApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(i18nVue, {
+              lang: props.initialPage.props.locale,
+              resolve: async lang => {
+                  const langs = import.meta.glob('../../lang/*.json')
+                  return await langs[`../../lang/${lang}.json`]()
+              }
+            })
             .use(ZiggyVue)
             .use(PrimeVue, {
                 theme: {

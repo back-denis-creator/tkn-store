@@ -1,6 +1,22 @@
 <script setup>
 import { ref } from 'vue'
-import { Link } from '@inertiajs/vue3';
+import { getActiveLanguage } from 'laravel-vue-i18n';
+import { Link, useForm } from '@inertiajs/vue3';
+const lang = getActiveLanguage(); 
+
+const form = useForm({ locale: '' })
+
+function changeLanguage(locale) {
+  form.locale = locale
+  form.post('/set-locale', {
+    onSuccess: () => {
+      console.log(`Locale set to ${locale}`)
+    },
+    onError: (errors) => {
+      console.error('Failed to change locale:', errors)
+    }
+  })
+}
 const navigation = {
     pages: [
         { name: 'Контакти', route: 'contacts' },
@@ -71,11 +87,15 @@ const desktopMenuOpen = ref(false)
           class="hidden h-9 border-inherit w-11/12 outline-none md:block"
           type="search"
           placeholder="Пошук"
+          :value="lang"
         />
 
         <button class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
-          Пошук
+          {{ $t('Search') }}
         </button>
+        <button @click="changeLanguage('uk')">uk</button>
+        <button @click="changeLanguage('en')">en</button>
+        <button @click="changeLanguage('ru')">ru</button>
       </form>
 
       <div class="hidden gap-3 md:!flex items-baseline">
