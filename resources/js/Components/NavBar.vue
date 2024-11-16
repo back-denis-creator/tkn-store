@@ -3,13 +3,11 @@ import { ref, onMounted } from 'vue'
 import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
 import { Link, usePage } from '@inertiajs/vue3';
 
-const lang = getActiveLanguage()
-const locale = usePage().props.locale
+const activeLang = getActiveLanguage()
+const serverLang = usePage().props.locale
+
 onMounted(() => {
-  if(locale !== lang) {
-    // window.location.reload()
-    loadLanguageAsync(locale)
-  }
+  if(serverLang !== activeLang) loadLanguageAsync(serverLang)
 })
 
 const navigation = {
