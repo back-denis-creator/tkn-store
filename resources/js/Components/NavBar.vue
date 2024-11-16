@@ -1,19 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getActiveLanguage } from 'laravel-vue-i18n';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
-const lang = getActiveLanguage(); 
+import { Link, usePage } from '@inertiajs/vue3';
 
-// const form = useForm({})
-
-const locale = usePage().props.locale;
-
+const lang = getActiveLanguage()
+const locale = usePage().props.locale
 onMounted(() => {
-  console.log('lang: ', lang)
-  console.log('locale: ', locale)
-  if(locale !== lang) {
-    window.location.reload();
-  }
+  if(locale !== lang) window.location.reload()
 })
 
 const navigation = {

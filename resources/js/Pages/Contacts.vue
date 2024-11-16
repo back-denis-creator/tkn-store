@@ -30,13 +30,13 @@ defineProps({
             <meta property="og:image" content="https://lamafilm.club/wp-content/uploads/2024/05/5447301.jpg" />
             <meta property="og:url" content="https://lamafilm.club/film/tatuirovshhik-iz-osvenczima/" /> -->
 
-            <title>Контакти</title>
+            <title>{{ $t('Contacts') }}</title>
             <meta name="description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
 
             <!-- Facebook Meta Tags -->
             <meta property="og:url" content="https://denys.uno/contacts">
             <meta property="og:type" content="website">
-            <meta property="og:title" content="Контакти">
+            <meta property="og:title" :content="$t('Contacts')">
             <meta property="og:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
             <meta property="og:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
 
@@ -44,7 +44,7 @@ defineProps({
             <meta name="twitter:card" content="summary_large_image">
             <meta property="twitter:domain" content="denys.uno">
             <meta property="twitter:url" content="https://denys.uno/contacts">
-            <meta name="twitter:title" content="Контакти">
+            <meta name="twitter:title" :content="$t('Contacts')">
             <meta name="twitter:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
             <meta name="twitter:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
         </Head>
