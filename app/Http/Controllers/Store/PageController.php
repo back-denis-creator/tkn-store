@@ -178,7 +178,36 @@ class PageController extends Controller
 
     public function cart()
     {
+        // Получение данных из корзины
+        $cartProducts = session('cart', []);
+        $cartItems = collect($cartProducts);
 
+        // Получение всех уникальных product_id
+        $productIds = $cartItems->pluck('product_id')->unique();
+
+        // Получение товаров из базы с нужными связями
+        $products = Product::with('categories')
+            ->whereIn('id', $productIds)
+            ->get();
+
+        // Преобразование товаров в коллекцию с учетом каждого элемента корзины
+        $productsWithCartQuantity = $cartItems->map(function ($cartItem) use ($products) {
+            // Найти товар по product_id
+            $product = $products->firstWhere('id', $cartItem['product_id']);
+            if ($product) {
+                // Клонирование товара для работы с каждым SKU отдельно
+                $productCopy = clone $product;
+                // Загрузка одного SKU по sku_id из корзины и связанных данных
+                $productCopy->setRelation('skus', $product->skus()->where('id', $cartItem['sku_id'])->with([
+                    'attributeOptions.media',
+                    'attributeOptions.attribute' // Добавление связи attribute
+                ])->get());
+                // Добавление данных из корзины
+                $productCopy->quantity = $cartItem['quantity'] ?? 0;
+                return $productCopy;
+            }
+            return null;
+        })->filter();
 
         return Inertia::render('Cart', [
             'canLogin' => Route::has('login'),
@@ -186,7 +215,7 @@ class PageController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
             'status' => session('status'),
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn() => $productsWithCartQuantity,
         ]);
     }
 

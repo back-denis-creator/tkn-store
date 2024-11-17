@@ -37,14 +37,14 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head :title="$t('Log in')" />
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
         <!-- Login card  -->
         <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2 mt-10 mb-10">
           <div class="">
-            <p class="text-4xl font-bold uppercase">{{ $t("Log In") }}</p>
+            <p class="text-4xl font-bold uppercase">{{ $t("Log in") }}</p>
             <p>{{ $t("Welcome") }}! 👋🏻</p>
           </div>
 
@@ -87,7 +87,7 @@ const submit = () => {
             </div>
 
             <Button :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="my-5 w-full uppercase" @click="submit">
-              {{ $t("Log In") }}
+              {{ $t("Log in") }}
             </Button>
           </form>
         </div>

@@ -13,8 +13,7 @@ class CartController extends Controller
         $productData = [
             'product_id' => $request->input('product_id'),
             'sku_id' => $request->input('sku_id'),
-            'quantity' => $request->input('quantity'),
-            'price' => $request->input('price')
+            'quantity' => $request->input('quantity')
         ];
 
         // Получаем текущую корзину из сессии
@@ -23,7 +22,7 @@ class CartController extends Controller
         // Проверяем наличие товара в корзине
         $existProduct = false;
         foreach ($cart as $item) {
-            if($productData['product_id'] === $item['product_id']) {
+            if($productData['sku_id'] === $item['sku_id']) {
                 $existProduct = true;
                 break;
             }
@@ -43,7 +42,7 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
 
         $updated = array_map(function ($item) use($request) { 
-            if($request->has('productId') && $request->productId !== $item['product_id']) {
+            if($request->has('skuId') && $request->skuId !== $item['sku_id']) {
                 return $item;
             }
         }, $cart);

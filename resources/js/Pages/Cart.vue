@@ -261,7 +261,7 @@
                       <div v-for="(item, index) in slotProps.items" :key="index">
                           <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4" :class="{ 'border-t border-surface-200 dark:border-surface-700': index !== 0 }">
                               <div class="md:w-40 relative">
-                                  <img class="block xl:block mx-auto rounded w-full" :src="`https://primefaces.org/cdn/primevue/images/product/${item.image}`" :alt="item.name" />
+                                  <img class="block xl:block mx-auto rounded max-h-24" :src="item.skus[0]?.media[0]?.original_url" :alt="item.name" />
                                   <div class="absolute bg-black/70 rounded-border" style="left: 4px; top: 4px">
                                       <!-- <Tag :value="item.inventoryStatus" :severity="getSeverity(item)"></Tag> -->
                                   </div>
@@ -272,11 +272,14 @@
                                           <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.category }}</span>
                                           <div class="text-lg font-medium mt-2">{{ item.name }}</div>
                                       </div>
-                                      <div class="bg-surface-100 p-1" style="border-radius: 30px">
-                                          <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2" style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
+                                      <div class="bg-surface-100 p-1 text-xs" style="border-radius: 30px">
+                                          <div v-for="option in item.skus[0]?.attribute_options">
+                                            <span>{{ option.attribute.name }}: {{ option.value }}</span>
+                                          </div>
+                                          <!-- <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2" style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
                                               <span class="text-surface-900 font-medium text-sm">{{ item.rating }}</span>
                                               <i class="pi pi-star-fill text-yellow-500"></i>
-                                          </div>
+                                          </div> -->
                                       </div>
                                   </div>
                                   <!-- md:items-end gap-8 -->
@@ -296,6 +299,19 @@
                                           <Button icon="pi pi-heart" outlined></Button>
                                           <Button icon="pi pi-shopping-cart" label="Buy Now" :disabled="item.inventoryStatus === 'OUTOFSTOCK'" class="flex-auto md:flex-initial whitespace-nowrap"></Button>
                                       </div> -->
+                                  </div>
+                                  <div @click="deleteFromCart(item.skus[0]?.id)" class="m-0 h-5 w-5 cursor-pointer">
+                                      <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                          fill="currentColor"
+                                      >
+                                          <path
+                                              fill-rule="evenodd"
+                                              d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                                              clip-rule="evenodd"
+                                          />
+                                      </svg>
                                   </div>
                               </div>
                           </div>
@@ -411,10 +427,10 @@ const goToCheckout = () => {
     router.visit(route('checkout'), { preserveScroll: true })
 }
 
-const form = useForm({ productId: null })
+const form = useForm({ skuId: null })
 
-const deleteFromCart = (productId) => {
-    Object.assign(form, { productId })
+const deleteFromCart = (skuId) => {
+    Object.assign(form, { skuId })
     form.delete(route('cart.delete'), {
         preserveScroll: true,
         onSuccess: () => {

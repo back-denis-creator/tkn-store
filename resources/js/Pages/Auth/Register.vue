@@ -22,11 +22,11 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head :title="$t('Sign up')" />
         <!-- Register card  -->
         <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2">
           <div class="">
-            <p class="text-4xl font-bold uppercase">{{ $t("Sign Up") }}</p>
+            <p class="text-4xl font-bold uppercase">{{ $t("Sign up") }}</p>
             <p>{{ $t("Create a user") }}</p>
           </div>
 
@@ -88,7 +88,7 @@ const submit = () => {
             </div>
 
             <Button class="my-5 w-full uppercase" :class="{ 'opacity-25': form.processing }" :disabled="form.processing" @click="submit">
-              {{ $t("Sign Up") }}
+              {{ $t("Sign up") }}
             </Button>
           </form>
         </div>

@@ -470,7 +470,7 @@ const setIsOpen = (value) => {
                   :href="route('login')"
                   class="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
               >
-                  {{ $t("Log In") }}
+                  {{ $t("Log in") }}
               </Link>
               <span class="text-white">&#124;</span>
               <Link
@@ -478,7 +478,7 @@ const setIsOpen = (value) => {
                   :href="route('register')"
                   class="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
               >
-                  {{ $t("Sign Up") }}
+                  {{ $t("Sign up") }}
               </Link>
           </template>
         </div>
