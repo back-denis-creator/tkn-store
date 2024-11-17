@@ -1,4 +1,22 @@
 {
     "Contacts": "Contacts",
-    "Search": "Search"
+    "Search": "Search",
+    "Cart": "Cart",
+    "Account": "Account",
+    "Categories": "Categories",
+    "Cabinet": "Cabinet",
+    "Login": "Login",
+    "Registration": "Registration",
+    "Catalog": "Catalog",
+    "Authorization": "Authorization",
+    "Email": "Email",
+    "Password": "Password",
+    "Log In": "Log In",
+    "Remember me": "Remember me",
+    "Forgot Password?": "Forgot Password?",
+    "Sign Up": "Sign Up",
+    "Confirm Password": "Confirm Password",
+    "Name": "Name",
+    "Welcome": "Welcome",
+    "Create a user": "Create a user"
 }

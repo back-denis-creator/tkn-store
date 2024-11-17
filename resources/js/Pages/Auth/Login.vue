@@ -44,12 +44,12 @@ const submit = () => {
         <!-- Login card  -->
         <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2 mt-10 mb-10">
           <div class="">
-            <p class="text-4xl font-bold">Авторизація</p>
-            <p>Ласкаво просимо! 👋🏻</p>
+            <p class="text-4xl font-bold uppercase">{{ $t("Log In") }}</p>
+            <p>{{ $t("Welcome") }}! 👋🏻</p>
           </div>
 
-          <form class="mt-6 flex flex-col" @submit.prevent="submit">
-            <label for="email">Пошта</label>
+          <form class="mt-6 flex flex-col">
+            <label for="email">{{ $t("Email") }}</label>
             <input
               id="email"
               v-model="form.email"
@@ -61,7 +61,7 @@ const submit = () => {
               autocomplete="username"
             />
             <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
-            <label for="password">Пароль</label>
+            <label for="password">{{ $t("Password") }}</label>
             <input
               id="password"
               v-model="form.password"
@@ -75,38 +75,20 @@ const submit = () => {
             <div class="mt-4 flex justify-between">
               <div class="flex gap-2 items-center">
                 <input type="checkbox" v-model="form.remember" />
-                <label for="checkbox">Запам'ятати</label>
+                <label for="checkbox">{{  $t("Remember me") }}</label>
               </div>
               <Link
                 v-if="canResetPassword"
                 :href="route('password.request')"
                 class="text-emerald-500"
               >
-                Забули пароль?
+                {{ $t("Forgot Password?") }}
               </Link>
             </div>
 
-            <button :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="my-5 w-full bg-emerald-500 py-2 text-white">
-              УВІЙТИ
-            </button>
-
-            <p class="text-center text-gray-500">АБО ЧЕРЕЗ</p>
-
-            <div class="my-5 flex gap-2">
-              <button class="w-1/2 bg-blue-800 py-2 text-white">FACEBOOK</button>
-              <button class="w-1/2 bg-orange-500 py-2 text-white">GOOGLE</button>
-            </div>
-
-            <p class="text-center">
-              Немає акаунта?
-              <Link
-                :href="route('register')"
-                class="text-emerald-500"
-              >
-                Створити
-              </Link>
-              <!-- <a href="sign-up.html" class="text-violet-900">Створити</a> -->
-            </p>
+            <Button :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="my-5 w-full uppercase" @click="submit">
+              {{ $t("Log In") }}
+            </Button>
           </form>
         </div>
       <!-- /Login Card  -->

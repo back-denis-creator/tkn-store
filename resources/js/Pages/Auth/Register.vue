@@ -26,12 +26,12 @@ const submit = () => {
         <!-- Register card  -->
         <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2">
           <div class="">
-            <p class="text-4xl font-bold">РЕЄСТРАЦІЯ</p>
-            <p>Створення користувача</p>
+            <p class="text-4xl font-bold uppercase">{{ $t("Sign Up") }}</p>
+            <p>{{ $t("Create a user") }}</p>
           </div>
 
-          <form class="mt-6 flex flex-col" @submit.prevent="submit">
-            <label for="name">Імʼя</label>
+          <form class="mt-6 flex flex-col">
+            <label for="name">{{ $t("Name") }}</label>
             <input
               id="name"
               class="mb-3 mt-3 border px-4 py-2"
@@ -43,7 +43,7 @@ const submit = () => {
               autocomplete="name"
             />
             <!-- <InputError class="mt-2" :message="form.errors.name" /> -->
-            <label class="mt-3" for="email">Пошта</label>
+            <label class="mt-3" for="email">{{ $t("Email") }}</label>
             <input
               id="email"
               class="mt-3 border px-4 py-2"
@@ -54,7 +54,7 @@ const submit = () => {
               autocomplete="username"
             />
             <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
-            <label class="mt-5" for="password">Пароль</label>
+            <label class="mt-5" for="password">{{ $t("Password") }}</label>
             <input
               id="password"
               class="mt-3 border px-4 py-2"
@@ -65,7 +65,7 @@ const submit = () => {
               autocomplete="new-password"
             />
             <!-- <InputError class="mt-2" :message="form.errors.password" /> -->
-            <label class="mt-5" for="password_confirmation">Підтвердження паролю</label>
+            <label class="mt-5" for="password_confirmation">{{ $t("Confirm Password") }}</label>
             <input
               id="password_confirmation"
               class="mt-3 border px-4 py-2"
@@ -87,27 +87,10 @@ const submit = () => {
               </div>
             </div>
 
-            <button class="my-5 w-full bg-emerald-500 py-2 text-white" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-              ЗАРЕЄСТРУВАТИСЯ
-            </button>
+            <Button class="my-5 w-full uppercase" :class="{ 'opacity-25': form.processing }" :disabled="form.processing" @click="submit">
+              {{ $t("Sign Up") }}
+            </Button>
           </form>
-
-          <p class="text-center text-gray-500">АБО ЧЕРЕЗ</p>
-
-          <div class="my-5 flex gap-2">
-            <button class="w-1/2 bg-blue-800 py-2 text-white">FACEBOOK</button>
-            <button class="w-1/2 bg-orange-500 py-2 text-white">GOOGLE</button>
-          </div>
-
-          <p class="text-center">
-            Вже маєте акаунт?
-            <Link
-                :href="route('login')"
-                class="text-emerald-500"
-            >
-              Логін
-            </Link>
-          </p>
         </div>
       <!-- /Register Card  -->
     </GuestLayout>

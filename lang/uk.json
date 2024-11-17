@@ -1,4 +1,22 @@
 {
     "Contacts": "Контакти",
-    "Search": "Пошук"
+    "Search": "Пошук",
+    "Cart": "Кошик",
+    "Account": "Аккаунт",
+    "Categories": "Категорії",
+    "Cabinet": "Кабінет",
+    "Login": "Логін",
+    "Registration": "Реєстрація",
+    "Catalog": "Каталог",
+    "Authorization": "Авторизація",
+    "Email": "Пошта",
+    "Password": "Пароль",
+    "Log In": "Увійти",
+    "Remember me": "Запам'ятати",
+    "Forgot Password?": "Забули пароль?",
+    "Sign Up": "Зареєструватися",
+    "Confirm Password": "Підтвердження пароля",
+    "Name": "Імʼя",
+    "Welcome": "Ласкаво просимо",
+    "Create a user": "Створіть користувача"
 }

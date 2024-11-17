@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
-import SelectButton from 'primevue/selectbutton';
 
 const options = ref([
     { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -16,7 +15,7 @@ const options = ref([
 <rect width="24" height="24" rx="12" fill="white"/>
 </clipPath>
 </defs>
-</svg>`, value: 'uk' },
+</svg>`, name: 'Український', value: 'uk' },
     { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_5290_53556)">
 <rect width="24" height="24" rx="12" fill="#1A47B8"/>
@@ -28,7 +27,7 @@ const options = ref([
 <rect width="24" height="24" rx="12" fill="white"/>
 </clipPath>
 </defs>
-</svg>`, value: 'ru' },
+</svg>`, name: 'Русский', value: 'ru' },
     { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <mask id="mask0_2283_149218" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
 <circle cx="12" cy="12" r="12" fill="#C4C4C4"/>
@@ -42,9 +41,10 @@ const options = ref([
 </pattern>
 <image id="image0_2283_149218" width="64" height="48" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAwCAYAAAChS3wfAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGaSURBVHgB7Zi/SgNBEMa/kzMIiYWVBpJCxDZ9GgOiL6BY2Qu2koBd0t8D+AIWYiy1MViktEhjaUhlEQNCCu9QVIjuwh13kqSbnSWzP7g/e98Wy+x9M8N6ld3LCSzmrn8OSpYgnEwAtrfW5k7m1inQASiu5/XVrFf1czW/nJnErVPiqRygIh80ayhu5DF8jXDa6GA4ipJJnPrj/TEo0X9AfzBG72mkP9x2BpnF2aBTkuSA579F7B209Q7EpD3JoZvAm1YGlQ8VQauGRquLMPzCe/RtTE/zUOmBkqkB4M4JaVj6gEX2/H9m9gHcOcEU2gLcnp+nd09yoMT1AeomuQ/w45fYkzvVUiKqnVGL49IVnzdtUGJ9H8BSBguFHC6Cfb1D6qnGJnWTiO8D/PSA2/NpPWbl8AiUWN8HGCmD3J7nzAmuD4hfZtVhbv1tswxKPHcsLhzxAfA+fiZWW4AaZwEIxw/rZ5CM91IuuRwgGVcGx1fXoi3g+gAIx6c+dbUdVwYhHJcDqE9dbceVQQjH5QDqU1fbcRaAcMQH4BcJFg/2Rbu2uwAAAABJRU5ErkJggg=="/>
 </defs>
-</svg>`, value: 'en' },
+</svg>`, name: 'English', value: 'en' },
 ]);
 const form = useForm({})
+const search = ref('')
 const activeLang = getActiveLanguage()
 const serverLang = usePage().props.locale
 const selectLang = ref(options.value.find(({value}) => value === serverLang))
@@ -62,12 +62,17 @@ const updateLang = (lang) => {
 
 const navigation = {
     pages: [
-        { name: 'Контакти', route: 'contacts' },
-        { name: 'Каталог', route: 'catalog' },
+        { name: 'Contacts', route: 'contacts' },
+        { name: 'Catalog', route: 'catalog' },
     ],
 }
 const mobileMenuOpen = ref(false)
 const desktopMenuOpen = ref(false)
+
+const isOpen = ref(false)
+const setIsOpen = (value) => {
+  isOpen.value = value
+}
 </script>
 <template>
   <div>
@@ -129,18 +134,54 @@ const desktopMenuOpen = ref(false)
         <input
           class="hidden h-9 border-inherit w-11/12 outline-none md:block"
           type="search"
-          placeholder="Пошук"
+          :placeholder="$t('Search')"
+          v-model="search"
         />
 
         <button class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
           {{ $t('Search') }}
         </button>
       </form>
-      <SelectButton v-model="selectLang" :options="options" @update:modelValue="updateLang" optionLabel="value" dataKey="value" aria-labelledby="custom">
-        <template #option="slotProps">
-            <div v-html="slotProps.option.icon"></div>
-        </template>
-      </SelectButton>
+
+      <div class="flex items-center z-40">
+          <div class="relative inline-block text-left">
+              <div>
+                <!-- focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 -->
+                  <button
+                      @click="setIsOpen(!isOpen)"
+                      type="button"
+                      class="inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                      :id="selectLang.value"
+                      aria-haspopup="true"
+                      :aria-expanded="isOpen"
+                  >
+                      <div :class="`fi fis fiCircle inline-block mr-2 fi-${selectLang.value}`" v-html="selectLang.icon" />
+                      {{ selectLang.name }}
+                  </button>
+              </div>
+              <div
+                  v-if="isOpen"
+                  class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="language-selector"
+              >
+                  <div class="py-1 grid grid-cols-1 gap-2" role="none">
+                      <button
+                          v-for="(language, index) in options"
+                          :key="language.value"
+                          @click="updateLang(language)"
+                          :class="`${selectLang.value === language.value ? 'bg-gray-100 text-gray-900' : 'text-gray-700'}  block px-4 py-2 text-sm text-left items-center inline-flex hover:bg-gray-100 ${index % 2 === 0 ? 'rounded-r' : 'rounded-l'}`"
+                          role="menuitem"
+                      >
+                          <div :class="`fi fis fiCircle inline-block mr-2 fi-${language.value}`" v-html="language.icon" />
+                          <span class="truncate">{{ language.name }}</span>
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
       <div class="hidden gap-3 md:!flex items-baseline">
         <!-- <a
           href="wishlist.html"
@@ -305,7 +346,7 @@ const desktopMenuOpen = ref(false)
               />
             </svg>
 
-            <p class="text-xs">Аккаунт</p>
+            <p class="text-xs">{{ $t("Account") }}</p>
           </Link>
 
           <a
@@ -325,7 +366,7 @@ const desktopMenuOpen = ref(false)
               />
             </svg>
 
-            <p class="text-xs">Кошик</p>
+            <p class="text-xs">{{ $t("Cart") }}</p>
           </a>
         </div>
 
@@ -355,7 +396,7 @@ const desktopMenuOpen = ref(false)
             type="submit"
             class="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300"
           >
-            Пошук
+            {{ $t("Search") }}
           </button>
         </form>
 
@@ -367,7 +408,7 @@ const desktopMenuOpen = ref(false)
                 :href="route(page.route)"
                 class="py-2"
             >
-                {{ page.name }}
+                {{ $t(page.name) }}
             </Link>
           </li>
         </ul>
@@ -401,8 +442,7 @@ const desktopMenuOpen = ref(false)
                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
               />
             </svg>
-
-            Категорії
+            {{ $t("Categories") }}
           </div>
         </button>
 
@@ -413,7 +453,7 @@ const desktopMenuOpen = ref(false)
               :href="route(page.route)"
               class="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
           >
-              {{ page.name }}
+              {{ $t(page.name) }}
           </Link>
         </div>
 
@@ -423,14 +463,14 @@ const desktopMenuOpen = ref(false)
               :href="route('dashboard')"
               class="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
           >
-              Кабінет
+              {{ $t("Cabinet") }}
           </Link>
           <template v-if="!$page.props.auth.user">
               <Link
                   :href="route('login')"
                   class="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
               >
-                  Логін
+                  {{ $t("Log In") }}
               </Link>
               <span class="text-white">&#124;</span>
               <Link
@@ -438,7 +478,7 @@ const desktopMenuOpen = ref(false)
                   :href="route('register')"
                   class="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
               >
-                  Реєстрація
+                  {{ $t("Sign Up") }}
               </Link>
           </template>
         </div>
@@ -684,5 +724,14 @@ const desktopMenuOpen = ref(false)
   :deep(.p-overlaybadge .p-badge) {
     min-width: 1rem;
     height: 1rem;
+  }
+  .fiCircle {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 24px !important;
+    border-radius: 100%;
+    border: none;
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .06);
+    background: white;
   }
 </style>

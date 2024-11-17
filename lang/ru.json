@@ -1,4 +1,22 @@
 {
     "Contacts": "Контакты",
-    "Search": "Поиск"
+    "Search": "Поиск",
+    "Cart": "Корзина",
+    "Account": "Аккаунт",
+    "Categories": "Категории",
+    "Cabinet": "Кабинет",
+    "Login": "Логин",
+    "Registration": "Регистрация",
+    "Catalog": "Каталог",
+    "Authorization": "Авторизация",
+    "Email": "Почта",
+    "Password": "Пароль",
+    "Log In": "Войти",
+    "Remember me": "Запомнить",
+    "Forgot Password?": "Забули пароль?",
+    "Sign Up": "Зарегистрироваться",
+    "Confirm Password": "Подтверджение пароля",
+    "Name": "Имя",
+    "Welcome": "Добро пожаловать",
+    "Create a user": "Создайте пользователя"
 }
