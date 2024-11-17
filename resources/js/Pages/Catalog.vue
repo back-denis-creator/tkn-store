@@ -188,7 +188,7 @@
 
                             <div>
                                 <Button class="my-5 h-10 w-full" @click="addToCart(product.id)">
-                                    Додати у кошик
+                                    {{ $t("Add to cart") }}
                                 </Button>
                             </div>
                         </div>
@@ -200,6 +200,11 @@
     </GuestLayout>
 </template>
 <script setup>
+import Accordion from 'primevue/accordion';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent';
+import Tree from 'primevue/tree';
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import { ref, onMounted, computed } from "vue"

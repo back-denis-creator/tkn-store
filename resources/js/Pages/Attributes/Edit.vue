@@ -1,4 +1,5 @@
 <script setup>
+import FileUpload from 'primevue/fileupload';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";

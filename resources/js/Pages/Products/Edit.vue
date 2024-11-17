@@ -1,4 +1,16 @@
 <script setup>
+import Editor from 'primevue/editor';
+Editor.methods.renderValue = function renderValue(value) {
+    if (this.quill) {
+      if (value) {
+        const delta = this.quill.clipboard.convert({ html: value });
+        this.quill.setContents(delta, 'silent');
+      } else {
+        this.quill.setText('');
+      }
+    }
+};
+import FileUpload from 'primevue/fileupload';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';

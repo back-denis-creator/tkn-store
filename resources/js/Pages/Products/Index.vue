@@ -157,6 +157,8 @@
 </template>
 
 <script setup>
+import FileUpload from 'primevue/fileupload';
+import DataTable from 'primevue/datatable';
 import { router } from '@inertiajs/vue3';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";

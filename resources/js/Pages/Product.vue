@@ -37,7 +37,7 @@
             Категорії: <span class="font-normal">Sofa</span>
           </p>
           <p class="font-bold">
-            Артикул: <span class="font-normal">{{ selectedSku?.code }}</span>
+            {{ $t("Sku") }}: <span class="font-normal">{{ selectedSku?.code }}</span>
           </p>
 
           <p class="mt-4 text-4xl font-bold text-emerald-500">
@@ -83,7 +83,7 @@
           </div>
 
           <div class="mt-6">
-            <p class="pb-2 text-xs text-gray-500">Кількість</p>
+            <p class="pb-2 text-xs text-gray-500">{{ $t("Quantity") }}</p>
 
             <div class="flex">
               <button
@@ -109,7 +109,7 @@
           <div class="mt-7 flex flex-row items-center gap-6">
             <!-- class="flex h-12 w-1/3 items-center justify-center" -->
             <Button
-                label="Додати у кошик"
+                :label="$t('Add to cart')"
                 icon="pi pi-shopping-bag"
                 @click="addToCart()"
                 class="w-1/3"
@@ -580,6 +580,7 @@
     </GuestLayout>
 </template>
 <script setup>
+import Galleria from 'primevue/galleria'
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { ref, onMounted, computed } from "vue"
