@@ -19,6 +19,7 @@ Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
 Route::get('/cart', [PageController::class, 'cart'])->name('cart');
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/delete', [CartController::class, 'deleteFromCart'])->name('cart.delete');
+Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/np-cities', [NPController::class, 'cities'])->name('np.cities');
 Route::post('/np-warehouses', [NPController::class, 'warehouses'])->name('np.warehouses');

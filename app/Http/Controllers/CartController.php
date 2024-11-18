@@ -52,6 +52,22 @@ class CartController extends Controller
         return back()->with('status', __('Successfully'));
     }
 
+    public function updateCart(Request $request)
+    {
+        // Получаем текущую корзину из сессии
+        $cart = session()->get('cart', []);
+
+        $updated = array_map(function ($item) use($request) { 
+            if($request->has('skuId') && $request->skuId === $item['sku_id']) {
+                $item['quantity'] = $request->quantity;
+            }
+            return $item;
+        }, $cart);
+
+        session(['cart' => array_values(array_filter($updated))]);
+
+        return back();
+    }
 
     // public function checkout(Request $request)
     // {

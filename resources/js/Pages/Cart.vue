@@ -401,7 +401,9 @@ import Summary from '@/Components/Summary.vue';
 import DataView from 'primevue/dataview';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
+import { useToast } from "primevue/usetoast"
 
+const toast = useToast()
 const props = defineProps({
     canLogin: {
         type: Boolean,
@@ -427,7 +429,7 @@ const goToCheckout = () => {
     router.visit(route('checkout'), { preserveScroll: true })
 }
 
-const form = useForm({ skuId: null })
+const form = useForm({ skuId: null, quantity: null })
 
 const deleteFromCart = (skuId) => {
     Object.assign(form, { skuId })
@@ -448,6 +450,19 @@ const updateQuantity = (index, action) => {
     } else if (props.cart[index].quantity > 1) {
         props.cart[index].quantity --
     }
+    console.log('props.cart[index]: ', props.cart[index])
+    Object.assign(form, { skuId: props.cart[index].skus[0].id, quantity: props.cart[index].quantity })
+    console.log('form: ', form)
+    form.post(route('cart.update'), {
+        preserveScroll: true,
+        only: ['cart'],
+        onSuccess: () => {
+            toast.add({ severity: 'success', summary: 'Оновленно', life: 3000 })
+        },
+        onError: () => {
+
+        },
+    })
 }
 
 </script>

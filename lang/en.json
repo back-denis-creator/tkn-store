@@ -21,5 +21,10 @@
     "Create a user": "Create a user",
     "Add to cart": "Add to cart",
     "Quantity": "Quantity",
-    "Sku": "Sku"
+    "Sku": "Sku",
+    "Order amount": "Order amount",
+    "Total": "Total",
+    "Subtotal": "Subtotal",
+    "Make an order": "Make an order",
+    "Order": "Order"
 }
