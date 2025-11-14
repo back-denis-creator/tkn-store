@@ -1,8 +1,8 @@
 [program:laravel-worker]
-command=php /home/tg562619/denys.uno/www/artisan inertia:start-ssr
+command=php /home/casanel/casanel.online/www/artisan inertia:start-ssr
 autostart=true
 autorestart=true
 user=www-data
 numprocs=1
 redirect_stderr=true
-stdout_logfile=/home/tg562619/denys.uno/laravel-worker.log
+stdout_logfile=/home/casanel/casanel.online/laravel-worker.log
