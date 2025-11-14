@@ -1,6 +1,7 @@
 <template>
     <Head title="Welcome" />
-    <div class="bg-white">
+    <!-- class="bg-white" -->
+    <div>
         <NavBar />
         <WelcomeBlock />
         <ConsBages />
