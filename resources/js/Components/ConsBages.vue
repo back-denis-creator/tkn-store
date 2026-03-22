@@ -1,89 +1,126 @@
 <template>
     <section
-      class="container mx-auto my-8 flex flex-col justify-center gap-3 lg:flex-row"
+      class="container mx-auto my-12 flex flex-col justify-center gap-6 lg:flex-row px-5"
     >
-      <!-- 1 -->
-      <div
-        class="mx-5 flex flex-row items-center justify-center border-2 border-yellow-400 py-4 px-5"
-      >
-        <div class="">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="h-6 w-6 text-emerald-500 lg:mr-2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
-            />
-          </svg>
-        </div>
+      <!-- 1: Individual Approach -->
+      <div class="relative flex-1 min-h-[160px] lg:min-h-[110px] group">
+        <div
+          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-500 cursor-default z-10 hover:z-30 rounded-sm"
+        >
+          <div class="flex flex-row items-center w-full">
+              <div class="p-3 bg-amber-50 rounded-full transition-colors duration-300 group-hover:bg-amber-100 shrink-0">
+                  <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="h-8 w-8 text-amber-500"
+                  >
+                      <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                      />
+                  </svg>
+              </div>
+              <div class="ml-5 flex flex-col">
+                  <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit1Title') }}</h3>
+                  <p class="text-gray-500 text-xs mt-1">
+                      {{ $t('Benefit1Sub') }}
+                  </p>
+              </div>
+          </div>
 
-        <div class="ml-6 flex flex-col justify-center">
-          <h3 class="text-left text-xs font-bold lg:text-sm">Free Delivery</h3>
-          <p class="text-light text-center text-xs lg:text-left lg:text-sm">
-            Orders from $200
-          </p>
+          <div class="max-h-0 overflow-hidden opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 transition-all duration-700 ease-in-out w-full">
+            <p 
+                class="text-gray-500 text-xs mt-4 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
+                v-html="$t('Benefit1Detail')"
+            ></p>
+          </div>
         </div>
       </div>
-      <!-- 2 -->
-      <div
-        class="mx-5 flex flex-row items-center justify-center border-2 border-yellow-400 py-4 px-5"
-      >
-        <div class="">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="h-6 w-6 text-emerald-500 lg:mr-2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
-            />
-          </svg>
-        </div>
 
-        <div class="ml-6 flex flex-col justify-center">
-          <h3 class="text-left text-xs font-bold lg:text-sm">Money returns</h3>
-          <p class="text-light text-left text-xs lg:text-sm">
-            30 Days guarantee
-          </p>
+      <!-- 2: Quality Materials -->
+      <div class="relative flex-1 min-h-[160px] lg:min-h-[110px] group">
+        <div
+          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-500 cursor-default z-10 hover:z-30 rounded-sm"
+        >
+          <div class="flex flex-row items-center w-full">
+              <div class="p-3 bg-amber-50 rounded-full transition-colors duration-300 group-hover:bg-amber-100 shrink-0">
+                  <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="h-8 w-8 text-amber-500"
+                  >
+                      <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.744c0 5.633 3.409 10.473 8.25 12.526a11.959 11.959 0 008.25-12.526c0-1.334-.218-2.617-.622-3.821A11.959 11.959 0 0112 2.714z"
+                      />
+                  </svg>
+              </div>
+              <div class="ml-5 flex flex-col">
+                  <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit2Title') }}</h3>
+                  <p class="text-gray-500 text-xs mt-1">
+                      {{ $t('Benefit2Sub') }}
+                  </p>
+              </div>
+          </div>
+
+          <div class="max-h-0 overflow-hidden opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 transition-all duration-700 ease-in-out w-full">
+            <p 
+                class="text-gray-500 text-xs mt-4 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
+                v-html="$t('Benefit2Detail')"
+            ></p>
+          </div>
         </div>
       </div>
-      <!-- 3 -->
-      <div
-        class="mx-5 flex flex-row items-center justify-center border-2 border-yellow-400 py-4 px-5"
-      >
-        <div class="">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="h-6 w-6 text-emerald-500 lg:mr-2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
-            />
-          </svg>
-        </div>
 
-        <div class="ml-6 flex flex-col justify-center">
-          <h3 class="text-left text-xs font-bold lg:text-sm">24/7 Supports</h3>
-          <p class="text-light text-left text-xs lg:text-sm">
-            Consumer support
-          </p>
+      <!-- 3: Own Production -->
+      <div class="relative flex-1 min-h-[160px] lg:min-h-[110px] group">
+        <div
+          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-500 cursor-default z-10 hover:z-30 rounded-sm"
+        >
+          <div class="flex flex-row items-center w-full">
+              <div class="p-3 bg-amber-50 rounded-full transition-colors duration-300 group-hover:bg-amber-100 shrink-0">
+                  <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="h-8 w-8 text-amber-500"
+                  >
+                      <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"
+                      />
+                      <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1.001A3.75 3.75 0 0012 18z"
+                      />
+                  </svg>
+              </div>
+              <div class="ml-5 flex flex-col">
+                  <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit3Title') }}</h3>
+                  <p class="text-gray-500 text-xs mt-1">
+                      {{ $t('Benefit3Sub') }}
+                  </p>
+              </div>
+          </div>
+
+          <div class="max-h-0 overflow-hidden opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 transition-all duration-700 ease-in-out w-full">
+            <p 
+                class="text-gray-500 text-xs mt-4 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
+                v-html="$t('Benefit3Detail')"
+            ></p>
+          </div>
         </div>
       </div>
     </section>

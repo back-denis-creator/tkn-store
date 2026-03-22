@@ -7,8 +7,6 @@
         <ConsBages />
         <CathegoriesBlock />
         <ProductSlider />
-        <SpecialOfferCard />
-        <Recommendations />
         <Footer />
     </div>
 </template>

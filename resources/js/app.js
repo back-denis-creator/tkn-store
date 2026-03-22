@@ -31,6 +31,9 @@ import RadioButton from 'primevue/radiobutton';
 import InputNumber from 'primevue/inputnumber';
 import Card from 'primevue/card';
 import AutoComplete from 'primevue/autocomplete';
+import Message from 'primevue/message';
+import InputMask from 'primevue/inputmask';
+import Image from 'primevue/image';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Casanel';
 
@@ -78,6 +81,9 @@ createInertiaApp({
             .component('InputNumber', InputNumber)
             .component('Card', Card)
             .component('AutoComplete', AutoComplete)
+            .component('Message', Message)
+            .component('InputMask', InputMask)
+            .component('Image', Image)
     },
     progress: {
         color: '#4B5563',
