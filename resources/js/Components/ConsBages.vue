@@ -1,21 +1,28 @@
 <template>
     <section
-      class="container mx-auto my-12 flex flex-col justify-center gap-6 lg:flex-row px-5"
+      class="container mx-auto my-6 lg:my-12 flex flex-col justify-center gap-4 lg:gap-6 lg:flex-row px-5"
     >
       <!-- 1: Individual Approach -->
-      <div class="relative flex-1 min-h-[160px] lg:min-h-[110px] group">
+      <div 
+        class="relative flex-1 min-h-[110px] lg:min-h-[110px] cursor-pointer"
+        @click="toggleActive(0)"
+      >
         <div
-          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-500 cursor-default z-10 hover:z-30 rounded-sm"
+          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 transition-all duration-500 rounded-sm"
+          :class="[activeIndex === 0 ? 'shadow-xl z-30' : 'shadow-sm z-10']"
         >
           <div class="flex flex-row items-center w-full">
-              <div class="p-3 bg-amber-50 rounded-full transition-colors duration-300 group-hover:bg-amber-100 shrink-0">
+              <div 
+                class="p-3 rounded-full transition-colors duration-300 shrink-0"
+                :class="[activeIndex === 0 ? 'bg-amber-100' : 'bg-amber-50']"
+              >
                   <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="h-8 w-8 text-amber-500"
+                      class="h-6 w-6 lg:h-8 lg:w-8 text-amber-500"
                   >
                       <path
                       stroke-linecap="round"
@@ -24,37 +31,50 @@
                       />
                   </svg>
               </div>
-              <div class="ml-5 flex flex-col">
-                  <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit1Title') }}</h3>
-                  <p class="text-gray-500 text-xs mt-1">
+              <div class="ml-4 lg:ml-5 flex flex-col">
+                  <h3 class="text-xs lg:text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit1Title') }}</h3>
+                  <p class="text-gray-500 text-[10px] lg:text-xs mt-1">
                       {{ $t('Benefit1Sub') }}
                   </p>
               </div>
           </div>
 
-          <div class="max-h-0 overflow-hidden opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 transition-all duration-700 ease-in-out w-full">
+          <div 
+            class="overflow-hidden opacity-0 transition-all duration-700 ease-in-out w-full"
+            :class="[activeIndex === 0 ? 'max-h-[600px] opacity-100 mt-4' : 'max-h-0']"
+          >
             <p 
-                class="text-gray-500 text-xs mt-4 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
+                class="text-gray-500 text-xs mt-0 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
                 v-html="$t('Benefit1Detail')"
             ></p>
+            <div class="flex justify-end mt-4 lg:hidden">
+                <span class="text-amber-500 text-[10px] font-bold uppercase tracking-widest">{{ $t('Close', 'Закрити') }}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 2: Quality Materials -->
-      <div class="relative flex-1 min-h-[160px] lg:min-h-[110px] group">
+      <div 
+        class="relative flex-1 min-h-[110px] lg:min-h-[110px] cursor-pointer"
+        @click="toggleActive(1)"
+      >
         <div
-          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-500 cursor-default z-10 hover:z-30 rounded-sm"
+          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 transition-all duration-500 rounded-sm"
+          :class="[activeIndex === 1 ? 'shadow-xl z-30' : 'shadow-sm z-10']"
         >
           <div class="flex flex-row items-center w-full">
-              <div class="p-3 bg-amber-50 rounded-full transition-colors duration-300 group-hover:bg-amber-100 shrink-0">
+              <div 
+                class="p-3 rounded-full transition-colors duration-300 shrink-0"
+                :class="[activeIndex === 1 ? 'bg-amber-100' : 'bg-amber-50']"
+              >
                   <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="h-8 w-8 text-amber-500"
+                      class="h-6 w-6 lg:h-8 lg:w-8 text-amber-500"
                   >
                       <path
                       stroke-linecap="round"
@@ -63,37 +83,50 @@
                       />
                   </svg>
               </div>
-              <div class="ml-5 flex flex-col">
-                  <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit2Title') }}</h3>
-                  <p class="text-gray-500 text-xs mt-1">
+              <div class="ml-4 lg:ml-5 flex flex-col">
+                  <h3 class="text-xs lg:text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit2Title') }}</h3>
+                  <p class="text-gray-500 text-[10px] lg:text-xs mt-1">
                       {{ $t('Benefit2Sub') }}
                   </p>
               </div>
           </div>
 
-          <div class="max-h-0 overflow-hidden opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 transition-all duration-700 ease-in-out w-full">
+          <div 
+            class="overflow-hidden opacity-0 transition-all duration-700 ease-in-out w-full"
+            :class="[activeIndex === 1 ? 'max-h-[600px] opacity-100 mt-4' : 'max-h-0']"
+          >
             <p 
-                class="text-gray-500 text-xs mt-4 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
+                class="text-gray-500 text-xs mt-0 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
                 v-html="$t('Benefit2Detail')"
             ></p>
+            <div class="flex justify-end mt-4 lg:hidden">
+                <span class="text-amber-500 text-[10px] font-bold uppercase tracking-widest">{{ $t('Close', 'Закрити') }}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 3: Own Production -->
-      <div class="relative flex-1 min-h-[160px] lg:min-h-[110px] group">
+      <div 
+        class="relative flex-1 min-h-[110px] lg:min-h-[110px] cursor-pointer"
+        @click="toggleActive(2)"
+      >
         <div
-          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-500 cursor-default z-10 hover:z-30 rounded-sm"
+          class="absolute top-0 left-0 w-full flex flex-col items-start border border-gray-100 bg-white p-6 transition-all duration-500 rounded-sm"
+          :class="[activeIndex === 2 ? 'shadow-xl z-30' : 'shadow-sm z-10']"
         >
           <div class="flex flex-row items-center w-full">
-              <div class="p-3 bg-amber-50 rounded-full transition-colors duration-300 group-hover:bg-amber-100 shrink-0">
+              <div 
+                class="p-3 rounded-full transition-colors duration-300 shrink-0"
+                :class="[activeIndex === 2 ? 'bg-amber-100' : 'bg-amber-50']"
+              >
                   <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="h-8 w-8 text-amber-500"
+                      class="h-6 w-6 lg:h-8 lg:w-8 text-amber-500"
                   >
                       <path
                       stroke-linecap="round"
@@ -107,21 +140,41 @@
                       />
                   </svg>
               </div>
-              <div class="ml-5 flex flex-col">
-                  <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit3Title') }}</h3>
-                  <p class="text-gray-500 text-xs mt-1">
+              <div class="ml-4 lg:ml-5 flex flex-col">
+                  <h3 class="text-xs lg:text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $t('Benefit3Title') }}</h3>
+                  <p class="text-gray-500 text-[10px] lg:text-xs mt-1">
                       {{ $t('Benefit3Sub') }}
                   </p>
               </div>
           </div>
 
-          <div class="max-h-0 overflow-hidden opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 transition-all duration-700 ease-in-out w-full">
+          <div 
+            class="overflow-hidden opacity-0 transition-all duration-700 ease-in-out w-full"
+            :class="[activeIndex === 2 ? 'max-h-[600px] opacity-100 mt-4' : 'max-h-0']"
+          >
             <p 
-                class="text-gray-500 text-xs mt-4 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
+                class="text-gray-500 text-xs mt-0 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
                 v-html="$t('Benefit3Detail')"
             ></p>
+            <div class="flex justify-end mt-4 lg:hidden">
+                <span class="text-amber-500 text-[10px] font-bold uppercase tracking-widest">{{ $t('Close', 'Закрити') }}</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 </template>
+
+<script setup>
+import { ref } from 'vue';
+
+const activeIndex = ref(null);
+
+const toggleActive = (index) => {
+    if (activeIndex.value === index) {
+        activeIndex.value = null;
+    } else {
+        activeIndex.value = index;
+    }
+};
+</script>

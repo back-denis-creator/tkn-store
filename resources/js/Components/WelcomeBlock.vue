@@ -3,15 +3,15 @@
 
     <div class="relative overflow-hidden">
       <img
-        class="w-full object-cover object-center brightness-[0.4] filter lg:h-[650px] transition-all duration-700 hover:scale-105"
+        class="w-full h-[600px] lg:h-[650px] object-cover object-center brightness-[0.35] filter transition-all duration-700 hover:scale-105"
         src="/images/hero-bg.png"
         alt="Custom sewing workshop"
       />
 
       <div
-        class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white lg:ml-5 lg:items-start lg:text-left"
+        class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white lg:items-start lg:text-left"
       >
-        <h1 class="text-4xl font-bold sm:text-6xl leading-tight">
+        <h1 class="text-3xl font-bold sm:text-6xl leading-tight drop-shadow-lg">
           {{ $t('HeroHeadline') }}
         </h1>
         <p class="pt-5 text-sm sm:text-xl lg:w-3/5 font-light leading-relaxed">
