@@ -44,9 +44,20 @@
     :fullScreen="true" 
     :showItemNavigators="true" 
     :showThumbnails="false"
+    :pt="{
+        itemPrevButton: {
+            class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg'
+        },
+        itemNextButton: {
+            class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg'
+        },
+        closeButton: {
+            class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center transition-all'
+        }
+    }"
   >
       <template #item="slotProps">
-          <img :src="slotProps.item.image" alt="portfolio item" style="width: 100%; display: block;" />
+          <img :src="slotProps.item.image" alt="portfolio item" class="max-h-screen object-contain" />
       </template>
   </Galleria>
 
@@ -132,5 +143,13 @@ const responsiveOptions = ref([
 .portfolio-image-container .p-image-preview-icon {
     font-size: 1.5rem;
     color: white;
+}
+/* Ensure Galleria navigators have yellow border if PrimeVue default is green */
+.custom-galleria-nav {
+    border: 2px solid #fbbf24 !important;
+}
+
+.custom-galleria-nav:hover {
+    background-color: #fbbf24 !important;
 }
 </style>
