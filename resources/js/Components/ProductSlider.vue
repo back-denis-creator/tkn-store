@@ -16,17 +16,14 @@
     class="mx-auto max-w-[1200px] px-5 py-2 mb-10"
   >
       <template #item="slotProps">
-        <div class="flex flex-col m-2 group cursor-pointer">
+        <div class="flex flex-col m-2 group cursor-pointer" @click="imageClick(slotProps.index)">
             <div class="overflow-hidden rounded-sm shadow-sm ring-1 ring-gray-100 bg-gray-50 portfolio-image-container">
                 <Image 
                   :src="slotProps.data.image" 
                   alt="portfolio item" 
-                  preview
                   class="w-full"
                   :pt="{
-                    image: { class: 'w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110' },
-                    button: { class: 'absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20' },
-                    icon: { class: 'text-white text-2xl' }
+                    image: { class: 'w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110' }
                   }"
                 />
             </div>
@@ -34,8 +31,25 @@
       </template>
   </Carousel>
   <div v-else class="flex justify-center items-center h-48 text-gray-400 italic">
-    {{ $t('PortfolioEmpty', 'Додаємо нові роботи...') }}
+    {{ $t('PortfolioEmpty', 'Додаємо нові работы...') }}
   </div>
+
+  <!-- Full Screen Galleria -->
+  <Galleria 
+    v-model:activeIndex="activeIndex" 
+    v-model:visible="displayCustom" 
+    :value="portfolioItems" 
+    :responsiveOptions="responsiveOptions" 
+    :circular="true" 
+    :fullScreen="true" 
+    :showItemNavigators="true" 
+    :showThumbnails="false"
+  >
+      <template #item="slotProps">
+          <img :src="slotProps.item.image" alt="portfolio item" style="width: 100%; display: block;" />
+      </template>
+  </Galleria>
+
 </template>
 
 <script setup>
@@ -43,6 +57,13 @@ import { ref, onMounted } from "vue"
 
 // Automatically load all images from public/images/works
 const portfolioItems = ref([]);
+const displayCustom = ref(false);
+const activeIndex = ref(0);
+
+const imageClick = (index) => {
+    activeIndex.value = index;
+    displayCustom.value = true;
+};
 
 onMounted(() => {
     // Vite's import.meta.glob can find all images in the directory

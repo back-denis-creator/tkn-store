@@ -17,7 +17,7 @@
             </div>
             <div class="flex flex-col gap-2">
                 <label for="name" class="text-sm font-medium text-gray-700">{{ $t('ConsultationName') }}</label>
-                <InputText id="name" v-model="form.name" class="w-full" autocomplete="off" required />
+                <InputText id="name" v-model="form.name" class="w-full" autocomplete="off" required autofocus />
             </div>
             <div class="flex flex-col gap-2">
                 <label for="phone" class="text-sm font-medium text-gray-700">{{ $t('ConsultationPhone') }}</label>

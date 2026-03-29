@@ -34,6 +34,7 @@ import AutoComplete from 'primevue/autocomplete';
 import Message from 'primevue/message';
 import InputMask from 'primevue/inputmask';
 import Image from 'primevue/image';
+import Galleria from 'primevue/galleria';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Casanel';
 
@@ -87,6 +88,7 @@ createInertiaApp({
             .component('Message', Message)
             .component('InputMask', InputMask)
             .component('Image', Image)
+            .component('Galleria', Galleria)
     },
     progress: {
         color: '#4B5563',
