@@ -26,9 +26,9 @@ defineProps({
         </Head>
 
         <template #header>
-            <div class="relative">
+            <div class="relative overflow-hidden group">
                 <img
-                    class="w-full object-cover brightness-50 filter lg:h-[600px]"
+                    class="w-full object-cover brightness-50 filter lg:h-[600px] transition-all duration-700 group-hover:scale-105"
                     src="/images/horeca-bg.png"
                     alt="HoReCa Textile Solutions"
                 />
@@ -138,15 +138,15 @@ defineProps({
                 <div>
                     <h3 class="text-2xl font-bold text-gray-900 mb-8">{{ $t('How to Order', 'Як замовити текстиль') }}</h3>
                     <div class="space-y-6">
-                        <div class="flex gap-4">
+                        <div class="flex gap-4 items-center">
                             <span class="text-3xl font-black text-amber-400">01</span>
                             <p class="pt-2 font-medium">{{ $t('Step_1', 'Ви описуєте потребу або проєкт') }}</p>
                         </div>
-                        <div class="flex gap-4">
+                        <div class="flex gap-4 items-center">
                             <span class="text-3xl font-black text-amber-400">02</span>
                             <p class="pt-2 font-medium">{{ $t('Step_2', 'Підбираємо матеріали і формат виробів') }}</p>
                         </div>
-                        <div class="flex gap-4">
+                        <div class="flex gap-4 items-center">
                             <span class="text-3xl font-black text-amber-400">03</span>
                             <p class="pt-2 font-medium">{{ $t('Step_3', 'Запускаємо виготовлення') }}</p>
                         </div>

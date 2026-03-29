@@ -26,9 +26,9 @@ defineProps({
         </Head>
 
         <template #header>
-            <div class="relative">
+            <div class="relative overflow-hidden group">
                 <img
-                    class="w-full object-cover brightness-50 filter lg:h-[600px]"
+                    class="w-full object-cover brightness-50 filter lg:h-[600px] transition-all duration-700 group-hover:scale-105"
                     src="/images/about-bg.png"
                     alt="Casanel Textile Workshop"
                 />
