@@ -16,6 +16,8 @@ Route::get('/', [PageController::class, 'index']);
 Route::get('/catalog', [PageController::class, 'catalog'])->name('catalog');
 Route::get('/catalog/{productSlug}', [PageController::class, 'product'])->name('product');
 Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/horeca', [PageController::class, 'horeca'])->name('horeca');
 Route::get('/cart', [PageController::class, 'cart'])->name('cart');
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/delete', [CartController::class, 'deleteFromCart'])->name('cart.delete');

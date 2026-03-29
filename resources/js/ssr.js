@@ -33,6 +33,7 @@ import Message from 'primevue/message';
 import InputMask from 'primevue/inputmask';
 import Image from 'primevue/image';
 import Galleria from 'primevue/galleria';
+import Drawer from 'primevue/drawer';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Casanel';
 

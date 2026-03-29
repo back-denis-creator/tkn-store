@@ -176,6 +176,28 @@ class PageController extends Controller
         ]);
     }
 
+    public function about()
+    {
+        return Inertia::render('About', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'cart' => fn() => session()->get('cart', []),
+        ]);
+    }
+
+    public function horeca()
+    {
+        return Inertia::render('Horeca', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'cart' => fn() => session()->get('cart', []),
+        ]);
+    }
+
     public function cart()
     {
         // Получение данных из корзины

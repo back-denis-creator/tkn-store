@@ -47,9 +47,6 @@
                 class="text-gray-500 text-xs mt-0 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
                 v-html="$t('Benefit1Detail')"
             ></p>
-            <div class="flex justify-end mt-4 lg:hidden">
-                <span class="text-amber-500 text-[10px] font-bold uppercase tracking-widest">{{ $t('Close', 'Закрити') }}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -99,9 +96,6 @@
                 class="text-gray-500 text-xs mt-0 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
                 v-html="$t('Benefit2Detail')"
             ></p>
-            <div class="flex justify-end mt-4 lg:hidden">
-                <span class="text-amber-500 text-[10px] font-bold uppercase tracking-widest">{{ $t('Close', 'Закрити') }}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -156,9 +150,6 @@
                 class="text-gray-500 text-xs mt-0 leading-relaxed border-t border-gray-50 pt-4 italic text-justify"
                 v-html="$t('Benefit3Detail')"
             ></p>
-            <div class="flex justify-end mt-4 lg:hidden">
-                <span class="text-amber-500 text-[10px] font-bold uppercase tracking-widest">{{ $t('Close', 'Закрити') }}</span>
-            </div>
           </div>
         </div>
       </div>

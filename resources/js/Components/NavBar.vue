@@ -4,33 +4,36 @@ import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
 
 const options = ref([
-    { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_5293_53603)">
-<rect width="24" height="24" rx="12" fill="white"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H24V12H0V0Z" fill="#3A99FF"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M0 12H24V24H0V12Z" fill="#FFDA2C"/>
-</g>
-<defs>
-<clipPath id="clip0_5293_53603">
-<rect width="24" height="24" rx="12" fill="white"/>
-</clipPath>
-</defs>
-</svg>`, name: 'Український', value: 'uk' },
+    { 
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <mask id="mask_uk" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                <circle cx="12" cy="12" r="12" fill="white"/>
+            </mask>
+            <g mask="url(#mask_uk)">
+                <rect width="24" height="24" fill="#3A99FF"/>
+                <rect y="12" width="24" height="12" fill="#FFDA2C"/>
+            </g>
+        </svg>`, 
+        name: 'Український', 
+        value: 'uk' 
+    },
 
-    { icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<mask id="mask0_2283_149218" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
-<circle cx="12" cy="12" r="12" fill="#C4C4C4"/>
-</mask>
-<g mask="url(#mask0_2283_149218)">
-<rect x="-3.78906" width="31.579" height="24" fill="url(#pattern2)"/>
-</g>
-<defs>
-<pattern id="pattern2" patternContentUnits="objectBoundingBox" width="1" height="1">
-<use xlink:href="#image0_2283_149218" transform="matrix(0.0158333 0 0 0.0208333 -0.00666661 0)"/>
-</pattern>
-<image id="image0_2283_149218" width="64" height="48" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAwCAYAAAChS3wfAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGaSURBVHgB7Zi/SgNBEMa/kzMIiYWVBpJCxDZ9GgOiL6BY2Qu2koBd0t8D+AIWYiy1MViktEhjaUhlEQNCCu9QVIjuwh13kqSbnSWzP7g/e98Wy+x9M8N6ld3LCSzmrn8OSpYgnEwAtrfW5k7m1inQASiu5/XVrFf1czW/nJnErVPiqRygIh80ayhu5DF8jXDa6GA4ipJJnPrj/TEo0X9AfzBG72mkP9x2BpnF2aBTkuSA579F7B209Q7EpD3JoZvAm1YGlQ8VQauGRquLMPzCe/RtTE/zUOmBkqkB4M4JaVj6gEX2/H9m9gHcOcEU2gLcnp+nd09yoMT1AeomuQ/w45fYkzvVUiKqnVGL49IVnzdtUGJ9H8BSBguFHC6Cfb1D6qnGJnWTiO8D/PSA2/NpPWbl8AiUWN8HGCmD3J7nzAmuD4hfZtVhbv1tswxKPHcsLhzxAfA+fiZWW4AaZwEIxw/rZ5CM91IuuRwgGVcGx1fXoi3g+gAIx6c+dbUdVwYhHJcDqE9dbceVQQjH5QDqU1fbcRaAcMQH4BcJFg/2Rbu2uwAAAABJRU5ErkJggg=="/>
-</defs>
-</svg>`, name: 'English', value: 'en' },
+    { 
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <mask id="mask_en" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                <circle cx="12" cy="12" r="12" fill="white"/>
+            </mask>
+            <g mask="url(#mask_en)">
+                <rect width="24" height="24" fill="#012169"/>
+                <path d="M0 0l24 24M24 0L0 24" stroke="white" stroke-width="2.5"/>
+                <path d="M0 0l24 24M24 0L0 24" stroke="#C8102E" stroke-width="1.5"/>
+                <path d="M12 0v24M0 12h24" stroke="white" stroke-width="4"/>
+                <path d="M12 0v24M0 12h24" stroke="#C8102E" stroke-width="2.5"/>
+            </g>
+        </svg>`, 
+        name: 'English', 
+        value: 'en' 
+    },
 ]);
 const form = useForm({})
 const search = ref('')
@@ -51,8 +54,8 @@ const updateLang = (lang) => {
 
 const navigation = {
     pages: [
-        { name: 'Contacts', route: 'contacts' },
-        { name: 'Catalog', route: 'catalog' },
+        { name: 'About Us', route: 'about' },
+        { name: 'HoReCa', route: 'horeca' },
     ],
 }
 const mobileMenuOpen = ref(false)
@@ -82,44 +85,116 @@ const setIsOpen = (value) => {
         <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] uppercase font-sans">casanel</span>
       </Link>
 
-      <div class="flex items-center z-40">
-          <div class="relative inline-block text-left">
-              <div>
-                <!-- focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 -->
-                  <button
-                      @click="setIsOpen(!isOpen)"
-                      type="button"
-                      class="inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-                      :id="selectLang.value"
-                      aria-haspopup="true"
-                      :aria-expanded="isOpen"
-                  >
-                      <div :class="`fi fis fiCircle inline-block mr-2 fi-${selectLang.value}`" v-html="selectLang.icon" />
-                      {{ selectLang.name }}
-                  </button>
-              </div>
-              <div
-                  v-if="isOpen"
-                  class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="language-selector"
+      <div class="flex items-center gap-4 z-40">
+          <!-- Language Selector -->
+          <div class="hidden lg:block relative group">
+              <button
+                  type="button"
+                  class="inline-flex items-center justify-center px-2 py-2 bg-transparent text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-all"
+                  :id="selectLang.value"
               >
-                  <div class="py-1 grid grid-cols-1 gap-2" role="none">
+                  <div :class="`fi fis fiCircle inline-block fi-${selectLang.value}`" v-html="selectLang.icon" />
+              </button>
+              
+              <!-- Language dropdown on hover -->
+              <div
+                  class="absolute right-0 mt-0 w-40 pt-2 invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-[60]"
+              >
+                  <div class="bg-white rounded-md shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden border border-gray-100">
+                      <div class="py-1">
+                          <button
+                              v-for="language in options"
+                              :key="language.value"
+                              @click="updateLang(language)"
+                              class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 flex items-center transition-colors border-b border-gray-50 last:border-none"
+                              :class="{'bg-gray-50 font-semibold': selectLang.value === language.value}"
+                          >
+                              <div :class="`fi fis fiCircle inline-block mr-3 fi-${language.value}`" v-html="language.icon" />
+                              <span>{{ language.name }}</span>
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Desktop Menu (Hover) -->
+          <div class="hidden lg:block relative group">
+              <button
+                  class="inline-flex items-center justify-center px-4 py-2 bg-transparent text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-all"
+              >
+                  <i class="pi pi-bars my-1 text-amber-500"></i>
+                  <!-- {{ $t('Menu', 'Меню') }} -->
+              </button>
+              
+              <!-- Beautifully appearing menu on hover -->
+              <div
+                  class="absolute right-0 mt-0 w-48 pt-2 invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out"
+              >
+                  <div class="bg-white rounded-md shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden border border-gray-100">
+                      <div class="py-1">
+                          <Link 
+                              v-for="page in navigation.pages" 
+                              :key="page.name"
+                              :href="page.href ? page.href : route(page.route)"
+                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50 last:border-none"
+                          >
+                              <i :class="`pi ${page.name === 'Contacts' ? 'pi-phone' : (page.name === 'About Us' ? 'pi-info-circle' : 'pi-briefcase')} mr-3 text-amber-500 text-lg overflow-hidden`" ></i>
+                              {{ $t(page.name) }}
+                          </Link>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Mobile Burger Menu -->
+          <button 
+              @click="mobileMenuOpen = true"
+              class="lg:hidden p-2 rounded-md text-amber-500 hover:bg-gray-100 transition-colors"
+          >
+              <i class="pi pi-bars text-xl"></i>
+          </button>
+      </div>
+
+      <!-- Mobile Drawer -->
+      <Drawer v-model:visible="mobileMenuOpen" position="right" class="!w-72">
+          <template #header>
+              <div class="flex items-center gap-2">
+                <span class="text-xl font-bold tracking-widest uppercase">casanel</span>
+              </div>
+          </template>
+          
+          <div class="flex flex-col gap-6 py-4">
+              <div class="flex flex-col gap-1">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">{{ $t('Navigation', 'Навігація') }}</p>
+                  <Link 
+                      v-for="page in navigation.pages" 
+                      :key="page.name"
+                      :href="page.href ? page.href : route(page.route)"
+                      @click="mobileMenuOpen = false"
+                      class="flex items-center gap-3 px-3 py-4 text-gray-700 hover:bg-amber-50 rounded-lg transition-colors border-b border-gray-50"
+                  >
+                      <i :class="`pi ${page.name === 'Contacts' ? 'pi-phone' : (page.name === 'About Us' ? 'pi-info-circle' : 'pi-briefcase')} text-amber-500 text-lg overflow-hidden`" ></i>
+                      <span class="font-medium">{{ $t(page.name) }}</span>
+                  </Link>
+              </div>
+
+              <div class="mt-4">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">{{ $t('Language', 'Мова') }}</p>
+                  <div class="grid grid-cols-1 gap-2">
                       <button
-                          v-for="(language, index) in options"
+                          v-for="language in options"
                           :key="language.value"
                           @click="updateLang(language)"
-                          :class="`${selectLang.value === language.value ? 'bg-gray-100 text-gray-900' : 'text-gray-700'}  block px-4 py-2 text-sm text-left items-center inline-flex hover:bg-gray-100 ${index % 2 === 0 ? 'rounded-r' : 'rounded-l'}`"
-                          role="menuitem"
+                          class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all border"
+                          :class="selectLang.value === language.value ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-gray-100 text-gray-600'"
                       >
-                          <div :class="`fi fis fiCircle inline-block mr-2 fi-${language.value}`" v-html="language.icon" />
-                          <span class="truncate">{{ language.name }}</span>
+                          <div :class="`fi fis fiCircle inline-block fi-${language.value}`" v-html="language.icon" />
+                          <span>{{ language.name }}</span>
                       </button>
                   </div>
               </div>
           </div>
-      </div>
+      </Drawer>
 
       </div>
     </header>
@@ -371,6 +446,7 @@ const setIsOpen = (value) => {
     height: 24px !important;
     font-size: 24px !important;
     border-radius: 100%;
+    overflow: hidden;
     border: none;
     box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .06);
     background: white;
