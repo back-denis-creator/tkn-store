@@ -52,7 +52,7 @@
             class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg'
         },
         closeButton: {
-            class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center transition-all'
+            class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center !transition-all focus:!ring-2 focus:!ring-amber-400 !outline-none'
         }
     }"
   >
@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, onUnmounted } from "vue"
 
 // Automatically load all images from public/images/works
 const portfolioItems = ref([]);
@@ -76,6 +76,18 @@ const imageClick = (index) => {
     displayCustom.value = true;
 };
 
+const handleKeydown = (event) => {
+    if (!displayCustom.value) return;
+
+    if (event.key === 'ArrowRight') {
+        activeIndex.value = (activeIndex.value + 1) % portfolioItems.value.length;
+    } else if (event.key === 'ArrowLeft') {
+        activeIndex.value = (activeIndex.value - 1 + portfolioItems.value.length) % portfolioItems.value.length;
+    } else if (event.key === 'Escape') {
+        displayCustom.value = false;
+    }
+};
+
 onMounted(() => {
     // Vite's import.meta.glob can find all images in the directory
     // We map over the object to get the keys (which are the file paths)
@@ -85,6 +97,12 @@ onMounted(() => {
         // We strip '/public' from the path as it's the root for the dev server
         image: path.replace('/public', '')
     }));
+
+    window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
 });
 
 const responsiveOptions = ref([

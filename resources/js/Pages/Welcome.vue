@@ -1,6 +1,12 @@
 <template>
-    <Head title="Welcome" />
-    <!-- class="bg-white" -->
+    <Head>
+        <title>Текстиль для вашого простору</title>
+        <meta name="description" content="Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки." />
+        <meta property="og:title" content="Casanel — Текстиль для вашого простору" />
+        <meta property="og:description" content="Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки." />
+        <meta property="og:image" content="/images/casanel-logo.png" />
+        <meta property="og:type" content="website" />
+    </Head>
     <div>
         <NavBar />
         <WelcomeBlock />
