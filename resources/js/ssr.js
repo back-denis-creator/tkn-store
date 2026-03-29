@@ -33,8 +33,6 @@ import Message from 'primevue/message';
 import InputMask from 'primevue/inputmask';
 import Image from 'primevue/image';
 import Galleria from 'primevue/galleria';
-import InputIcon from 'primevue/inputicon';
-import IconField from 'primevue/iconfield';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Casanel';
 
@@ -89,8 +87,6 @@ createServer((page) =>
                 .component('InputMask', InputMask)
                 .component('Image', Image)
                 .component('Galleria', Galleria)
-                .component('InputIcon', InputIcon)
-                .component('IconField', IconField)
         },
     }),
     import.meta.env.VITE_INERTIA_SSR_PORT || 13714
