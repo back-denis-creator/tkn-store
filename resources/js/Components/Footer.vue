@@ -6,7 +6,7 @@
     >
       <div class="max-w-sm">
         <div class="mt-10 mb-5">
-          <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] uppercase font-sans">casanel</span>
+          <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] uppercase font-cinzel">casanel</span>
         </div>
         <p class="text-gray-500 text-sm leading-relaxed">
           {{ $t('FooterAbout') }}

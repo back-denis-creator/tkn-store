@@ -82,7 +82,7 @@ const setIsOpen = (value) => {
     >
       <div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5">
       <Link href="/" class="flex items-center">
-        <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] uppercase font-sans">casanel</span>
+        <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] uppercase font-cinzel">casanel</span>
       </Link>
 
       <div class="flex items-center gap-4 z-40">
@@ -159,7 +159,7 @@ const setIsOpen = (value) => {
       <Drawer v-model:visible="mobileMenuOpen" position="right" class="!w-72">
           <template #header>
               <div class="flex items-center gap-2">
-                <span class="text-xl font-bold tracking-widest uppercase">casanel</span>
+                <span class="text-xl font-bold tracking-widest uppercase font-cinzel">casanel</span>
               </div>
           </template>
           
