@@ -4,19 +4,24 @@ import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
+import OptionsEditor from "./Partials/OptionsEditor.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+import { computed } from "vue";
 
 const props = defineProps({
-    attributes: {
-        type: Object,
-        default: () => ({}),
+    color_groups: {
+        type: Array,
+        default: () => ([]),
     },
 });
 
 const form = useForm({
     name: "",
     description: "",
+    options: [],
 });
+
+const isColor = computed(() => form.name.trim() === 'Колір');
 
 const submit = () => {
     form.post(route("attributes.store"));
@@ -77,6 +82,16 @@ const submit = () => {
                                     {{ form.errors.description }}
                                 </div>
                             </div>
+
+                            <div class="my-6">
+                                <OptionsEditor
+                                    :options="form.options"
+                                    :is-color="isColor"
+                                    :color-groups="color_groups"
+                                    :error="form.errors.options"
+                                />
+                            </div>
+
                             <PrimaryButton
                                 type="submit"
                                 :class="{ 'opacity-25': form.processing }"

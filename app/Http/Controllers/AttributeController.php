@@ -29,9 +29,9 @@ class AttributeController extends Controller
      */
     public function create()
     {
-        return Inertia::render(
-            'Attributes/Create'
-        );
+        return Inertia::render('Attributes/Create', [
+            'color_groups' => AttributeOption::COLOR_GROUPS,
+        ]);
     }
 
     /**
@@ -43,10 +43,13 @@ class AttributeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255'
         ]);
-        Attribute::create([
+
+        $attribute = Attribute::create([
             'name' => $request->name,
             'description' => $request->description
         ]);
+
+        $this->syncOptions($attribute, $request->input('options', []));
 
         return redirect()->route('attributes.index')->with('message', 'Attribute Created Successfully');
     }
@@ -76,14 +79,14 @@ class AttributeController extends Controller
                 'img_url' => $attributeOption->getMedia('default')->first()?->getUrl(),
             ];
         });
-        $data = [
+
+        return Inertia::render('Attributes/Edit', [
             'attribute' => $attribute,
-            'options' => $options
-        ];
-        if($attribute->name === Attribute::COLOR) {
-            $data['color_groups'] = AttributeOption::COLOR_GROUPS;
-        }
-        return Inertia::render('Attributes/Edit', $data);
+            'options' => $options,
+            // Always sent (not just for the Колір attribute) so the option editor can
+            // react live if the admin renames an attribute to/from "Колір" mid-edit.
+            'color_groups' => AttributeOption::COLOR_GROUPS,
+        ]);
     }
 
     /**
@@ -100,27 +103,29 @@ class AttributeController extends Controller
         $attribute->description = $request->description;
         $attribute->save();
 
-        foreach ($request->options as $option) {
-            //Новый вариант — создаём саму опцию перед обновлением meta/картинки
-            if($option['id'] === 'new') {
-                $attributeOption = $attribute->attributeOptions()->create([
-                    'value' => $option['value'],
-                ]);
-            } else {
-                //Значение атрибута для обновления
-                $attributeOption = AttributeOption::find($option['id']);
+        $blockedValues = [];
+        foreach ($request->input('deleted_option_ids', []) as $id) {
+            $option = AttributeOption::find($id);
+            if (!$option) {
+                continue;
             }
-            //Обновление цвета
-            if($attributeOption && $attribute->name === Attribute::COLOR && $option['meta'] && $option['meta']['id']) {
-                //Группировка значений через мета
-                $attributeOption->update(['meta' => $option['meta']['id']]);
+            // A color/size option already picked on an existing product's SKU can't be
+            // silently deleted — the pivot row would cascade-delete and that SKU would
+            // quietly lose one of its variant dimensions.
+            if ($option->skus()->exists()) {
+                $blockedValues[] = $option->value;
+                continue;
             }
-            //Если есть картинка, устанавливаем ее значению
-            if($attributeOption && $option['new_src']) {
-                $attributeOption->clearMediaCollection();
-                //Картинка для значения атрибута
-                $attributeOption->addMediaFromBase64($option['new_src'])->toMediaCollection();
-            }
+            $option->clearMediaCollection();
+            $option->delete();
+        }
+
+        $this->syncOptions($attribute, $request->input('options', []));
+
+        if ($blockedValues) {
+            return back()->withErrors([
+                'options' => 'Не вдалося видалити (використовується в товарах): ' . implode(', ', $blockedValues),
+            ]);
         }
 
         return redirect()->route('attributes.index')->with('message', 'Attribute Updated Successfully');
@@ -134,5 +139,32 @@ class AttributeController extends Controller
         $attribute->delete();
 
         return redirect()->route('attributes.index')->with('message', 'Attribute Delete Successfully');
+    }
+
+    /**
+     * Create, rename, and re-color/re-image the attribute's options — shared by
+     * store() (brand-new attribute, every option is new) and update().
+     */
+    private function syncOptions(Attribute $attribute, array $options): void
+    {
+        foreach ($options as $option) {
+            if ($option['id'] === 'new') {
+                $attributeOption = $attribute->attributeOptions()->create([
+                    'value' => $option['value'],
+                ]);
+            } else {
+                $attributeOption = AttributeOption::find($option['id']);
+                $attributeOption?->update(['value' => $option['value']]);
+            }
+
+            if ($attributeOption && $attribute->name === Attribute::COLOR && !empty($option['meta']['id'])) {
+                $attributeOption->update(['meta' => $option['meta']['id']]);
+            }
+
+            if ($attributeOption && !empty($option['new_src'])) {
+                $attributeOption->clearMediaCollection();
+                $attributeOption->addMediaFromBase64($option['new_src'])->toMediaCollection();
+            }
+        }
     }
 }
