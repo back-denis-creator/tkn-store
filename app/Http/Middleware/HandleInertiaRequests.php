@@ -39,6 +39,9 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+            // Shared globally (not per-page) so the cart icon badge in NavBar
+            // stays accurate no matter which page is currently open.
+            'cartCount' => fn () => collect($request->session()->get('cart', []))->sum('quantity'),
         ]);
     }
 

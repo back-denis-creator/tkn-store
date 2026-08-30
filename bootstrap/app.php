@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\Admin::class,
         ]);
+        // LiqPay's server-to-server callback has no session/CSRF token —
+        // it's authenticated via signature verification instead (LiqPayController::callback).
+        $middleware->validateCsrfTokens(except: [
+            'payments/liqpay/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -1,2 +1,19 @@
 User-agent: *
-Disallow:
+Disallow: /dashboard
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-password
+Disallow: /verify-email
+Disallow: /profile
+Disallow: /products
+Disallow: /categories
+Disallow: /attributes
+Disallow: /blogs
+Disallow: /orders
+Disallow: /order/
+
+Sitemap: https://casanel.com.ua/sitemap.xml

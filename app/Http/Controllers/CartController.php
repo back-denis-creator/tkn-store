@@ -10,26 +10,30 @@ class CartController extends Controller
 
     public function addToCart(Request $request)
     {
+        $addedQuantity = (int) ($request->input('quantity') ?: 1);
         $productData = [
             'product_id' => $request->input('product_id'),
             'sku_id' => $request->input('sku_id'),
-            'quantity' => $request->input('quantity')
+            'quantity' => $addedQuantity
         ];
 
         // Получаем текущую корзину из сессии
         $cart = session()->get('cart', []);
-        
-        // Проверяем наличие товара в корзине
-        $existProduct = false;
-        foreach ($cart as $item) {
+
+        // Если товар уже в корзині — просто збільшуємо кількість, а не ігноруємо
+        $existProductIndex = null;
+        foreach ($cart as $index => $item) {
             if($productData['sku_id'] === $item['sku_id']) {
-                $existProduct = true;
+                $existProductIndex = $index;
                 break;
             }
         }
 
-        // Добавляем товар в корзину, если его нету
-        if(!$existProduct) $cart[] = $productData;
+        if($existProductIndex !== null) {
+            $cart[$existProductIndex]['quantity'] = (int) $cart[$existProductIndex]['quantity'] + $addedQuantity;
+        } else {
+            $cart[] = $productData;
+        }
 
         session(['cart' => $cart]);
 

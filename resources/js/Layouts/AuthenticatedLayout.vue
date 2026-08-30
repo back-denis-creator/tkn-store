@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
@@ -20,18 +19,10 @@ const showingNavigationDropdown = ref(false);
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <Link href="/" >
-                                    <span class="sr-only">Your Company</span>
-                                    <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Logo" />
+                                <Link href="/">
+                                    <span class="text-xl font-bold text-gray-900 tracking-[0.2em] font-cinzel">Casanel</span>
                                 </Link>
                             </div>
-                            <!-- <div class="shrink-0 flex items-center">
-                                <Link href="/">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link>
-                            </div> -->
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -82,9 +73,9 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('profile.index')"> Profile </DropdownLink>
+                                        <DropdownLink :href="route('profile.index')">{{ $t('Profile Information') }}</DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
+                                            {{ $t('Log Out') }}
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
@@ -131,7 +122,19 @@ const showingNavigationDropdown = ref(false);
                 >
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
+                            Кабінет
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
+                            Новини
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.index')">
+                            Товари
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.index')">
+                            Категорії
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('attributes.index')" :active="route().current('attributes.index')">
+                            Атрибути
                         </ResponsiveNavLink>
                     </div>
 
@@ -145,9 +148,9 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.index')"> Profile </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('profile.index')">{{ $t('Profile Information') }}</ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
+                                {{ $t('Log Out') }}
                             </ResponsiveNavLink>
                         </div>
                     </div>

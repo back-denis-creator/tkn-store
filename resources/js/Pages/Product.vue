@@ -1,20 +1,59 @@
 <template>
     <GuestLayout>
-        <Head :title="product.name" />
+        <Head>
+            <title>{{ product.name }}</title>
+            <meta name="description" :content="metaDescription" />
+            <link rel="canonical" :href="route('product', product.slug)" />
+            <!-- TODO: remove once the catalog is fully populated and linked from the UI. -->
+            <meta name="robots" content="noindex, nofollow" />
+
+            <meta property="og:type" content="product" />
+            <meta property="og:title" :content="product.name" />
+            <meta property="og:description" :content="metaDescription" />
+            <meta v-if="product.default_image" property="og:image" :content="product.default_image" />
+            <meta v-if="product.default_price" property="product:price:amount" :content="String(product.default_price)" />
+            <meta property="product:price:currency" content="UAH" />
+
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" :content="product.name" />
+            <meta name="twitter:description" :content="metaDescription" />
+            <meta v-if="product.default_image" name="twitter:image" :content="product.default_image" />
+
+            <component :is="'script'" type="application/ld+json" v-html="productJsonLd" />
+        </Head>
 
     <section
         class="container flex-grow mx-auto max-w-[1200px] border-b py-5 lg:grid lg:grid-cols-2 lg:py-10"
       >
         <!-- image gallery -->
-         <div class="container mx-auto px-4">
-            <Galleria :value="selectedSku?.media" :responsiveOptions="responsiveOptions" :numVisible="5" :circular="true" :showItemNavigators="true" :showItemNavigatorsOnHover="true" containerStyle="mx-auto px-4">
-            <template #item="slotProps">
-                <img :src="slotProps.item.original_url" :alt="slotProps.item.collection_name" style="width: 100%" />
-            </template>
-            <template #thumbnail="slotProps">
-                <img :src="slotProps.item.original_url" :alt="slotProps.item.collection_name" />
-            </template>
-        </Galleria>
+         <div class="mx-auto w-full max-w-[500px] px-4">
+            <div
+                ref="imageContainer"
+                class="relative aspect-square w-full overflow-hidden rounded-sm bg-gray-50 lg:cursor-zoom-in"
+                @mousemove="onImageMouseMove"
+                @mouseenter="zoomActive = true"
+                @mouseleave="zoomActive = false"
+            >
+                <img :src="activeImage?.original_url" :alt="product.name" class="h-full w-full object-contain" />
+                <div
+                    v-if="zoomActive && activeImage"
+                    class="pointer-events-none absolute hidden rounded-sm border-2 border-white shadow-lg lg:block"
+                    :style="lensStyle"
+                ></div>
+            </div>
+
+            <div v-if="media.length > 1" class="mt-3 flex gap-2 overflow-x-auto">
+                <button
+                    v-for="(item, index) in media"
+                    :key="item.id"
+                    type="button"
+                    @click="activeIndex = index"
+                    class="h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 transition-colors"
+                    :class="activeIndex === index ? 'border-amber-400' : 'border-transparent hover:border-gray-200'"
+                >
+                    <img :src="item.original_url" :alt="product.name" class="h-full w-full object-cover" />
+                </button>
+            </div>
          </div>
         <!-- /image gallery  -->
 
@@ -22,63 +61,43 @@
 
         <div class="mx-auto px-5 lg:px-5">
           <h2 class="pt-3 text-2xl font-bold lg:pt-0 uppercase">{{ product.name }}</h2>
-          <div class="mt-1">
-            <div class="flex items-center">
-              <Rating v-model="rating" readonly />
-              <p class="ml-3 text-sm text-gray-400">(150 reviews)</p>
-            </div>
-          </div>
 
-          <p class="mt-5 font-bold">
-            Availability: <span class="text-green-600">In Stock</span>
-          </p>
-          <!-- <p class="font-bold">Brand: <span class="font-normal">Apex</span></p> -->
-          <p class="font-bold">
-            Категорії: <span class="font-normal">Sofa</span>
+          <p v-if="product.categories?.length" class="mt-5 font-bold">
+            Категорії: <span class="font-normal">{{ product.categories.map((c) => c.name).join(', ') }}</span>
           </p>
           <p class="font-bold">
             {{ $t("Sku") }}: <span class="font-normal">{{ selectedSku?.code }}</span>
           </p>
 
-          <p class="mt-4 text-4xl font-bold text-emerald-500">
-            {{ selectedSku?.price }} грн.
-            <!-- <span class="text-xs text-gray-400 line-through">$550</span> -->
+          <p class="mt-4 text-4xl font-bold text-amber-600">
+            {{ totalPrice }} грн.
           </p>
-
-          <p class="pt-5 text-sm leading-5 text-gray-500">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quidem
-            exercitationem voluptate sint eius ea assumenda provident eos
-            repellendus qui neque! Velit ratione illo maiores voluptates commodi
-            eaque illum, laudantium non!
-          </p>
-    
-            <!-- <span>{{ intersectionIds }}</span>
-            <span>{{ attrModels }}</span>
-            <span>{{ attributes }}</span> -->
 
           <div class="mt-6" v-for="attribute in attributes" :key="attribute.name">
             <p class="pb-2 text-xs text-gray-500">{{ attribute.name }}</p>
 
-            <div class="flex gap-1" v-if="attribute.name === 'Колір'">
-              <div
-                v-for="(option, index) in attribute.options" :key="option.value"
-                class="flex h-8 w-8 cursor-pointer items-center justify-center border duration-100 hover:bg-neutral-100 focus:ring-2 focus:ring-gray-500 active:ring-2 active:ring-gray-500"
+            <div class="flex flex-wrap gap-2" v-if="attribute.name === 'Колір'">
+              <button
+                v-for="option in attribute.options" :key="option.value"
+                type="button"
+                :title="option.value"
+                @click="attrModels[attribute.name] = option.value"
+                class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
+                :class="{'ring-2 ring-amber-400 ring-offset-1': attrModels[attribute.name] === option.value}"
               >
                 <img
-                    @click="attrModels[attribute.name] = option.value"
+                    v-if="option.image_url"
                     :src="option.image_url"
-                    class="w-8"
-                    :class="{'ring-2 ring-emerald-500': attrModels[attribute.name] === option.value}"
+                    :alt="option.value"
+                    class="h-full w-full object-cover"
                 />
-              </div>
+              </button>
             </div>
-            <div v-else>
-                <div v-for="(option, index) in attribute.options" :key="option.value">
-                    <label :for="`${index}_${attribute.name}`">
-                        <RadioButton v-model="attrModels[attribute.name]" :inputId="`${index}_${attribute.name}`" :name="attribute.name" :value="option.value" />
-                        {{ option.value }}
-                    </label>
-                </div>
+            <div v-else class="flex flex-col gap-2">
+                <label v-for="(option, index) in attribute.options" :key="option.value" :for="`${index}_${attribute.name}`" class="flex items-center gap-2 cursor-pointer">
+                    <RadioButton v-model="attrModels[attribute.name]" :inputId="`${index}_${attribute.name}`" :name="attribute.name" :value="option.value" />
+                    <span>{{ option.value }}</span>
+                </label>
             </div>
           </div>
 
@@ -107,35 +126,12 @@
           </div>
 
           <div class="mt-7 flex flex-row items-center gap-6">
-            <!-- class="flex h-12 w-1/3 items-center justify-center" -->
             <Button
                 :label="$t('Add to cart')"
                 icon="pi pi-shopping-bag"
                 @click="addToCart()"
-                class="w-1/3"
+                class="!px-8 !py-3 whitespace-nowrap"
             />
-              <!-- Додати у кошик
-            </Button> -->
-            <!-- <button
-              class="flex h-12 w-1/3 items-center justify-center bg-amber-400 duration-100 hover:bg-yellow-300"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="mr-3 h-4 w-4"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                />
-              </svg>
-
-              Wishlist
-            </button> -->
           </div>
         </div>
       </section>
@@ -145,447 +141,59 @@
       <section class="container mx-auto max-w-[1200px] px-5 py-5 lg:py-10">
         <h2 class="text-xl">Опис товара</h2>
         <div class="mt-4 lg:w-3/4" v-html="product.description"></div>
-
-        <table class="mt-7 w-full table-auto divide-x divide-y lg:w-1/2">
-          <tbody class="divide-x border">
-            <tr>
-              <td class="border pl-4 font-bold">Color</td>
-              <td class="border pl-4">Black, Brown, Red</td>
-            </tr>
-
-            <tr>
-              <td class="border pl-4 font-bold">Material</td>
-              <td class="border pl-4">Latex</td>
-            </tr>
-
-            <tr>
-              <td class="border pl-4 font-bold">Weight</td>
-              <td class="border pl-4">55 Kg</td>
-            </tr>
-          </tbody>
-        </table>
       </section>
       <!-- /product details  -->
 
       <!-- /description  -->
 
-      <p class="mx-auto mt-10 mb-5 max-w-[1200px] px-5">RELATED PRODUCTS</p>
 
-      <!-- Recommendations -->
-      <section
-        class="container mx-auto grid max-w-[1200px] grid-cols-2 gap-3 px-5 pb-10 lg:grid-cols-4"
-      >
-        <!-- 1 -->
+      <template v-if="relatedProducts.length">
+        <p class="mx-auto mt-10 mb-5 max-w-[1200px] px-5">Схожі товари</p>
 
-        <div class="relative flex flex-col">
-          <div
-            class="absolute flex h-1/2 w-full justify-center gap-3 pt-16 opacity-0 duration-150 hover:opacity-100"
-          >
-            <span
-              class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="h-4 w-4"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                />
-              </svg>
-            </span>
-            <span
-              class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="h-4 w-4"
-              >
-                <path
-                  d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
-                />
-              </svg>
-            </span>
-          </div>
-          <img
-            class=""
-            src="/images/product-chair.png"
-            alt="sofa image"
-          />
-
-          <div>
-            <p class="mt-2">CHAIR</p>
-            <p class="font-medium text-emerald-500">
-              $45.00
-              <span class="text-sm text-gray-500 line-through">$500.00</span>
-            </p>
-
-            <div class="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-gray-200"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <p class="text-sm text-gray-400">(38)</p>
-            </div>
+        <!-- Recommendations -->
+        <section
+          class="container mx-auto grid max-w-[1200px] grid-cols-2 gap-3 px-5 pb-10 lg:grid-cols-4"
+        >
+          <div class="flex flex-col" v-for="relatedProduct in relatedProducts" :key="relatedProduct.id">
+            <Link :href="route('product', relatedProduct.slug)">
+              <img
+                v-if="relatedProduct.default_image"
+                :src="relatedProduct.default_image"
+                class="aspect-square w-full object-cover"
+                :alt="relatedProduct.name"
+              />
+              <div v-else class="aspect-square w-full bg-gray-100"></div>
+            </Link>
 
             <div>
-              <button class="my-5 h-10 w-full bg-emerald-500 text-white">
-                Add to cart
-              </button>
+              <Link :href="route('product', relatedProduct.slug)">
+                <p class="mt-2">{{ relatedProduct.name }}</p>
+              </Link>
+              <p class="font-medium text-amber-600">
+                {{ relatedProduct.default_price }} грн.
+              </p>
+
+              <div>
+                <button
+                  class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300"
+                  @click="addRelatedToCart(relatedProduct)"
+                >
+                  {{ $t("Add to cart") }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- 2 -->
-
-        <div class="flex flex-col">
-          <img
-            class=""
-            src="/images/product-sofa.png"
-            alt="sofa image"
-          />
-
-          <div>
-            <p class="mt-2">SOFA</p>
-            <p class="font-medium text-emerald-500">
-              $45.00
-              <span class="text-sm text-gray-500 line-through">$500.00</span>
-            </p>
-
-            <div class="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-gray-200"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <p class="text-sm text-gray-400">(38)</p>
-            </div>
-
-            <div>
-              <button class="my-5 h-10 w-full bg-emerald-500 text-white">
-                Add to cart
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3 -->
-
-        <div class="flex flex-col">
-          <img class="" src="/images/kitchen.png" alt="sofa image" />
-
-          <div>
-            <p class="mt-2">GUYER KITCHEN</p>
-            <p class="font-medium text-emerald-500">
-              $45.00
-              <span class="text-sm text-gray-500 line-through">$500.00</span>
-            </p>
-
-            <div class="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-gray-200"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <p class="text-sm text-gray-400">(38)</p>
-            </div>
-
-            <div>
-              <button class="my-5 h-10 w-full bg-emerald-500 text-white">
-                Add to cart
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4 -->
-
-        <div class="flex flex-col">
-          <img
-            class=""
-            src="/images/living-room.png"
-            alt="sofa image"
-          />
-
-          <div>
-            <p class="mt-2">GUYER ROOM</p>
-            <p class="font-medium text-emerald-500">
-              $45.00
-              <span class="text-sm text-gray-500 line-through">$500.00</span>
-            </p>
-
-            <div class="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-4 w-4 text-gray-200"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <p class="text-sm text-gray-400">(38)</p>
-            </div>
-
-            <div>
-              <button class="my-5 h-10 w-full bg-emerald-500 text-white">
-                Add to cart
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- /Recommendations -->
+        </section>
+        <!-- /Recommendations -->
+      </template>
 
     </GuestLayout>
 </template>
 <script setup>
-import Galleria from 'primevue/galleria'
 import GuestLayout from '@/Layouts/GuestLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
-import { ref, onMounted, computed } from "vue"
+import { Head, Link, useForm } from '@inertiajs/vue3'
+import { ref, onMounted, computed, watch } from "vue"
 import { useToast } from "primevue/usetoast"
-import Rating from 'primevue/rating'
 
 const toast = useToast()
 const props = defineProps({
@@ -607,15 +215,37 @@ const props = defineProps({
         type: Object,
         required: true
     },
+    relatedProducts: {
+        type: Array,
+        default: () => []
+    },
     status: {
         required: true,
     }
 })
-const rating = ref(3)
-const responsiveOptions = ref([
-    { breakpoint: '1300px', numVisible: 4 },
-    { breakpoint: '575px', numVisible: 1 }
-])
+const metaDescription = computed(() => {
+    const text = (props.product.description || '').replace(/\s+/g, ' ').trim()
+    if (text) {
+        return text.length > 160 ? text.slice(0, 157) + '…' : text
+    }
+    return `${props.product.name} — індивідуальне пошиття від Casanel. Замовляйте текстиль ручної роботи за вашими розмірами.`
+})
+
+const productJsonLd = computed(() => JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: props.product.name,
+    description: metaDescription.value,
+    image: props.product.default_image || undefined,
+    offers: props.product.default_price ? {
+        '@type': 'Offer',
+        priceCurrency: 'UAH',
+        price: props.product.default_price,
+        availability: 'https://schema.org/InStock',
+        url: route('product', props.product.slug),
+    } : undefined,
+}))
+
 const quantity = ref(1)
 const attrModels = ref({})
 const intersectionIds = computed(() => {
@@ -633,7 +263,56 @@ const intersectionIds = computed(() => {
     // Находим пересечение id
     return ids.reduce((acc, curr) => acc.filter(id => curr.includes(id)))
 })
-const selectedSku = computed(() => props.product.skus.find(({id}) => id === intersectionIds.value[0]))
+// Falls back to the first SKU for products with no attribute options at all
+// (e.g. a simple, single-variant product) — otherwise intersectionIds is
+// empty and the page would show no image/price/code at all.
+const selectedSku = computed(() => props.product.skus.find(({id}) => id === intersectionIds.value[0]) || props.product.skus[0])
+const totalPrice = computed(() => (selectedSku.value?.price || 0) * quantity.value)
+
+const media = computed(() => selectedSku.value?.media || [])
+const activeIndex = ref(0)
+const activeImage = computed(() => media.value[activeIndex.value] || media.value[0])
+watch(selectedSku, () => { activeIndex.value = 0 })
+
+const imageContainer = ref(null)
+const zoomActive = ref(false)
+const mousePos = ref({ x: 0, y: 0 })
+const containerSize = ref({ width: 0, height: 0 })
+const ZOOM_FACTOR = 2.5
+const LENS_SIZE = 160
+
+const onImageMouseMove = (e) => {
+    const rect = imageContainer.value.getBoundingClientRect()
+    containerSize.value = { width: rect.width, height: rect.height }
+    mousePos.value = {
+        x: Math.min(Math.max(e.clientX - rect.left, 0), rect.width),
+        y: Math.min(Math.max(e.clientY - rect.top, 0), rect.height),
+    }
+}
+
+const lensStyle = computed(() => {
+    const { width, height } = containerSize.value
+    if (!width || !height) return {}
+
+    const half = LENS_SIZE / 2
+    const left = Math.min(Math.max(mousePos.value.x - half, 0), Math.max(width - LENS_SIZE, 0))
+    const top = Math.min(Math.max(mousePos.value.y - half, 0), Math.max(height - LENS_SIZE, 0))
+    const bgWidth = width * ZOOM_FACTOR
+    const bgHeight = height * ZOOM_FACTOR
+    const bgX = Math.min(0, Math.max(-(bgWidth - LENS_SIZE), -(mousePos.value.x * ZOOM_FACTOR - half)))
+    const bgY = Math.min(0, Math.max(-(bgHeight - LENS_SIZE), -(mousePos.value.y * ZOOM_FACTOR - half)))
+
+    return {
+        width: `${LENS_SIZE}px`,
+        height: `${LENS_SIZE}px`,
+        left: `${left}px`,
+        top: `${top}px`,
+        backgroundImage: `url(${activeImage.value?.original_url})`,
+        backgroundSize: `${bgWidth}px ${bgHeight}px`,
+        backgroundPosition: `${bgX}px ${bgY}px`,
+        backgroundRepeat: 'no-repeat',
+    }
+})
 // Generate the attributes structure for rendering
 const attributes = computed(() => {
     const uniqueAttributes = {}
@@ -680,6 +359,21 @@ const addToCart = () => {
         },
         onError: () => {
 
+        },
+    })
+}
+const addRelatedToCart = (relatedProduct) => {
+    const sku = relatedProduct.skus?.[0]
+    if (!sku) return
+    useForm({
+        product_id: relatedProduct.id,
+        sku_id: sku.id,
+        quantity: 1,
+        price: sku.price,
+    }).post(route('cart.add'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.add({ severity: 'success', summary: 'Додано', life: 3000 })
         },
     })
 }

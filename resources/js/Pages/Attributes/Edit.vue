@@ -1,14 +1,18 @@
 <script setup>
 import FileUpload from 'primevue/fileupload';
+import Accordion from 'primevue/accordion';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import { Head, useForm } from "@inertiajs/vue3";
-// import { ref } from "vue";
+import { ref } from "vue";
 
-// const src = ref(null);
+const newOptionValue = ref('');
 
 function onFileSelect(index, event) {
     const file = event.files[0];
@@ -17,6 +21,20 @@ function onFileSelect(index, event) {
         form.options[index].new_src = e.target.result;
     };
     reader.readAsDataURL(file);
+}
+
+function addOption() {
+    const value = newOptionValue.value.trim();
+    if (!value) return;
+    form.options.push({
+        id: 'new',
+        value,
+        attribute_id: props.attribute.id,
+        src: null,
+        new_src: null,
+        meta: {},
+    });
+    newOptionValue.value = '';
 }
 
 const props = defineProps({
@@ -110,8 +128,21 @@ const submit = () => {
                             </div>
 
                             <div class="my-6">
+                                <div class="flex items-end gap-3 mb-6">
+                                    <div class="flex-1">
+                                        <InputLabel for="new_option" value="Новий варіант" />
+                                        <TextInput
+                                            id="new_option"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="newOptionValue"
+                                            @keydown.enter.prevent="addOption"
+                                        />
+                                    </div>
+                                    <PrimaryButton type="button" @click="addOption">Додати варіант</PrimaryButton>
+                                </div>
                                 <Accordion value="0">
-                                    <AccordionPanel v-for="(option, index) in form.options" :key="option.value" :value="option.value">
+                                    <AccordionPanel v-for="(option, index) in form.options" :key="index" :value="String(index)">
                                         <AccordionHeader>{{ option.value }}</AccordionHeader>
                                         <AccordionContent>
                                             <Select v-model="option.meta" :options="color_groups" optionLabel="name" placeholder="Обрати группу" class="w-full" />

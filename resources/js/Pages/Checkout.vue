@@ -1,6 +1,8 @@
 <template>
     <GuestLayout>
-        <Head title="Checkout" />
+        <Head title="Checkout">
+            <meta name="robots" content="noindex, nofollow" />
+        </Head>
         <div class="flex-grow">
           <section
             class="container mx-auto max-w-[1200px] py-5 lg:flex lg:flex-row lg:py-10"
@@ -50,6 +52,8 @@
                                       </InputGroup>
                                   </div>
                                   <Textarea v-model="form.comment" rows="5" cols="30" class="w-full mt-4" placeholder="Коментар" />
+                                  <p v-if="form.errors.name" class="text-sm text-red-600 mt-2">{{ form.errors.name }}</p>
+                                  <p v-if="form.errors.phone" class="text-sm text-red-600 mt-2">{{ form.errors.phone }}</p>
                                 </div>
                               </div>
                               <div class="flex pt-6 justify-between">
@@ -59,16 +63,18 @@
                           </StepPanel>
                           <StepPanel v-slot="{ activateCallback }" value="2">
                               <div class="card flex flex-col h-48 justify-center gap-4">
-                                  <div v-for="delivery in deliveries" :key="delivery.key" class="flex items-center gap-2">
-                                      <RadioButton v-model="selectedDelivery" @update:modelValue="changeDelivery" :inputId="delivery.key" name="dynamic" :value="delivery.key" />
-                                      <label :for="delivery.key">{{ delivery.name }}</label>
+                                  <div v-for="delivery in deliveries" :key="delivery.id" class="flex items-center gap-2">
+                                      <RadioButton v-model="form.delivery_method" @update:modelValue="changeDelivery" :inputId="`delivery_${delivery.id}`" name="delivery" :value="delivery.id" />
+                                      <label :for="`delivery_${delivery.id}`">{{ delivery.name }}</label>
                                   </div>
                                   <Transition>
-                                    <div v-if="selectedDelivery === '2'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div v-if="form.delivery_method === DELIVERY_NOVA_POSHTA" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                       <AutoComplete v-model="selectedCity" placeholder="Місто" optionLabel="Description" :suggestions="cities" @complete="getNPCities" inputClass="w-full" />
                                       <AutoComplete v-model="selectedWarehous" placeholder="№ Відділення" optionLabel="Description" :suggestions="warehouses" @complete="getNPWarehouses" inputClass="w-full" dropdown :disabled="!selectedCity?.Ref" />
                                     </div>
                                   </Transition>
+                                  <p v-if="form.errors.np_city_ref" class="text-sm text-red-600">{{ form.errors.np_city_ref }}</p>
+                                  <p v-if="form.errors.np_warehouse_ref" class="text-sm text-red-600">{{ form.errors.np_warehouse_ref }}</p>
                               </div>
                               <div class="flex pt-6 justify-between">
                                   <Button label="Назад" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('1')" />
@@ -77,14 +83,15 @@
                           </StepPanel>
                           <StepPanel v-slot="{ activateCallback }" value="3">
                               <div class="card flex flex-col h-48 justify-center gap-4">
-                                  <div v-for="payment in payments" :key="payment.key" class="flex items-center gap-2">
-                                      <RadioButton v-model="selectedPayment" :inputId="payment.key" name="dynamic" :value="payment.key" :disabled="!!payment.delivery.length && !payment.delivery.includes(selectedDelivery)" />
-                                      <label :for="payment.key">{{ payment.name }}</label>
+                                  <div v-for="(name, id) in payments" :key="id" class="flex items-center gap-2">
+                                      <RadioButton v-model="form.payment_method" :inputId="`payment_${id}`" name="payment" :value="Number(id)" :disabled="isPaymentDisabled(id)" />
+                                      <label :for="`payment_${id}`">{{ name }}</label>
                                   </div>
                               </div>
+                              <p v-if="form.errors.cart" class="text-sm text-red-600">{{ form.errors.cart }}</p>
                               <div class="flex pt-6 justify-between">
                                   <Button label="Назад" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('2')" />
-                                  <Button label="Підтвердити" />
+                                  <Button label="Підтвердити" :loading="form.processing" @click="submitOrder" />
                               </div>
                           </StepPanel>
                       </StepPanels>
@@ -139,27 +146,38 @@ const props = defineProps({
     warehouses: {
         type: Array,
         required: false
+    },
+    deliveries: {
+        type: Array,
+        default: () => []
+    },
+    payments: {
+        type: Object,
+        default: () => ({})
     }
 })
 
-const payments = ref([
-    { name: 'Готівка', key: '1', delivery: ['1'] },
-    { name: 'Грошовий переказ', key: '2', delivery: [] },
-    { name: 'Післяплата (Нова Пошта)', key: '3', delivery: ['2'] },
-])
-const selectedPayment = ref('2')
-const deliveries = ref([
-    { name: 'Самовивіз (м. Дніпро)', key: '1' },
-    { name: 'Нова Пошта', key: '2' },
-])
-const selectedDelivery = ref('2')
+// Mirrors App\Models\Delivery / App\Models\Order constants — must stay in sync.
+const DELIVERY_NOVA_POSHTA = 1
+const DELIVERY_SAMOVUVOZ = 2
+const PAYMENT_CASH = 1
+const PAYMENT_COD = 3
 
-const changeDelivery = (newId) => {
-  if(newId === '1' && selectedPayment.value === '3') {
-    selectedPayment.value = '2'
-  } else if(newId === '2' && selectedPayment.value === '1') {
-    selectedPayment.value = '2'
-  }
+// Which delivery method each payment option is restricted to (empty = any).
+const PAYMENT_DELIVERY_RESTRICTIONS = {
+    [PAYMENT_CASH]: [DELIVERY_SAMOVUVOZ],
+    [PAYMENT_COD]: [DELIVERY_NOVA_POSHTA],
+}
+
+const isPaymentDisabled = (paymentId) => {
+    const restriction = PAYMENT_DELIVERY_RESTRICTIONS[paymentId]
+    return !!restriction && !restriction.includes(form.delivery_method)
+}
+
+const changeDelivery = () => {
+    if (isPaymentDisabled(form.payment_method)) {
+        form.payment_method = null
+    }
 }
 
 const backToCart = () => {
@@ -171,7 +189,13 @@ const form = useForm({
     surname: '',
     phone: '',
     email: '',
-    comment: ''
+    comment: '',
+    delivery_method: DELIVERY_NOVA_POSHTA,
+    np_city_ref: null,
+    np_city_name: null,
+    np_warehouse_ref: null,
+    np_warehouse_name: null,
+    payment_method: null,
 })
 
 const cityModel = ref('');
@@ -181,6 +205,8 @@ const selectedCity = computed({
   },
   set(newValue) {
     if(warehousesTimer.value) clearTimeout(warehousesTimer.value)
+    form.np_city_ref = newValue?.Ref || null
+    form.np_city_name = newValue?.Description || null
     if(newValue?.Ref) {
         warehousesTimer.value = setTimeout(() => {
             getNPWarehouses()
@@ -189,7 +215,17 @@ const selectedCity = computed({
     cityModel.value = newValue
   }
 })
-const selectedWarehous = ref('');
+const warehouseModel = ref('');
+const selectedWarehous = computed({
+  get() {
+    return warehouseModel.value
+  },
+  set(newValue) {
+    form.np_warehouse_ref = newValue?.Ref || null
+    form.np_warehouse_name = newValue?.Description || null
+    warehouseModel.value = newValue
+  }
+})
 
 const cityTimer = ref(null);
 const warehousesTimer = ref(null);
@@ -201,9 +237,6 @@ const getNPCities = (event) => {
             router.post(route('np.cities'), {search: event.query.trim().toLowerCase()} ,{
                 preserveScroll: true,
                 only: ['cities'],
-                onSuccess: (page) => {
-                    console.log('page: ', page)
-                }
             })
         }
     }, 800)
@@ -215,10 +248,11 @@ const getNPWarehouses = (event = false) => {
     router.post(route('np.warehouses'), data, {
         preserveScroll: true,
         only: ['warehouses'],
-        onSuccess: (page) => {
-            console.log('page: ', page)
-        }
     })
+}
+
+const submitOrder = () => {
+    form.post(route('order.store'))
 }
 
 </script>

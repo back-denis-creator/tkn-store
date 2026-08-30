@@ -215,7 +215,7 @@ const onFilesVariation = (e) => {
                                 </div>
                                 <div class="border-b inline-flex w-full border-gray-300 dark:border-gray-500"></div>
                             </div>
-                            <div v-for="variation in variations" :key="variation.id" v-show="variation.show">
+                            <div v-for="(variation, vIndex) in variations" :key="variation.id" v-show="variation.show">
                                 <div class="flex flex-row">
                                     <div class="basis-1/2 pr-2">
                                         <div class="my-6 ml-2">
@@ -226,10 +226,10 @@ const onFilesVariation = (e) => {
                                                 class="mt-1 block w-full"
                                                 v-model="variation.code"
                                             />
-                                            <!-- <InputError
+                                            <InputError
                                                 class="mt-2"
-                                                :message="form.errors.code"
-                                            /> -->
+                                                :message="form.errors[`variations.${vIndex}.code`]"
+                                            />
                                         </div>
                                         <div class="my-6 ml-2">
                                             <InputLabel for="price" value="Ціна" />
@@ -239,10 +239,10 @@ const onFilesVariation = (e) => {
                                                 class="mt-1 block w-full"
                                                 v-model="variation.price"
                                             />
-                                            <!-- <InputError
+                                            <InputError
                                                 class="mt-2"
-                                                :message="form.errors.price"
-                                            /> -->
+                                                :message="form.errors[`variations.${vIndex}.price`]"
+                                            />
                                         </div>
                                         <div class="ml-2">
                                             <div v-for="attribute in variation.attributes" :key="`${attribute.id}${variation.id}`" class="my-6">

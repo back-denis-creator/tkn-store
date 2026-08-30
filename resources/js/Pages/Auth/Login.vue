@@ -37,7 +37,9 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head :title="$t('Log in')" />
+        <Head :title="$t('Log in')">
+            <meta name="robots" content="noindex, nofollow" />
+        </Head>
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
@@ -80,7 +82,7 @@ const submit = () => {
               <Link
                 v-if="canResetPassword"
                 :href="route('password.request')"
-                class="text-emerald-500"
+                class="text-amber-600"
               >
                 {{ $t("Forgot Password?") }}
               </Link>

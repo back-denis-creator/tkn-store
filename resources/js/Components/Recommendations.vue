@@ -62,7 +62,7 @@
 
         <div>
         <p class="mt-2">CHAIR</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -136,7 +136,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -201,7 +201,7 @@
 
         <div>
         <p class="mt-2">SOFA</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -275,7 +275,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -335,7 +335,7 @@
 
         <div>
         <p class="mt-2">GUYER KITCHEN</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -409,7 +409,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -473,7 +473,7 @@
 
         <div>
         <p class="mt-2">GUYER ROOM</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -547,7 +547,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -607,7 +607,7 @@
 
         <div>
         <p class="mt-2">BEDROOM</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -681,7 +681,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -745,7 +745,7 @@
 
         <div>
         <p class="mt-2">LIVING GUYER</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -819,7 +819,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -883,7 +883,7 @@
 
         <div>
         <p class="mt-2">STREET CHAIR</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -957,7 +957,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>
@@ -1021,7 +1021,7 @@
 
         <div>
         <p class="mt-2">WHITE SOFA</p>
-        <p class="font-medium text-emerald-500">
+        <p class="font-medium text-amber-600">
             $45.00
             <span class="text-sm text-gray-500 line-through">$500.00</span>
         </p>
@@ -1095,7 +1095,7 @@
         </div>
 
         <div>
-            <button class="my-5 h-10 w-full bg-emerald-500 text-white">
+            <button class="my-5 h-10 w-full bg-amber-400 text-black hover:bg-yellow-300">
             Add to cart
             </button>
         </div>

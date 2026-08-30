@@ -127,7 +127,7 @@ const form = useForm({})
 // const isNumeric = (value) => /^-?\d+$/.test(value)
 function destroy(id) {
     if (confirm("Are you sure you want to Delete")) {
-        form.delete(route("categories.destroy", id));
+        form.delete(route("attributes.destroy", id));
     }
 }
 </script>

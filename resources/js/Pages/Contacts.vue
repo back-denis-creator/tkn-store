@@ -22,31 +22,20 @@ defineProps({
 <template>
     <GuestLayout>
         <Head>
-            <!-- <title>Контакти</title>
-            <meta property="og:type" content="article" />
-            <meta property="og:site_name" content="Смотреть фильмы и сериалы онлайн в хорошем качестве бесплатно"/>
-            <meta property="og:title" content="Татуировщик из Освенцима" />
-            <meta property="og:description" content="Смотреть онлайн сериал Татуировщик из Освенцима бесплатно в хорошем качестве! Желаем приятного просмотра." />
-            <meta property="og:image" content="https://lamafilm.club/wp-content/uploads/2024/05/5447301.jpg" />
-            <meta property="og:url" content="https://lamafilm.club/film/tatuirovshhik-iz-osvenczima/" /> -->
-
             <title>{{ $t('Contacts') }}</title>
-            <meta name="description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
+            <meta name="description" content="Зв'яжіться з майстернею Casanel: контакти, доставка Новою Поштою та умови співпраці для індивідуального пошиття текстилю.">
+            <link rel="canonical" :href="route('contacts')">
 
-            <!-- Facebook Meta Tags -->
-            <meta property="og:url" content="https://denys.uno/contacts">
+            <meta property="og:url" :content="route('contacts')">
             <meta property="og:type" content="website">
             <meta property="og:title" :content="$t('Contacts')">
-            <meta property="og:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
-            <meta property="og:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
+            <meta property="og:description" content="Зв'яжіться з майстернею Casanel: контакти, доставка Новою Поштою та умови співпраці для індивідуального пошиття текстилю.">
+            <meta property="og:image" content="/images/casanel-logo.png">
 
-            <!-- Twitter Meta Tags -->
             <meta name="twitter:card" content="summary_large_image">
-            <meta property="twitter:domain" content="denys.uno">
-            <meta property="twitter:url" content="https://denys.uno/contacts">
             <meta name="twitter:title" :content="$t('Contacts')">
-            <meta name="twitter:description" content="Tired of useless, poor-quality and inconvenient backpacks? Check this one out and you won't regret it!">
-            <meta name="twitter:image" content="https://og.demo.magefan.top/media/catalog/product/b/a/backpack-featured-image.png">
+            <meta name="twitter:description" content="Зв'яжіться з майстернею Casanel: контакти, доставка Новою Поштою та умови співпраці для індивідуального пошиття текстилю.">
+            <meta name="twitter:image" content="/images/casanel-logo.png">
         </Head>
         <template #header>
             <!-- BG Image, Contacts  -->
@@ -86,7 +75,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                             d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
@@ -102,7 +91,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         fill-rule="evenodd"
@@ -117,7 +106,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         fill-rule="evenodd"
@@ -132,7 +121,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
@@ -156,7 +145,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
@@ -172,7 +161,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         fill-rule="evenodd"
@@ -187,7 +176,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         fill-rule="evenodd"
@@ -202,7 +191,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
@@ -226,7 +215,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
@@ -242,7 +231,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         fill-rule="evenodd"
@@ -257,7 +246,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         fill-rule="evenodd"
@@ -272,7 +261,7 @@ defineProps({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="mr-3 h-4 w-4 text-emerald-500"
+                        class="mr-3 h-4 w-4 text-amber-500"
                     >
                         <path
                         d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
@@ -337,7 +326,7 @@ defineProps({
                 <input class="mr-3" type="checkbox" />
                 <label for="checkbox">
                     I have read and agree with
-                    <a href="#" class="text-emerald-500">terms &amp; conditions</a>
+                    <a href="#" class="text-amber-500">terms &amp; conditions</a>
                 </label>
                 </div>
                 <button class="my-3 bg-amber-400 px-4 py-2 lg:my-0">

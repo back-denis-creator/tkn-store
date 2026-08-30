@@ -11,7 +11,7 @@
 
                 <div class="flex justify-between py-5">
                     <p>{{ $t("Total") }}</p>
-                    <p>$1280</p>
+                    <p>{{ total }} грн.</p>
                 </div>
 
                 <Button class="w-full px-5 py-2" @click="goToCheckout()" :disabled="!$page.props.cart.length">
@@ -22,7 +22,16 @@
     </section>
 </template>
 <script setup>
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const page = usePage();
+
+const total = computed(() => {
+    return (page.props.cart || []).reduce((sum, product) => {
+        return sum + (product.skus?.[0]?.price || 0) * (product.quantity || 0)
+    }, 0)
+})
 
 const goToCheckout = () => {
     router.visit(route('checkout'), { preserveScroll: true })

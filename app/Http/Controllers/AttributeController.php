@@ -101,8 +101,15 @@ class AttributeController extends Controller
         $attribute->save();
 
         foreach ($request->options as $option) {
-            //Значение атрибута для обновления
-            $attributeOption = AttributeOption::find($option['id']);
+            //Новый вариант — создаём саму опцию перед обновлением meta/картинки
+            if($option['id'] === 'new') {
+                $attributeOption = $attribute->attributeOptions()->create([
+                    'value' => $option['value'],
+                ]);
+            } else {
+                //Значение атрибута для обновления
+                $attributeOption = AttributeOption::find($option['id']);
+            }
             //Обновление цвета
             if($attributeOption && $attribute->name === Attribute::COLOR && $option['meta'] && $option['meta']['id']) {
                 //Группировка значений через мета

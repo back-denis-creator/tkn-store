@@ -15,7 +15,8 @@ defineProps({
         <Head>
             <title>{{ $t('HoReCa') }}</title>
             <meta name="description" content="Professional custom textile for restaurants, hotels, and brands. HoReCa & B2B solutions by Casanel.">
-            
+            <link rel="canonical" :href="route('horeca')">
+
             <meta property="og:title" :content="$t('HoReCa')">
             <meta property="og:description" content="Professional textile for your business. Custom sewing for HoReCa and B2B.">
             <meta property="og:image" content="/images/horeca-bg.png">

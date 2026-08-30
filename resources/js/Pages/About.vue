@@ -15,7 +15,8 @@ defineProps({
         <Head>
             <title>{{ $t('About Us') }}</title>
             <meta name="description" content="Casanel: Textile art with soul and 15 years of experience. Discover the story of our brand and our passion for quality.">
-            
+            <link rel="canonical" :href="route('about')">
+
             <meta property="og:title" :content="$t('About Us')">
             <meta property="og:description" content="The story of Casanel: From a cozy home idea to professional textile production.">
             <meta property="og:image" content="/images/about-bg.png">

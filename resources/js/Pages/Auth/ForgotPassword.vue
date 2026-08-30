@@ -23,7 +23,9 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Forgot Password" />
+        <Head title="Forgot Password">
+            <meta name="robots" content="noindex, nofollow" />
+        </Head>
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
@@ -45,7 +47,7 @@ const submit = () => {
                     autocomplete="username"
                 />
                 <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
-                <button :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="my-5 w-full bg-emerald-500 py-2 text-white">
+                <button :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="my-5 w-full bg-amber-400 py-2 text-black hover:bg-yellow-300">
                     НАДІСЛАТИ ЛІНКУ ДЛЯ СКИДАННЯ
                 </button>
             </form>

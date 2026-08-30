@@ -6,6 +6,11 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Default SEO (per-page tags are added via Inertia's <Head>, not here — omit
+             a default "index, follow" so it can't duplicate a page's own noindex tag) -->
+        <meta property="og:site_name" content="Casanel">
+        <meta property="og:locale" content="uk_UA">
+
         <!-- Favicon -->
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">

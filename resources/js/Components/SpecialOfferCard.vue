@@ -3,7 +3,7 @@
 
     <div class="mx-auto max-w-[1200px] px-5">
       <section
-        class="mt-10 flex max-w-[1200px] justify-between bg-emerald-500 px-5"
+        class="mt-10 flex max-w-[1200px] justify-between bg-gray-900 px-5"
       >
         <div class="py-8 px-3 lg:px-16">
           <p class="text-white">ONLINE EXCLUSIVE</p>

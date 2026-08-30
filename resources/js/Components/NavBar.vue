@@ -1,7 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
+
+const page = usePage()
+const cartCount = computed(() => page.props.cartCount || 0)
 
 const options = ref([
     { 
@@ -54,10 +57,17 @@ const updateLang = (lang) => {
 
 const navigation = {
     pages: [
-        { name: 'About Us', route: 'about' },
-        { name: 'HoReCa', route: 'horeca' },
+        { name: 'Catalog', route: 'catalog', icon: 'pi-th-large' },
+        { name: 'About Us', route: 'about', icon: 'pi-info-circle' },
+        { name: 'HoReCa', route: 'horeca', icon: 'pi-briefcase' },
     ],
 }
+
+const authUser = computed(() => page.props.auth?.user)
+const accountLink = computed(() => authUser.value
+    ? { name: authUser.value.name, route: 'profile.index', icon: 'pi-user' }
+    : { name: 'Увійти / Реєстрація', route: 'login', icon: 'pi-user' }
+)
 const mobileMenuOpen = ref(false)
 const desktopMenuOpen = ref(false)
 
@@ -86,6 +96,14 @@ const setIsOpen = (value) => {
       </Link>
 
       <div class="flex items-center gap-4 z-40">
+          <!-- Cart -->
+          <Link v-if="cartCount > 0" :href="route('cart')" class="relative inline-flex items-center justify-center p-2 text-gray-700 hover:bg-gray-50 transition-all">
+              <i class="pi pi-shopping-bag text-lg"></i>
+              <span
+                  class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-black"
+              >{{ cartCount }}</span>
+          </Link>
+
           <!-- Language Selector -->
           <div class="hidden lg:block relative group">
               <button
@@ -132,14 +150,21 @@ const setIsOpen = (value) => {
               >
                   <div class="bg-white rounded-md shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden border border-gray-100">
                       <div class="py-1">
-                          <Link 
-                              v-for="page in navigation.pages" 
+                          <Link
+                              v-for="page in navigation.pages"
                               :key="page.name"
                               :href="page.href ? page.href : route(page.route)"
                               class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50 last:border-none"
                           >
-                              <i :class="`pi ${page.name === 'Contacts' ? 'pi-phone' : (page.name === 'About Us' ? 'pi-info-circle' : 'pi-briefcase')} mr-3 text-amber-500 text-lg overflow-hidden`" ></i>
+                              <i :class="`pi ${page.icon || 'pi-briefcase'} mr-3 text-amber-500 text-lg overflow-hidden`" ></i>
                               {{ $t(page.name) }}
+                          </Link>
+                          <Link
+                              :href="route(accountLink.route)"
+                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50 last:border-none"
+                          >
+                              <i :class="`pi ${accountLink.icon} mr-3 text-amber-500 text-lg overflow-hidden`" ></i>
+                              {{ accountLink.name }}
                           </Link>
                       </div>
                   </div>
@@ -166,15 +191,23 @@ const setIsOpen = (value) => {
           <div class="flex flex-col gap-6 py-4">
               <div class="flex flex-col gap-1">
                   <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">{{ $t('Navigation', 'Навігація') }}</p>
-                  <Link 
-                      v-for="page in navigation.pages" 
+                  <Link
+                      v-for="page in navigation.pages"
                       :key="page.name"
                       :href="page.href ? page.href : route(page.route)"
                       @click="mobileMenuOpen = false"
                       class="flex items-center gap-3 px-3 py-4 text-gray-700 hover:bg-amber-50 rounded-lg transition-colors border-b border-gray-50"
                   >
-                      <i :class="`pi ${page.name === 'Contacts' ? 'pi-phone' : (page.name === 'About Us' ? 'pi-info-circle' : 'pi-briefcase')} text-amber-500 text-lg overflow-hidden`" ></i>
+                      <i :class="`pi ${page.icon || 'pi-briefcase'} text-amber-500 text-lg overflow-hidden`" ></i>
                       <span class="font-medium">{{ $t(page.name) }}</span>
+                  </Link>
+                  <Link
+                      :href="route(accountLink.route)"
+                      @click="mobileMenuOpen = false"
+                      class="flex items-center gap-3 px-3 py-4 text-gray-700 hover:bg-amber-50 rounded-lg transition-colors border-b border-gray-50"
+                  >
+                      <i :class="`pi ${accountLink.icon} text-amber-500 text-lg overflow-hidden`" ></i>
+                      <span class="font-medium">{{ accountLink.name }}</span>
                   </Link>
               </div>
 

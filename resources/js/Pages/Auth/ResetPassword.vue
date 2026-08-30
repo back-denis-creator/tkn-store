@@ -33,7 +33,9 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Reset Password" />
+        <Head title="Reset Password">
+            <meta name="robots" content="noindex, nofollow" />
+        </Head>
 
         <form @submit.prevent="submit">
             <div>

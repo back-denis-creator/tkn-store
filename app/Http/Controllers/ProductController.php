@@ -49,11 +49,13 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'         => 'required|string|max:255',
-            'slug'         => 'nullable|string|max:255',
-            'description'  => 'nullable|string|max:255',
-            'category_ids' => 'array',
-            'variations'   => 'array'
+            'name'            => 'required|string|max:255',
+            'slug'            => 'nullable|string|max:255',
+            'description'     => 'nullable|string|max:255',
+            'category_ids'    => 'array',
+            'variations'      => 'array',
+            'variations.*.code'  => 'required|string|max:255',
+            'variations.*.price' => 'required|numeric|min:0',
         ]);
 
         $slugify = new Slugify();
@@ -133,14 +135,15 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        // dd($request);
         $request->validate([
-            'name'         => 'required|string|max:255',
-            'slug'         => 'nullable|string|max:255',
-            'description'  => 'nullable|string|max:255',
-            'category_ids' => 'array',
-            'delete_variations_ids'   => 'array',
-            'variations'   => 'array'
+            'name'                  => 'required|string|max:255',
+            'slug'                  => 'nullable|string|max:255',
+            'description'           => 'nullable|string|max:255',
+            'category_ids'          => 'array',
+            'delete_variations_ids' => 'array',
+            'variations'            => 'array',
+            'variations.*.code'     => 'required|string|max:255',
+            'variations.*.price'    => 'required|numeric|min:0',
         ]);
 
         $slugify = new Slugify();
@@ -165,7 +168,8 @@ class ProductController extends Controller
                 ]);
                 //DELETE VARIATION IMAGES
                 if(isset($request->variations[$index]['images'])) {
-                    $sku->clearMediaCollectionExcept('variation_images', $request->variations[$index]['images']);
+                    $keptMediaIds = collect($request->variations[$index]['images'])->pluck('id')->all();
+                    $sku->clearMediaCollectionExcept('variation_images', $keptMediaIds);
                 }
                 //CREATE VARIATION IMAGES
                 if(isset($request->variations[$index]['new_images'])) {

@@ -22,7 +22,9 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head :title="$t('Sign up')" />
+        <Head :title="$t('Sign up')">
+            <meta name="robots" content="noindex, nofollow" />
+        </Head>
         <!-- Register card  -->
         <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2">
           <div class="">
@@ -82,7 +84,7 @@ const submit = () => {
                 <input type="checkbox" />
                 <label for="checkbox">
                   I have read and agree with
-                  <a href="#" class="text-emerald-500">terms &amp; conditions</a>
+                  <a href="#" class="text-amber-600">terms &amp; conditions</a>
                 </label>
               </div>
             </div>

@@ -1,6 +1,16 @@
 <template>
     <GuestLayout>
-        <Head title="Catalog" />
+        <Head>
+            <title>{{ $t('Catalog', 'Каталог товарів') }}</title>
+            <meta name="description" content="Каталог текстилю Casanel: скатертини, доріжки, серветки, подушки та інший текстиль ручної роботи на замовлення." />
+            <link rel="canonical" :href="route('catalog')" />
+            <!-- TODO: remove once the catalog is fully populated and linked from the UI. -->
+            <meta name="robots" content="noindex, nofollow" />
+        </Head>
+
+        <p class="mx-auto mt-10 mb-2 max-w-[1200px] px-5 text-2xl font-bold uppercase tracking-widest text-gray-800 text-center lg:text-left">
+            {{ $t('Catalog', 'Каталог товарів') }}
+        </p>
 
         <section
             class="container mx-auto flex-grow max-w-[1200px] border-b py-5 lg:flex lg:flex-row lg:py-10"
@@ -9,14 +19,14 @@
             <section class="hidden w-[300px] flex-shrink-0 px-4 lg:block">
                 <div class="flex border-b pb-5">
                     <div class="w-full">
-                        <p class="mb-3 font-medium">КАТЕГОРІЇ</p>
+                        <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">Категорії</p>
                         <Tree v-model:selectionKeys="selectedKey" v-model:expandedKeys="expandedKeys" :value="categories" @update:selectionKeys="handleUpdateCategory" selectionMode="checkbox" class="flex w-full" :pt="{root: 'my-root'}"></Tree>
                     </div>
                 </div>
 
                 <div class="flex border-b py-5">
                     <div class="w-full">
-                    <p class="mb-6 font-medium">ЦІНА</p>
+                    <p class="mb-6 text-xs font-bold uppercase tracking-widest text-gray-400">Ціна</p>
                     <div class="w-full">
                         <Slider v-model="priceRange" @update:modelValue="handleUpdatePrice" range :min="filters.prices.min" :max="filters.prices.max" class="w-auto mx-2" />
                         <div class="flex justify-between w-auto ml-1 mt-2">
@@ -29,29 +39,38 @@
 
                 <div class="flex py-5" v-for="attribute in filters.attributes">
                     <div class="w-full">
-                        <p class="mb-3 font-medium uppercase">{{ attribute.name }}</p>
+                        <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">{{ attribute.name }}</p>
                         <div class="flex gap-2" v-if="attribute.name === 'Колір'">
                             <Accordion :value="colorGroupsOpened" multiple class="w-full" lazy>
                                 <AccordionPanel v-for="group in attribute.color_groups" :value="group.id" class="px-0" v-show="groupHasColors(group.id)">
                                     <AccordionHeader class="px-0">{{ group.name }}</AccordionHeader>
                                     <AccordionContent>
-                                        <div class="flex gap-2">
-                                            <img
+                                        <div class="flex flex-wrap gap-2">
+                                            <button
                                                 v-for="option in getGroupColors(group.id)"
+                                                :key="option.value"
+                                                type="button"
+                                                :title="option.value"
                                                 @click="handleUpdateColor(option.value)"
-                                                :src="option.image_url"
-                                                class="w-8"
-                                                :class="{'ring-2 ring-emerald-500': selectedColors.includes(option.value)}" 
-                                            />
+                                                class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
+                                                :class="{'ring-2 ring-amber-400 ring-offset-1': selectedColors.includes(option.value)}"
+                                            >
+                                                <img
+                                                    v-if="option.image_url"
+                                                    :src="option.image_url"
+                                                    :alt="option.value"
+                                                    class="h-full w-full object-cover"
+                                                />
+                                            </button>
                                         </div>
                                     </AccordionContent>
                                 </AccordionPanel>
-                            </Accordion>                            
+                            </Accordion>
                         </div>
                         <div class="flex flex-col gap-2" v-else>
                             <div v-for="option in attribute.attribute_options" :key="option.id" class="flex items-center gap-2">
                                 <Checkbox v-model="attribute.checked" @update:modelValue="handleUpdateOption(attribute.slug, $event)" :inputId="String(option.id)" name="category" :value="option.value" />
-                                <label :for="option.id">{{ option.value }}</label>
+                                <label :for="option.id" class="text-sm text-gray-700">{{ option.value }}</label>
                             </div>
                         </div>
                     </div>
@@ -131,24 +150,28 @@
                 <section
                     class="mx-auto grid max-w-[1200px] grid-cols-2 gap-3 px-5 pb-10 lg:grid-cols-3"
                 >
-                    <div class="flex flex-col" v-for="product in products.data">
+                    <div class="group flex flex-col" v-for="product in products.data">
                         <Link
-                            class="cursor-pointer"
+                            class="cursor-pointer overflow-hidden rounded-sm shadow-sm ring-1 ring-gray-100"
                             :href="route('product', product.slug)"
                         >
                             <div class="relative flex">
                                 <img
-                                    class=""
-                                    src="/images/product-chair.png"
-                                    alt="sofa image"
+                                    v-if="product.default_image && !brokenImages.has(product.id)"
+                                    :src="product.default_image"
+                                    class="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    :alt="product.name"
+                                    @error="brokenImages.add(product.id)"
                                 />
+                                <div
+                                    v-else
+                                    class="flex aspect-square w-full items-center justify-center bg-gray-50 text-xs uppercase tracking-widest text-gray-300"
+                                >
+                                    Casanel
+                                </div>
                                 <div
                                     class="absolute flex h-full w-full items-center justify-center gap-3 opacity-0 duration-150 hover:opacity-100"
                                 >
-                                    <!-- <Link
-                                        :href="route('product', product.slug)"
-                                        class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400"
-                                    > -->
                                     <span class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -166,28 +189,20 @@
                                         </svg>
                                     </span>
                                 </div>
-                                <div class="absolute right-1 mt-3 flex items-center justify-center bg-amber-400">
-                                    <p class="px-2 py-2 text-sm">&minus; 25&percnt; OFF</p>
-                                </div>
                             </div>
                         </Link>
 
                         <div>
-                            <p class="mt-2">{{ product.name }}</p>
-                            <p class="font-medium text-emerald-500">
+                            <p class="mt-2 truncate" :title="product.name">{{ product.name }}</p>
+                            <p class="font-medium text-amber-600">
                                 {{ product.default_price }} грн.
-                                <!-- <span class="text-sm text-gray-500 line-through"
-                                    >$500.00</span
-                                > -->
                             </p>
 
-                            <div class="flex items-center">
-                                <Rating :defaultValue="product?.rating" readonly />
-                                <p class="ml-3 text-sm text-gray-400">(38)</p>
-                            </div>
-
                             <div>
-                                <Button class="my-5 h-10 w-full" @click="addToCart(product.id)">
+                                <Button
+                                    class="my-5 h-10 w-full !border-none !bg-amber-400 !text-black hover:!bg-yellow-300"
+                                    @click="addToCart(product.id)"
+                                >
                                     {{ $t("Add to cart") }}
                                 </Button>
                             </div>
@@ -207,11 +222,13 @@ import AccordionContent from 'primevue/accordioncontent';
 import Tree from 'primevue/tree';
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
-import { ref, onMounted, computed } from "vue"
+import { ref, reactive, onMounted, computed } from "vue"
 import { useToast } from "primevue/usetoast"
-import Rating from 'primevue/rating'
 
 const toast = useToast()
+// Tracks product IDs whose default_image 404'd (DB record exists, file missing) so
+// the card falls back to the placeholder instead of a broken-image icon.
+const brokenImages = reactive(new Set())
 const props = defineProps({
     canLogin: {
         type: Boolean,
@@ -399,7 +416,7 @@ const handleUpdateColor = (color) => {
     } else {
         let findedIndex = selectedColors.value.findIndex((element) => element === color)
         if(findedIndex >= 0) {
-            delete selectedColors.value[findedIndex]
+            selectedColors.value.splice(findedIndex, 1)
         }
     }
     Object.assign(filter.value, { colors: selectedColors.value })
