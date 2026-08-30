@@ -31,7 +31,8 @@ const form = useForm({
             id: option.id,
             value: option.value,
             src: option.img_url ? option.img_url : null,
-            new_src: null,
+            new_file: null,
+            new_preview: null,
             meta: option.meta ? props.color_groups.find(({id}) => id === Number(option.meta)) : {}
         }
     })],

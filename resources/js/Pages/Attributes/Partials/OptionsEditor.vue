@@ -33,7 +33,7 @@ const newOptionValue = ref('');
 const addOption = () => {
     const value = newOptionValue.value.trim();
     if (!value) return;
-    props.options.push({ id: 'new', value, new_src: null, src: null, meta: {}, _pendingDelete: false });
+    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, _pendingDelete: false });
     newOptionValue.value = '';
 };
 
@@ -57,13 +57,17 @@ const toggleDelete = (index) => {
     }
 };
 
+// Kept as a real File (not base64) so it reaches the server as an ordinary multipart
+// upload — Spatie MediaLibrary preserves the original name/extension from an UploadedFile,
+// unlike addMediaFromBase64() which has no filename to work with. It also avoids the ~33%
+// size inflation base64 adds, which made real photos more likely to hit the host's POST
+// size limit and silently drop the whole request.
 const onFileSelect = (index, event) => {
     const file = event.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        props.options[index].new_src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    const option = props.options[index];
+    if (option.new_preview) URL.revokeObjectURL(option.new_preview);
+    option.new_file = file;
+    option.new_preview = URL.createObjectURL(file);
 };
 
 // A validation error means at least one deletion was refused server-side — since we can't
@@ -92,8 +96,8 @@ watch(() => props.error, (value) => {
                 :class="option._pendingDelete ? 'border-red-200 bg-red-50/40 opacity-60' : 'border-gray-200'"
             >
                 <img
-                    v-if="isColor && (option.new_src || option.src)"
-                    :src="option.new_src || option.src"
+                    v-if="isColor && (option.new_preview || option.src)"
+                    :src="option.new_preview || option.src"
                     alt=""
                     class="h-12 w-12 shrink-0 rounded-full border border-gray-200 object-cover"
                 />

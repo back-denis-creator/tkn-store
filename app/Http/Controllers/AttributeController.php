@@ -41,7 +41,8 @@ class AttributeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255'
+            'description' => 'nullable|string|max:255',
+            'options.*.new_file' => 'nullable|image|max:5120',
         ]);
 
         $attribute = Attribute::create([
@@ -49,7 +50,7 @@ class AttributeController extends Controller
             'description' => $request->description
         ]);
 
-        $this->syncOptions($attribute, $request->input('options', []));
+        $this->syncOptions($request, $attribute);
 
         return redirect()->route('attributes.index')->with('message', 'Attribute Created Successfully');
     }
@@ -96,7 +97,8 @@ class AttributeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255'
+            'description' => 'nullable|string|max:255',
+            'options.*.new_file' => 'nullable|image|max:5120',
         ]);
 
         $attribute->name = $request->name;
@@ -120,7 +122,7 @@ class AttributeController extends Controller
             $option->delete();
         }
 
-        $this->syncOptions($attribute, $request->input('options', []));
+        $this->syncOptions($request, $attribute);
 
         if ($blockedValues) {
             return back()->withErrors([
@@ -144,10 +146,17 @@ class AttributeController extends Controller
     /**
      * Create, rename, and re-color/re-image the attribute's options — shared by
      * store() (brand-new attribute, every option is new) and update().
+     *
+     * Images arrive as ordinary uploaded files (not base64) — addMediaFromBase64() has no
+     * filename to work with and used to store the swatch photo with no extension at all,
+     * and base64's ~33% size inflation made it easier for a real phone photo to trip the
+     * host's POST size limit and silently drop the whole request.
      */
-    private function syncOptions(Attribute $attribute, array $options): void
+    private function syncOptions(Request $request, Attribute $attribute): void
     {
-        foreach ($options as $option) {
+        $options = $request->input('options', []);
+
+        foreach ($options as $index => $option) {
             if ($option['id'] === 'new') {
                 $attributeOption = $attribute->attributeOptions()->create([
                     'value' => $option['value'],
@@ -161,9 +170,10 @@ class AttributeController extends Controller
                 $attributeOption->update(['meta' => $option['meta']['id']]);
             }
 
-            if ($attributeOption && !empty($option['new_src'])) {
+            $file = $request->file("options.$index.new_file");
+            if ($attributeOption && $file) {
                 $attributeOption->clearMediaCollection();
-                $attributeOption->addMediaFromBase64($option['new_src'])->toMediaCollection();
+                $attributeOption->addMedia($file)->toMediaCollection();
             }
         }
     }
