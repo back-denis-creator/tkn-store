@@ -75,6 +75,15 @@ const isOpen = ref(false)
 const setIsOpen = (value) => {
   isOpen.value = value
 }
+
+// The cart/language/menu/mobile-drawer cluster below only renders after the
+// client mounts. Something in that combination (never pinned down to one
+// exact element) desyncs SSR hydration badly enough that Vue's patch-up can
+// drop real DOM nodes on some pages (e.g. Profile's tab list). Rendering
+// nothing here for both the SSR pass and the pre-mount client pass keeps
+// the two identical, so there's nothing to reconcile.
+const isMounted = ref(false)
+onMounted(() => { isMounted.value = true })
 </script>
 <template>
   <div>
@@ -95,7 +104,7 @@ const setIsOpen = (value) => {
         <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] font-cinzel">Casanel</span>
       </Link>
 
-      <div class="flex items-center gap-4 z-40">
+      <div class="flex items-center gap-4 z-40" v-if="isMounted">
           <!-- Cart -->
           <Link v-if="cartCount > 0" :href="route('cart')" class="relative inline-flex items-center justify-center p-2 text-gray-700 hover:bg-gray-50 transition-all">
               <i class="pi pi-shopping-bag text-lg"></i>
@@ -181,7 +190,7 @@ const setIsOpen = (value) => {
       </div>
 
       <!-- Mobile Drawer -->
-      <Drawer v-model:visible="mobileMenuOpen" position="right" class="!w-72">
+      <Drawer v-if="isMounted" v-model:visible="mobileMenuOpen" position="right" class="!w-72">
           <template #header>
               <div class="flex items-center gap-2">
                 <span class="text-xl font-bold tracking-widest font-cinzel">Сasanel</span>
