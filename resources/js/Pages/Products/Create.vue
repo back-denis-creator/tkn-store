@@ -16,7 +16,7 @@ import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
-import { Head, useForm } from "@inertiajs/vue3";
+import { Head, Link, useForm } from "@inertiajs/vue3";
 import CheckboxArray from '@/Components/CheckboxArray.vue';
 import { ref, computed } from 'vue';
 
@@ -75,7 +75,7 @@ const addVariation = (id) => {
         id,
         code: "",
         price: "",
-        show: false,
+        show: true,
         images: [],
         attributes: props.attributes.map((attribute, index) => {
             return {
@@ -89,12 +89,13 @@ const addVariation = (id) => {
                         value: option.value
                     }
                 }),
-                search: (e) => { 
+                search: (e) => {
                     searchOptionVariations(index)
                 }
             }
         })
     })
+    selectVariation(variations.value.length - 1)
 }
 
 const selectVariation = (index) => {
@@ -133,7 +134,7 @@ const variations = ref([{
                     value: option.value,
                 }
             }),
-            search: (e) => { 
+            search: (e) => {
                 searchOptionVariations(index)
             }
         }
@@ -142,6 +143,10 @@ const variations = ref([{
 
 const onFilesVariation = (e) => {
     variations.value[selectedVariation.value].images = e.files
+}
+
+const removeVariationImage = (index) => {
+    variations.value[selectedVariation.value].images = variations.value[selectedVariation.value].images.filter((_, i) => i !== index)
 }
 </script>
 
@@ -155,120 +160,155 @@ const onFilesVariation = (e) => {
             </h2>
         </template>
         <div class="py-12">
-            <Card class="max-w-7xl mx-auto">
-                <template #content>
-                    <form @submit.prevent="submit">
-                        <div>
-                            <InputLabel for="name" value="Імʼя" />
-                            <TextInput
-                                id="name"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.name"
-                                required
-                            />
-                            <InputError
-                                class="mt-2"
-                                :message="form.errors.name"
-                            />
+            <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                <form @submit.prevent="submit" class="space-y-6">
+                    <!-- Basic info -->
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Основна інформація</h3>
                         </div>
-                        <div class="my-6">
-                            <InputLabel for="slug" value="URL Імʼя" />
-                            <TextInput
-                                id="slug"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.slug"
-                            />
-                            <InputError
-                                class="mt-2"
-                                :message="form.errors.slug"
-                            />
-                        </div>
-                        <div class="my-6">
-                            <label
-                                for="description"
-                                class="block mb-2 text-sm font-medium text-gray-900"
-                                >Опис</label
-                            >
-                            <Editor id="description" v-model="form.description" editorStyle="height: 320px" />
-                            <div
-                                v-if="form.errors.description"
-                                class="text-sm text-red-600"
-                            >
-                                {{ form.errors.description }}
+                        <div class="space-y-6 p-6">
+                            <div>
+                                <InputLabel for="name" value="Імʼя" />
+                                <TextInput
+                                    id="name"
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="form.name"
+                                    required
+                                    autofocus
+                                />
+                                <InputError class="mt-2" :message="form.errors.name" />
+                            </div>
+                            <div>
+                                <InputLabel for="slug" value="URL Імʼя" />
+                                <TextInput
+                                    id="slug"
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="form.slug"
+                                />
+                                <InputError class="mt-2" :message="form.errors.slug" />
+                            </div>
+                            <div>
+                                <InputLabel value="Опис" />
+                                <Editor v-model="form.description" editorStyle="height: 320px" class="mt-1" />
+                                <p v-if="form.errors.description" class="mt-2 text-sm text-red-600">
+                                    {{ form.errors.description }}
+                                </p>
                             </div>
                         </div>
-                        <div class="my-6">
-                            <span class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Категорії</span>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Категорії</h3>
+                        </div>
+                        <div class="p-6">
                             <CheckboxArray :items="categoryItems" @update:checked="handleUpdateCategories" />
                         </div>
-                        <div class="my-6">
-                            <span class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Варіації</span>
-                            <div class="flex overflow-x-auto whitespace-nowrap">
-                                <div v-for="(variation, index) in variations" :key="index" @click.prevent="selectVariation(index)" :class="variation.show ? 'border border-b-0 border-gray-300 sm:text-base dark:border-gray-500 rounded-t-md dark:text-white whitespace-nowrap focus:outline-none' : 'bg-transparent border-b border-gray-300 sm:text-base dark:border-gray-500 dark:text-white whitespace-nowrap cursor-base focus:outline-none hover:border-gray-400 dark:hover:border-gray-300'" class="inline-flex items-center h-12 px-4 py-2 text-sm text-center text-gray-700">
-                                    <span>{{ `№${index}` }}</span>
-                                    <Button :disabled="index === 0" @click.stop="deleteVariation(index)" icon="pi pi-times" class="ml-2" severity="danger" text size="small" rounded aria-label="Cancel" />
+                    </div>
+
+                    <!-- Variations -->
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Варіації товару</h3>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2 border-b border-gray-100 px-6 pt-4">
+                            <button
+                                v-for="(variation, index) in variations"
+                                :key="index"
+                                type="button"
+                                @click="selectVariation(index)"
+                                class="group inline-flex items-center gap-2 rounded-t-md border border-b-0 px-4 py-2 text-sm transition-colors"
+                                :class="variation.show ? 'border-amber-300 bg-amber-50 font-medium text-amber-700' : 'border-transparent text-gray-500 hover:bg-gray-50'"
+                            >
+                                {{ variation.code || `Варіація ${index + 1}` }}
+                                <i
+                                    v-if="index > 0"
+                                    @click.stop="deleteVariation(index)"
+                                    class="pi pi-times text-xs text-gray-400 group-hover:text-red-500"
+                                ></i>
+                            </button>
+                            <button
+                                type="button"
+                                @click="addVariation(variations.length + 1)"
+                                class="inline-flex items-center gap-1 rounded-t-md px-3 py-2 text-sm text-amber-600 hover:bg-amber-50"
+                            >
+                                <i class="pi pi-plus text-xs"></i>
+                                Додати варіацію
+                            </button>
+                        </div>
+
+                        <div v-for="(variation, vIndex) in variations" :key="variation.id" v-show="variation.show" class="grid gap-8 p-6 lg:grid-cols-2">
+                            <div class="space-y-6">
+                                <div>
+                                    <InputLabel :for="`code-${vIndex}`" value="Артикул" />
+                                    <TextInput
+                                        :id="`code-${vIndex}`"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        v-model="variation.code"
+                                    />
+                                    <InputError
+                                        class="mt-2"
+                                        :message="form.errors[`variations.${vIndex}.code`]"
+                                    />
                                 </div>
-                                <div @click.prevent="addVariation(variations.length + 1)" class="inline-flex items-center h-12 px-4 py-2 text-sm text-center text-gray-700 bg-transparent border-b border-gray-300 sm:text-base dark:border-gray-500 dark:text-white whitespace-nowrap cursor-base focus:outline-none hover:border-gray-400 dark:hover:border-gray-300">
-                                    <i class="pi pi-plus" style="font-size: 0.9rem"></i>
+                                <div>
+                                    <InputLabel :for="`price-${vIndex}`" value="Ціна" />
+                                    <TextInput
+                                        :id="`price-${vIndex}`"
+                                        type="number"
+                                        class="mt-1 block w-full"
+                                        v-model="variation.price"
+                                    />
+                                    <InputError
+                                        class="mt-2"
+                                        :message="form.errors[`variations.${vIndex}.price`]"
+                                    />
                                 </div>
-                                <div class="border-b inline-flex w-full border-gray-300 dark:border-gray-500"></div>
+                                <div v-for="attribute in variation.attributes" :key="`${attribute.id}${variation.id}`">
+                                    <InputLabel :value="attribute.name" />
+                                    <div class="mt-1 flex items-start gap-3">
+                                        <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
+                                        <InputText v-model="attribute.unit" placeholder="Розхід" class="w-28 shrink-0" />
+                                    </div>
+                                </div>
                             </div>
-                            <div v-for="(variation, vIndex) in variations" :key="variation.id" v-show="variation.show">
-                                <div class="flex flex-row">
-                                    <div class="basis-1/2 pr-2">
-                                        <div class="my-6 ml-2">
-                                            <InputLabel for="code" value="Артикул" />
-                                            <TextInput
-                                                id="code"
-                                                type="text"
-                                                class="mt-1 block w-full"
-                                                v-model="variation.code"
-                                            />
-                                            <InputError
-                                                class="mt-2"
-                                                :message="form.errors[`variations.${vIndex}.code`]"
-                                            />
-                                        </div>
-                                        <div class="my-6 ml-2">
-                                            <InputLabel for="price" value="Ціна" />
-                                            <TextInput
-                                                id="price"
-                                                type="number"
-                                                class="mt-1 block w-full"
-                                                v-model="variation.price"
-                                            />
-                                            <InputError
-                                                class="mt-2"
-                                                :message="form.errors[`variations.${vIndex}.price`]"
-                                            />
-                                        </div>
-                                        <div class="ml-2">
-                                            <div v-for="attribute in variation.attributes" :key="`${attribute.id}${variation.id}`" class="my-6">
-                                                <div class="flex gap-4">
-                                                    <div class="w-full">
-                                                        <InputLabel :value="attribute.name" />
-                                                        <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
-                                                    </div>
-                                                    <div>
-                                                        <InputLabel value="Розхід" />
-                                                        <InputText v-model="attribute.unit" />
-                                                    </div>
-                                                </div>
+
+                            <div>
+                                <InputLabel value="Зображення варіації" />
+                                <FileUpload class="mt-1" @select="onFilesVariation($event)" multiple accept="image/*" :maxFileSize="1000000">
+                                    <template #header="{ chooseCallback, clearCallback, files }">
+                                        <div class="flex flex-wrap items-center justify-between gap-4 flex-1">
+                                            <div class="flex gap-2">
+                                                <Button @click="chooseCallback()" icon="pi pi-images" rounded outlined severity="secondary"></Button>
+                                                <Button @click="clearCallback()" icon="pi pi-times" rounded outlined severity="danger" :disabled="!files || files.length === 0"></Button>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="basis-1/2 pl-2 pt-12">
-                                        <FileUpload @select="onFilesVariation($event)" multiple accept="image/*" :maxFileSize="1000000">
-                                            <template #empty>
-                                                <span>Перетягніть зображення.</span>
-                                            </template>
-                                        </FileUpload>
-                                    </div>
-                                </div>
+                                    </template>
+                                    <template #content="{ files }">
+                                        <div v-if="files.length" class="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-3">
+                                            <div v-for="(file, index) of files" :key="file.name + file.size" class="relative overflow-hidden rounded-md border border-gray-200">
+                                                <img :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
+                                                <button type="button" @click="removeVariationImage(index)" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-600">
+                                                    <i class="pi pi-times text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template #empty>
+                                        <span class="text-sm text-gray-400">Перетягніть зображення сюди.</span>
+                                    </template>
+                                </FileUpload>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
                         <PrimaryButton
                             type="submit"
                             :class="{ 'opacity-25': form.processing }"
@@ -276,9 +316,12 @@ const onFilesVariation = (e) => {
                         >
                             Створити
                         </PrimaryButton>
-                    </form>
-                </template>
-            </Card>
+                        <Link :href="route('products.index')" class="text-sm text-gray-500 hover:text-gray-700">
+                            Скасувати
+                        </Link>
+                    </div>
+                </form>
+            </div>
         </div>
     </AuthenticatedLayout>
 </template>
