@@ -166,7 +166,8 @@ class AttributeController extends Controller
                 $attributeOption?->update(['value' => $option['value']]);
             }
 
-            if ($attributeOption && $attribute->name === Attribute::COLOR && !empty($option['meta']['id'])) {
+            // isset(), not empty() — the "Однотон" group's id is 0, which empty() treats as absent.
+            if ($attributeOption && $attribute->name === Attribute::COLOR && isset($option['meta']['id']) && $option['meta']['id'] !== '') {
                 $attributeOption->update(['meta' => $option['meta']['id']]);
             }
 
