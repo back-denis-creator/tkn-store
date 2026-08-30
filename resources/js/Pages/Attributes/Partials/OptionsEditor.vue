@@ -57,17 +57,48 @@ const toggleDelete = (index) => {
     }
 };
 
+// A color swatch is only ever shown as a small circle (48px in this editor, smaller still on
+// the storefront) — there's no reason to ship a full phone photo (often 15-25MB at 4000+px)
+// to the server. Downscaling here also sidesteps server-side image-conversion crashes: Spatie's
+// preview conversion decodes the full image into memory, and a 20MB/5700px photo can exceed
+// PHP's memory_limit and take the whole request down with a 503.
+const MAX_SWATCH_DIMENSION = 600;
+
+const resizeImage = (file) => new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const scale = Math.min(1, MAX_SWATCH_DIMENSION / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+            (blob) => resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })),
+            'image/jpeg',
+            0.85
+        );
+    };
+    img.onerror = reject;
+    img.src = objectUrl;
+});
+
 // Kept as a real File (not base64) so it reaches the server as an ordinary multipart
 // upload — Spatie MediaLibrary preserves the original name/extension from an UploadedFile,
 // unlike addMediaFromBase64() which has no filename to work with. It also avoids the ~33%
 // size inflation base64 adds, which made real photos more likely to hit the host's POST
 // size limit and silently drop the whole request.
-const onFileSelect = (index, event) => {
-    const file = event.files[0];
+const onFileSelect = async (index, event) => {
+    const original = event.files[0];
+    // Falls back to the original file if the browser can't decode it (e.g. a raw HEIC
+    // photo some browsers won't render into an <img>) — better to upload something than
+    // to silently drop the selection.
+    const resized = await resizeImage(original).catch(() => original);
     const option = props.options[index];
     if (option.new_preview) URL.revokeObjectURL(option.new_preview);
-    option.new_file = file;
-    option.new_preview = URL.createObjectURL(file);
+    option.new_file = resized;
+    option.new_preview = URL.createObjectURL(resized);
 };
 
 // A validation error means at least one deletion was refused server-side — since we can't
