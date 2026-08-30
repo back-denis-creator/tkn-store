@@ -27,8 +27,24 @@ Casanel.online is a modern, high-performance e-commerce platform developed using
 
 ## Project Structure Highlights
 - **Models**: Includes `Product`, `Category`, `Sku`, `Attribute`, `AttributeOption`, `Blog`, `Delivery`, `Storage`, and `User`.
-- **Pages**: Core shop logic resides in `resources/js/Pages/` (`Catalog.vue`, `Product.vue`, `Cart.vue`, `Checkout.vue`).
+- **Pages**: Core shop logic resides in `resources/js/Pages/` (`Catalog.vue`, `Product.vue`, `Cart.vue`, `Checkout.vue`), plus admin CRUD pages (`Products/`, `Categories/`, `Attributes/`, `Blogs/` — each with `Create/Edit/Index`) gated by `App\Http\Middleware\Admin`.
 - **Styles**: Tailwind CSS is used alongside PrimeVue themes.
+- **Business domain**: Ukrainian online store (default locale `uk`, `en` fallback, `config('app.locales')`), Nova Poshta as the only delivery carrier. Also serves a HORECA (hospitality/food-service B2B) landing page (`/horeca`).
+- **Product model**: Products → SKUs (variants) → AttributeOptions (e.g. size/color) → Attributes. Categories are self-referential via `parent_id` (nested categories). `Storage` tracks stock per `attribute_option_id`.
+- **Cart/Checkout**: session-based cart (no `Cart` model/table — stored in `session()->get('cart')`), Nova Poshta city/warehouse lookups via AJAX (`NPController`, `np_cities`/`np_warehouses` tables).
+- **Vendor override trick**: `composer.json` autoload maps `Illuminate\\` → `app/Overrides/` and excludes `vendor/daaner/novaposhta/.../Address.php` from the classmap, replaced by `app/Overrides/Address.php` — a patched Nova Poshta Address model. Re-run `composer dump-autoload` if this override stops taking effect after a vendor update.
+- **Routes**: all in `routes/web.php`, no per-module route groups. Note `products.update` is registered as `POST`, not `PUT/PATCH` (custom split from the resource route).
+
+## Testing
+- PHPUnit (`phpunit.xml`). Only Breeze-default coverage exists (`tests/Feature/Auth/*`, `ProfileTest.php`) plus placeholder `ExampleTest.php` files.
+- **No tests exist yet for the shop domain** (Product, Cart, Checkout, Category, Sku, Storage) — write Feature tests for these areas when touching them, there's no existing pattern to break.
+
+## Deployment
+- No Docker/CI config in the repo — deployed directly to a VPS/shared host, not containerized.
+- Production path: `/home/casanel/casanel.online/www`, running as `www-data`.
+- SSR worker managed by Supervisor (`laravel-worker.cnf`): runs `php artisan inertia:start-ssr`, logs to `/home/casanel/casanel.online/laravel-worker.log`. `INERTIA_SSR_PORT=13715` is deliberately non-default to avoid port conflicts on the host.
+- Local dev DB is SQLite (`DB_CONNECTION=sqlite`); production likely MySQL/Postgres (driver-agnostic migrations) — confirm actual prod driver before assuming SQLite semantics matter.
+- `FILESYSTEM_DISK=local` currently — AWS S3 env vars exist but are blank, so S3 is not actively wired up for media storage yet.
 
 ## Getting Started
 - **Install dependencies**: `composer install` & `npm install`

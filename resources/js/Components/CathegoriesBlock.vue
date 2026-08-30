@@ -75,7 +75,7 @@
 
 
       <!-- 6: HoReCa B2B -->
-      <div @click="openConsultation('HoReCa / B2B')" class="relative group cursor-pointer overflow-hidden rounded-sm">
+      <Link href="/horeca" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
           src="/images/service-covers.jpg"
@@ -86,7 +86,7 @@
             HoReCa<br>B2B
           </p>
         </div>
-      </div>
+      </Link>
     </section>
     <!-- /Services  -->
 
@@ -95,6 +95,7 @@
 
 <script setup>
 import { ref, defineAsyncComponent } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 const ConsultationModal = defineAsyncComponent(() => import('./ConsultationModal.vue'));
 
