@@ -3,7 +3,7 @@ import FileUpload from 'primevue/fileupload';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     options: {
@@ -84,6 +84,15 @@ const resizeImage = (file) => new Promise((resolve, reject) => {
     img.src = objectUrl;
 });
 
+// Resizing is async (image decode + canvas + toBlob), so there's a real window — easily a
+// few hundred ms for a big phone photo — between picking a file and it actually landing on
+// option.new_file. Exposed via defineExpose so the parent can hold the Save button disabled
+// until every in-flight resize settles; without it, a quick click-to-save right after picking
+// a photo submitted before the file was ever attached (server saw options.*.new_file as null).
+const pendingResizeCount = ref(0);
+const isBusy = computed(() => pendingResizeCount.value > 0);
+defineExpose({ isBusy });
+
 // Kept as a real File (not base64) so it reaches the server as an ordinary multipart
 // upload — Spatie MediaLibrary preserves the original name/extension from an UploadedFile,
 // unlike addMediaFromBase64() which has no filename to work with. It also avoids the ~33%
@@ -91,14 +100,19 @@ const resizeImage = (file) => new Promise((resolve, reject) => {
 // size limit and silently drop the whole request.
 const onFileSelect = async (index, event) => {
     const original = event.files[0];
-    // Falls back to the original file if the browser can't decode it (e.g. a raw HEIC
-    // photo some browsers won't render into an <img>) — better to upload something than
-    // to silently drop the selection.
-    const resized = await resizeImage(original).catch(() => original);
-    const option = props.options[index];
-    if (option.new_preview) URL.revokeObjectURL(option.new_preview);
-    option.new_file = resized;
-    option.new_preview = URL.createObjectURL(resized);
+    pendingResizeCount.value += 1;
+    try {
+        // Falls back to the original file if the browser can't decode it (e.g. a raw HEIC
+        // photo some browsers won't render into an <img>) — better to upload something than
+        // to silently drop the selection.
+        const resized = await resizeImage(original).catch(() => original);
+        const option = props.options[index];
+        if (option.new_preview) URL.revokeObjectURL(option.new_preview);
+        option.new_file = resized;
+        option.new_preview = URL.createObjectURL(resized);
+    } finally {
+        pendingResizeCount.value -= 1;
+    }
 };
 
 // A validation error means at least one deletion was refused server-side — since we can't
@@ -139,6 +153,7 @@ watch(() => props.error, (value) => {
                     <template v-if="isColor">
                         <Select v-model="option.meta" :options="colorGroups" optionLabel="name" placeholder="Обрати групу" class="w-full" :disabled="option._pendingDelete" />
                         <FileUpload v-if="!option._pendingDelete" mode="basic" chooseLabel="Завантажити фото" @select="onFileSelect(index, $event)" customUpload auto severity="secondary" class="p-button-outlined w-fit" />
+                        <p v-if="isBusy" class="text-xs text-gray-400">Обробка фото…</p>
                     </template>
 
                     <p v-if="option._pendingDelete" class="text-xs text-red-500">Буде видалено після збереження</p>

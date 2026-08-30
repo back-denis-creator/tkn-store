@@ -6,7 +6,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import OptionsEditor from "./Partials/OptionsEditor.vue";
 import { Head, useForm } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     color_groups: {
@@ -23,7 +23,10 @@ const form = useForm({
 
 const isColor = computed(() => form.name.trim() === 'Колір');
 
+const optionsEditor = ref(null);
+
 const submit = () => {
+    if (optionsEditor.value?.isBusy) return;
     form.post(route("attributes.store"));
 };
 </script>
@@ -85,6 +88,7 @@ const submit = () => {
 
                             <div class="my-6">
                                 <OptionsEditor
+                                    ref="optionsEditor"
                                     :options="form.options"
                                     :is-color="isColor"
                                     :color-groups="color_groups"
@@ -94,10 +98,10 @@ const submit = () => {
 
                             <PrimaryButton
                                 type="submit"
-                                :class="{ 'opacity-25': form.processing }"
-                                :disabled="form.processing"
+                                :class="{ 'opacity-25': form.processing || optionsEditor?.isBusy }"
+                                :disabled="form.processing || optionsEditor?.isBusy"
                             >
-                                Зберегти
+                                {{ optionsEditor?.isBusy ? 'Обробка фото…' : 'Зберегти' }}
                             </PrimaryButton>
                         </form>
                     </div>
