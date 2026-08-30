@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attribute;
 use App\Models\AttributeOption;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AttributeController extends Controller
@@ -95,6 +96,26 @@ class AttributeController extends Controller
      */
     public function update(Request $request, Attribute $attribute)
     {
+        // A true fatal error (e.g. real out-of-memory) skips try/catch entirely and would
+        // otherwise leave nothing in the log but the 503 the browser sees — this still runs
+        // even if the process dies mid-request.
+        register_shutdown_function(function () {
+            $error = error_get_last();
+            if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+                Log::error('AttributeController@update: fatal error on shutdown', $error);
+            }
+        });
+
+        Log::info('AttributeController@update: entered', [
+            'attribute_id' => $attribute->id,
+            'has_files' => $request->hasFile('options') ? array_map(fn ($o) => isset($o['new_file']), $request->file('options') ?? []) : [],
+            'content_length' => $request->server('CONTENT_LENGTH'),
+            'gd_loaded' => extension_loaded('gd'),
+            'imagick_loaded' => extension_loaded('imagick'),
+            'memory_limit' => ini_get('memory_limit'),
+            'memory_usage' => memory_get_usage(true),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
@@ -173,8 +194,38 @@ class AttributeController extends Controller
 
             $file = $request->file("options.$index.new_file");
             if ($attributeOption && $file) {
-                $attributeOption->clearMediaCollection();
-                $attributeOption->addMedia($file)->toMediaCollection();
+                Log::info('syncOptions: about to process image', [
+                    'option_id' => $attributeOption->id,
+                    'file_valid' => $file->isValid(),
+                    'file_error' => $file->getError(),
+                    'file_size' => $file->getSize(),
+                    'file_mime' => $file->getMimeType(),
+                    'file_path' => $file->getRealPath(),
+                    'memory_usage' => memory_get_usage(true),
+                ]);
+
+                try {
+                    $attributeOption->clearMediaCollection();
+                    Log::info('syncOptions: media collection cleared', ['option_id' => $attributeOption->id]);
+
+                    $media = $attributeOption->addMedia($file)->toMediaCollection();
+                    Log::info('syncOptions: media added successfully', [
+                        'option_id' => $attributeOption->id,
+                        'media_id' => $media->id,
+                        'memory_usage' => memory_get_usage(true),
+                        'memory_peak' => memory_get_peak_usage(true),
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::error('syncOptions: image processing failed', [
+                        'option_id' => $attributeOption->id,
+                        'exception_class' => get_class($e),
+                        'message' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+                    throw $e;
+                }
             }
         }
     }
