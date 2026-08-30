@@ -22,6 +22,15 @@ class Category extends Model
      */
     protected $with = ['children'];
 
+    /**
+     * Applies to every Category query, including nested ones made for the eager-loaded
+     * `children` above — so `products_count` is available at every level of the tree,
+     * not just the roots the controller queries directly.
+     *
+     * @var array
+     */
+    protected $withCount = ['products'];
+
     public function parent()
     {
        return $this->hasOne(Category::class, 'id', 'parent_id');

@@ -20,7 +20,12 @@
                 <div class="flex border-b pb-5">
                     <div class="w-full">
                         <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">Категорії</p>
-                        <Tree v-model:selectionKeys="selectedKey" v-model:expandedKeys="expandedKeys" :value="categories" @update:selectionKeys="handleUpdateCategory" selectionMode="checkbox" class="flex w-full" :pt="{root: 'my-root'}"></Tree>
+                        <Tree v-model:selectionKeys="selectedKey" v-model:expandedKeys="expandedKeys" :value="categories" @update:selectionKeys="handleUpdateCategory" selectionMode="checkbox" class="flex w-full" :pt="{root: 'my-root'}">
+                            <template #default="slotProps">
+                                <span>{{ slotProps.node.label }}</span>
+                                <span class="ml-1 text-xs text-gray-400">({{ slotProps.node.productsCount }})</span>
+                            </template>
+                        </Tree>
                     </div>
                 </div>
 
@@ -302,6 +307,7 @@ function transformCategories(arr) {
         const transformedItem = {
             key: item.id,
             label: item.name,
+            productsCount: item.products_count || 0,
          // data: 'Documents Folder',
          // icon: 'pi pi-fw pi-inbox',
         }
