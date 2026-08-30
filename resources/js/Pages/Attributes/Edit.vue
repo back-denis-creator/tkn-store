@@ -45,7 +45,7 @@ const optionsEditor = ref(null);
 
 const submit = () => {
     if (optionsEditor.value?.isBusy) return;
-    form.put(route("attributes.update", props.attribute.id));
+    form.post(route("attributes.update", props.attribute.id));
 };
 </script>
 

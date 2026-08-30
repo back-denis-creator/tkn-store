@@ -57,7 +57,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('/products', ProductController::class, ['except' => ['update']])->middleware('admin');
     Route::post('products/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('admin');
     Route::resource('/categories', CategoryController::class)->middleware('admin');
-    Route::resource('/attributes', AttributeController::class)->middleware('admin');
+    // update() is POST, not PUT — same reason as products.update: PHP never parses a
+    // multipart/form-data body into $_POST/$_FILES for anything but POST, so a real PUT
+    // silently drops every field (including the file) the moment a photo is attached.
+    Route::resource('/attributes', AttributeController::class, ['except' => ['update']])->middleware('admin');
+    Route::post('attributes/{attribute}', [AttributeController::class, 'update'])->name('attributes.update')->middleware('admin');
     Route::resource('/orders', AdminOrderController::class)
         ->parameters(['orders' => 'order:uuid'])
         ->only(['index', 'show', 'update'])
