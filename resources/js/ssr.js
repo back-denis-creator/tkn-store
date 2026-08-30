@@ -113,6 +113,7 @@ createServer((page) =>
                 .component('InputMask', InputMask)
                 .component('Image', Image)
                 .component('Galleria', Galleria)
+                .component('Drawer', Drawer)
         },
     }),
     import.meta.env.VITE_INERTIA_SSR_PORT || 13714
