@@ -98,20 +98,27 @@ const submit = () => {
     form.post(route("products.update", props.product.id));
 }
 
-const handleUpdateCategories = (categories) => {
-    form.category_ids = categories.reduce((filtered, category) => {
-        if (category.value) filtered.push(category.id)
-        return filtered
-    }, [])
+const buildCategoryTree = (categories, parentId = null) => {
+    return categories
+        .filter((category) => category.parent_id === parentId)
+        .map((category) => ({
+            id: category.id,
+            name: category.name,
+            value: props.product.categories.findIndex(({ id }) => id === category.id) >= 0,
+            children: buildCategoryTree(categories, category.id)
+        }))
 }
 
-const categoryItems = ref([...props.categories.map((category) => {
-    return {
-        id: category.id,
-        name: category.name,
-        value: !!(props.product.categories.findIndex(({id}) => id === category.id) >= 0)
-    }
-})])
+const collectCheckedIds = (items) => items.flatMap((item) => [
+    ...(item.value ? [item.id] : []),
+    ...collectCheckedIds(item.children)
+])
+
+const handleUpdateCategories = () => {
+    form.category_ids = collectCheckedIds(categoryItems.value)
+}
+
+const categoryItems = ref(buildCategoryTree(props.categories))
 
 const selectVariation = (index) => {
     form.variations = form.variations.map((variation, i) => {
