@@ -14,6 +14,23 @@ const loading = ref(false);
 const loaded = ref(false);
 const removingSkuId = ref(null);
 
+// The session cart has no real locking on this host (verified directly: a
+// GET and a DELETE fired concurrently both "succeed", but the GET's own
+// session write — which Laravel does unconditionally on every request,
+// whether or not the request touched the cart — silently overwrites the
+// DELETE's result with a stale snapshot if it lands after it). Since we
+// can't rely on the server to serialize overlapping requests for this
+// session, every cart-touching call here is chained through one queue so
+// a hover-triggered preview fetch can never run at the same time as a
+// mutation (add/remove) — whichever was already in flight always finishes
+// first.
+let queue = Promise.resolve();
+const enqueue = (fn) => {
+    const run = queue.then(fn, fn);
+    queue = run.catch(() => {});
+    return run;
+};
+
 // Fetched on demand (not shared globally like cartCount) — most pages have
 // no other reason to hydrate cart products from the DB on every request.
 // Re-fetched on every hover so a change made elsewhere (Cart page, "add to
@@ -21,7 +38,7 @@ const removingSkuId = ref(null);
 const fetchPreview = () => {
     if (loading.value) return;
     loading.value = true;
-    window.axios.get(route('cart.preview'))
+    enqueue(() => window.axios.get(route('cart.preview')))
         .then(({ data }) => {
             items.value = data;
             loaded.value = true;
@@ -33,17 +50,21 @@ const fetchPreview = () => {
 
 const removeItem = (skuId) => {
     removingSkuId.value = skuId;
-    router.delete(route('cart.delete'), {
-        data: { skuId },
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            items.value = items.value.filter((item) => item.sku_id !== skuId);
-        },
-        onFinish: () => {
-            removingSkuId.value = null;
-        },
-    });
+    enqueue(() => new Promise((resolve, reject) => {
+        router.delete(route('cart.delete'), {
+            data: { skuId },
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                items.value = items.value.filter((item) => item.sku_id !== skuId);
+                resolve();
+            },
+            onError: reject,
+            onFinish: () => {
+                removingSkuId.value = null;
+            },
+        });
+    })).catch(() => {});
 };
 
 const total = computed(() => items.value.reduce((sum, item) => sum + item.price * item.quantity, 0));
