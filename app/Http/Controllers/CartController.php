@@ -43,10 +43,13 @@ class CartController extends Controller
         // Получаем текущую корзину из сессии
         $cart = session()->get('cart', []);
 
-        // Если товар уже в корзині — просто збільшуємо кількість, а не ігноруємо
+        // Если товар уже в корзині — просто збільшуємо кількість, а не ігноруємо.
+        // Cast to int: sku_id round-trips through the session/request as either
+        // an int or a numeric string depending on how it was serialized on the
+        // way in, and strict comparison silently treats those as "different".
         $existProductIndex = null;
         foreach ($cart as $index => $item) {
-            if($productData['sku_id'] === $item['sku_id']) {
+            if((int) $productData['sku_id'] === (int) $item['sku_id']) {
                 $existProductIndex = $index;
                 break;
             }
@@ -68,8 +71,8 @@ class CartController extends Controller
         // Получаем текущую корзину из сессии
         $cart = session()->get('cart', []);
 
-        $updated = array_map(function ($item) use($request) { 
-            if($request->has('skuId') && $request->skuId !== $item['sku_id']) {
+        $updated = array_map(function ($item) use($request) {
+            if($request->has('skuId') && (int) $request->skuId !== (int) $item['sku_id']) {
                 return $item;
             }
         }, $cart);
@@ -84,8 +87,8 @@ class CartController extends Controller
         // Получаем текущую корзину из сессии
         $cart = session()->get('cart', []);
 
-        $updated = array_map(function ($item) use($request) { 
-            if($request->has('skuId') && $request->skuId === $item['sku_id']) {
+        $updated = array_map(function ($item) use($request) {
+            if($request->has('skuId') && (int) $request->skuId === (int) $item['sku_id']) {
                 $item['quantity'] = $request->quantity;
             }
             return $item;

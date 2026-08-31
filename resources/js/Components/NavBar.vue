@@ -109,7 +109,10 @@ onMounted(() => { isMounted.value = true })
                   v-for="page in navigation.pages"
                   :key="page.name"
                   :href="page.href ? page.href : route(page.route)"
-                  class="text-sm font-medium text-gray-700 hover:text-amber-600 transition-colors"
+                  class="border-b-2 pb-1 text-sm font-medium transition-colors"
+                  :class="route().current(page.route)
+                      ? 'border-amber-400 text-amber-600'
+                      : 'border-transparent text-gray-700 hover:border-amber-200 hover:text-amber-600'"
               >
                   {{ $t(page.name) }}
               </Link>
