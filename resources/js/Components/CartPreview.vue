@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -12,6 +12,7 @@ const props = defineProps({
 const items = ref([]);
 const loading = ref(false);
 const loaded = ref(false);
+const removingSkuId = ref(null);
 
 // Fetched on demand (not shared globally like cartCount) — most pages have
 // no other reason to hydrate cart products from the DB on every request.
@@ -28,6 +29,21 @@ const fetchPreview = () => {
         .finally(() => {
             loading.value = false;
         });
+};
+
+const removeItem = (skuId) => {
+    removingSkuId.value = skuId;
+    router.delete(route('cart.delete'), {
+        data: { skuId },
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            items.value = items.value.filter((item) => item.sku_id !== skuId);
+        },
+        onFinish: () => {
+            removingSkuId.value = null;
+        },
+    });
 };
 
 const total = computed(() => items.value.reduce((sum, item) => sum + item.price * item.quantity, 0));
@@ -79,6 +95,17 @@ const total = computed(() => items.value.reduce((sum, item) => sum + item.price 
                                 </p>
                                 <p class="mt-1 text-xs text-gray-500">{{ item.quantity }} × {{ item.price }} грн</p>
                             </div>
+
+                            <button
+                                type="button"
+                                :disabled="removingSkuId === item.sku_id"
+                                @click="removeItem(item.sku_id)"
+                                class="shrink-0 self-start text-gray-300 transition-colors hover:text-red-500 disabled:opacity-50"
+                                title="Видалити"
+                            >
+                                <i v-if="removingSkuId === item.sku_id" class="pi pi-spin pi-spinner text-xs"></i>
+                                <i v-else class="pi pi-times text-xs"></i>
+                            </button>
                         </div>
                     </div>
 

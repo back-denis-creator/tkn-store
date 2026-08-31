@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Sku;
 use App\Services\CartService;
 use Cocur\Slugify\Slugify;
 use Illuminate\Http\Request;
@@ -165,6 +166,26 @@ class PageController extends Controller
             'categories' => Category::where('parent_id', null)->get(),
             'prices' => [ 'min' => $minPrice / 100, 'max' => $maxPrice / 100 ]
         ];
+
+        // The sort dropdown used to be decorative — nothing here ever called
+        // orderBy(), so every option (including the previous default,
+        // reverse-alphabetical) returned products in whatever order the DB
+        // happened to store them. Newest-first is the default now; price
+        // sorts order by each product's cheapest SKU via a correlated
+        // subquery so products with multiple SKUs still sort predictably.
+        if (in_array($request->sort, ['price-min-max', 'price-max-min'])) {
+            $direction = $request->sort === 'price-min-max' ? 'asc' : 'desc';
+            $query->orderBy(
+                Sku::select('price')->whereColumn('skus.product_id', 'products.id')->orderBy('price', $direction)->limit(1),
+                $direction
+            );
+        } elseif ($request->sort === 'asc') {
+            $query->orderBy('name', 'asc');
+        } elseif ($request->sort === 'desc') {
+            $query->orderBy('name', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
 
         return Inertia::render('Catalog', [
             'filters' => $filters,

@@ -69,13 +69,8 @@ const accountLink = computed(() => authUser.value
     ? { name: authUser.value.name, route: 'profile.index', icon: 'pi-user' }
     : { name: 'Увійти / Реєстрація', route: 'login', icon: 'pi-user' }
 )
+const userInitial = computed(() => authUser.value?.name?.trim()?.charAt(0)?.toUpperCase() || '?')
 const mobileMenuOpen = ref(false)
-const desktopMenuOpen = ref(false)
-
-const isOpen = ref(false)
-const setIsOpen = (value) => {
-  isOpen.value = value
-}
 
 // The cart/language/menu/mobile-drawer cluster below only renders after the
 // client mounts. Something in that combination (never pinned down to one
@@ -101,9 +96,25 @@ onMounted(() => { isMounted.value = true })
       class="sticky top-0 z-50 bg-white shadow-sm"
     >
       <div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5">
-      <Link href="/" class="flex items-center">
-        <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] font-cinzel">Casanel</span>
-      </Link>
+      <div class="flex items-center gap-8">
+          <Link href="/" class="flex items-center shrink-0">
+            <span class="text-2xl font-bold text-gray-900 tracking-[0.2em] font-cinzel">Casanel</span>
+          </Link>
+
+          <!-- Primary navigation lives here now, next to the logo — not only
+               inside the hamburger dropdown/mobile drawer — so the store's
+               main sections are always visible, not one lone floating link. -->
+          <nav class="hidden lg:flex items-center gap-6">
+              <Link
+                  v-for="page in navigation.pages"
+                  :key="page.name"
+                  :href="page.href ? page.href : route(page.route)"
+                  class="text-sm font-medium text-gray-700 hover:text-amber-600 transition-colors"
+              >
+                  {{ $t(page.name) }}
+              </Link>
+          </nav>
+      </div>
 
       <div class="flex items-center gap-4 z-40" v-if="isMounted">
           <!-- Cart -->
@@ -140,36 +151,71 @@ onMounted(() => { isMounted.value = true })
               </div>
           </div>
 
-          <!-- Desktop Menu (Hover) -->
-          <div class="hidden lg:block relative group">
+          <!-- Account -->
+          <Link
+              v-if="!authUser"
+              :href="route(accountLink.route)"
+              :title="accountLink.name"
+              class="hidden lg:inline-flex items-center justify-center p-2 text-gray-700 hover:bg-gray-50 transition-all"
+          >
+              <i class="pi pi-user text-lg"></i>
+          </Link>
+
+          <div v-else class="hidden lg:block relative group">
               <button
-                  class="inline-flex items-center justify-center px-4 py-2 bg-transparent text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-all"
+                  type="button"
+                  class="inline-flex items-center justify-center rounded-full p-0.5 bg-transparent hover:bg-gray-50 focus:outline-none transition-all"
               >
-                  <i class="pi pi-bars my-1 text-amber-500"></i>
-                  <!-- {{ $t('Menu', 'Меню') }} -->
+                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-black">
+                      {{ userInitial }}
+                  </span>
               </button>
-              
-              <!-- Beautifully appearing menu on hover -->
+
+              <!-- Account dropdown on hover -->
               <div
-                  class="absolute right-0 mt-0 w-48 pt-2 invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out"
+                  class="absolute right-0 mt-0 w-60 pt-2 invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-[60]"
               >
                   <div class="bg-white rounded-md shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden border border-gray-100">
+                      <div class="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
+                          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-bold text-black">
+                              {{ userInitial }}
+                          </span>
+                          <div class="min-w-0">
+                              <p class="text-xs text-gray-400">{{ $t('Hello') }}</p>
+                              <p class="truncate text-sm font-bold text-gray-900">{{ authUser.name }}</p>
+                          </div>
+                      </div>
                       <div class="py-1">
                           <Link
-                              v-for="page in navigation.pages"
-                              :key="page.name"
-                              :href="page.href ? page.href : route(page.route)"
-                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50 last:border-none"
+                              :href="route('profile.index')"
+                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50"
                           >
-                              <i :class="`pi ${page.icon || 'pi-briefcase'} mr-3 text-amber-500 text-lg overflow-hidden`" ></i>
-                              {{ $t(page.name) }}
+                              <i class="pi pi-user mr-3 text-amber-500 text-lg"></i>
+                              {{ $t('Profile Information') }}
                           </Link>
                           <Link
-                              :href="route(accountLink.route)"
-                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50 last:border-none"
+                              :href="route('orders.mine')"
+                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50"
                           >
-                              <i :class="`pi ${accountLink.icon} mr-3 text-amber-500 text-lg overflow-hidden`" ></i>
-                              {{ accountLink.name }}
+                              <i class="pi pi-shopping-bag mr-3 text-amber-500 text-lg"></i>
+                              {{ $t('Order') }}
+                          </Link>
+                          <Link
+                              v-if="authUser.role === 'admin'"
+                              :href="route('dashboard')"
+                              class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors border-b border-gray-50"
+                          >
+                              <i class="pi pi-cog mr-3 text-amber-500 text-lg"></i>
+                              Панель адміністратора
+                          </Link>
+                          <Link
+                              :href="route('logout')"
+                              method="post"
+                              as="button"
+                              class="flex w-full items-center px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                          >
+                              <i class="pi pi-sign-out mr-3 text-amber-500 text-lg"></i>
+                              {{ $t('Log Out') }}
                           </Link>
                       </div>
                   </div>

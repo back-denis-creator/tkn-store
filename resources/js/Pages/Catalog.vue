@@ -259,13 +259,14 @@ const props = defineProps({
     }
 })
 
-const selectedSort = ref({ name: 'Назва (Я-А)', key: 'desc' })
 const sorts = ref([
+    { name: 'Новинки', key: 'newest' },
     { name: 'Назва (А-Я)', key: 'asc' },
     { name: 'Назва (Я-А)', key: 'desc' },
     { name: 'Ціна спадання', key: 'price-max-min' },
     { name: 'Ціна зростання', key: 'price-min-max' },
 ])
+const selectedSort = ref(sorts.value[0])
 const offset = computed(() => (props.products.per_page * (props.products.current_page - 1)) > props.products.total ? props.products.total : (props.products.per_page * (props.products.current_page - 1)))
 const form = useForm({
     product_id: null,
