@@ -25,6 +25,7 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/horeca', [PageController::class, 'horeca'])->name('horeca');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/cart', [PageController::class, 'cart'])->name('cart');
+Route::get('/cart/preview', [CartController::class, 'preview'])->name('cart.preview');
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/delete', [CartController::class, 'deleteFromCart'])->name('cart.delete');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');

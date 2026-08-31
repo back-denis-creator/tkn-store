@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getActiveLanguage, loadLanguageAsync } from 'laravel-vue-i18n';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
+import CartPreview from '@/Components/CartPreview.vue';
 
 const page = usePage()
 const cartCount = computed(() => page.props.cartCount || 0)
@@ -106,12 +107,7 @@ onMounted(() => { isMounted.value = true })
 
       <div class="flex items-center gap-4 z-40" v-if="isMounted">
           <!-- Cart -->
-          <Link v-if="cartCount > 0" :href="route('cart')" class="relative inline-flex items-center justify-center p-2 text-gray-700 hover:bg-gray-50 transition-all">
-              <i class="pi pi-shopping-bag text-lg"></i>
-              <span
-                  class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-black"
-              >{{ cartCount }}</span>
-          </Link>
+          <CartPreview v-if="cartCount > 0" :cart-count="cartCount" />
 
           <!-- Language Selector -->
           <div class="hidden lg:block relative group">

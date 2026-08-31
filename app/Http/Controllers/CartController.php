@@ -3,10 +3,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CartService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    /**
+     * Lean, hydrated cart data for the NavBar's hover preview — fetched on
+     * demand instead of shared globally, since most pages have no other
+     * reason to touch the cart tables on every request.
+     */
+    public function preview()
+    {
+        return response()->json(
+            CartService::hydrate()->map(fn ($product) => [
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'quantity' => $product->quantity,
+                'price' => $product->skus[0]->price,
+                'sku_id' => $product->skus[0]->id,
+                'image' => $product->skus[0]->media[0]?->original_url,
+                'attributes' => $product->skus[0]->attributeOptions->map(fn ($option) => [
+                    'name' => $option->attribute->name,
+                    'value' => $option->value,
+                ]),
+            ])->values()
+        );
+    }
 
     public function addToCart(Request $request)
     {
