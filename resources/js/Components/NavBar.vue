@@ -238,7 +238,7 @@ onMounted(() => { isMounted.value = true })
       <Drawer v-if="isMounted" v-model:visible="mobileMenuOpen" position="right" class="!w-72">
           <template #header>
               <div class="flex items-center gap-2">
-                <span class="text-xl font-bold tracking-widest font-cinzel">Сasanel</span>
+                <span class="text-xl font-bold text-gray-900 tracking-[0.2em] font-cinzel">Casanel</span>
               </div>
           </template>
           
