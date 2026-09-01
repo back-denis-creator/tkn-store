@@ -27,7 +27,8 @@ class AppServiceProvider extends ServiceProvider
                 ->greeting('Вітаємо, '.$notifiable->name.'!')
                 ->line('Дякуємо за реєстрацію на '.config('app.name').'. Щоб активувати акаунт, підтвердіть вашу email-адресу.')
                 ->action('Підтвердити email', $url)
-                ->line('Якщо ви не реєструвалися на нашому сайті, просто проігноруйте цей лист.');
+                ->line('Якщо ви не реєструвалися на нашому сайті, просто проігноруйте цей лист.')
+                ->salutation("З повагою,\nCasanel");
         });
     }
 }
