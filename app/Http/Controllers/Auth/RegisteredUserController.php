@@ -9,10 +9,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Route;
 
 class RegisteredUserController extends Controller
 {
@@ -24,7 +24,7 @@ class RegisteredUserController extends Controller
         return Inertia::render('Auth/Register', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -51,6 +51,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('verification.notice', absolute: false));
     }
 }

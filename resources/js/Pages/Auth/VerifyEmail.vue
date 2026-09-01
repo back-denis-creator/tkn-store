@@ -21,23 +21,25 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
 
 <template>
     <GuestLayout>
-        <Head title="Email Verification">
+        <Head :title="$t('Email Verification', 'Підтвердження email')">
             <meta name="robots" content="noindex, nofollow" />
         </Head>
 
         <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your email address by clicking on the link
-            we just emailed to you? If you didn't receive the email, we will gladly send you another.
+            {{ $t(
+                "Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.",
+                'Дякуємо за реєстрацію! Перш ніж почати, підтвердіть, будь ласка, вашу email-адресу, перейшовши за посиланням у листі, який ми щойно надіслали. Якщо лист не прийшов, ми з радістю надішлемо новий.'
+            ) }}
         </div>
 
         <div class="mb-4 font-medium text-sm text-green-600" v-if="verificationLinkSent">
-            A new verification link has been sent to the email address you provided during registration.
+            {{ $t('A new verification link has been sent to the email address you provided during registration.', 'Нове посилання для підтвердження надіслано на email, вказаний під час реєстрації.') }}
         </div>
 
         <form @submit.prevent="submit">
             <div class="mt-4 flex items-center justify-between">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Resend Verification Email
+                    {{ $t('Resend Verification Email', 'Надіслати лист повторно') }}
                 </PrimaryButton>
 
                 <Link
@@ -45,7 +47,7 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
                     method="post"
                     as="button"
                     class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >Log Out</Link
+                    >{{ $t('Log Out', 'Вийти') }}</Link
                 >
             </div>
         </form>

@@ -3,15 +3,34 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Notifications\QueuedVerifyEmail;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_verification_email_is_sent_on_the_queue(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        $user->sendEmailVerificationNotification();
+
+        Queue::assertPushed(SendQueuedNotifications::class, function ($job) use ($user) {
+            return $job->notifiables->first()->is($user)
+                && $job->notification instanceof QueuedVerifyEmail;
+        });
+    }
 
     public function test_email_verification_screen_can_be_rendered(): void
     {

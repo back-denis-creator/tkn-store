@@ -1,0 +1,9 @@
+[program:laravel-queue-worker]
+command=php /home/casanel/casanel.com.ua/www/artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/home/casanel/casanel.com.ua/laravel-queue-worker.log
+stopwaitsecs=3630

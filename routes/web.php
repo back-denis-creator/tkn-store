@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BlogController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LiqPayController;
 use App\Http\Controllers\NPController;
@@ -13,9 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Store\PageController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/catalog', [PageController::class, 'catalog'])->name('catalog');
@@ -38,17 +36,18 @@ Route::get('/order/liqpay/{order:uuid}', [LiqPayController::class, 'checkout'])-
 Route::post('/payments/liqpay/callback', [LiqPayController::class, 'callback'])->name('liqpay.callback');
 
 Route::get('/set-locale/{locale}', function ($locale) {
-    if (!in_array($locale, config('app.locales'))) {
+    if (! in_array($locale, config('app.locales'))) {
         abort(404);
     }
     app()->setLocale($locale);
     session()->put('locale', $locale);
+
     return redirect()->back();
 })->name('locale.set');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'admin', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
