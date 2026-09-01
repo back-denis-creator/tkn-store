@@ -1,10 +1,13 @@
 <script setup>
+import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-// import InputError from '@/Components/InputError.vue';
-// import InputLabel from '@/Components/InputLabel.vue';
-// import PrimaryButton from '@/Components/PrimaryButton.vue';
-// import TextInput from '@/Components/TextInput.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+
+const agreedToTerms = ref(false);
 
 const form = useForm({
     name: '',
@@ -26,17 +29,17 @@ const submit = () => {
             <meta name="robots" content="noindex, nofollow" />
         </Head>
         <!-- Register card  -->
-        <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2">
+        <div class="container mx-auto rounded-lg border border-gray-200 px-5 py-5 shadow-sm md:w-1/2">
           <div class="">
             <p class="text-4xl font-bold uppercase">{{ $t("Sign up") }}</p>
             <p>{{ $t("Create a user") }}</p>
           </div>
 
-          <form class="mt-6 flex flex-col">
-            <label for="name">{{ $t("Name") }}</label>
-            <input
+          <form class="mt-6 flex flex-col" @submit.prevent="submit">
+            <InputLabel for="name" :value="$t('Name')" />
+            <TextInput
               id="name"
-              class="mb-3 mt-3 border px-4 py-2"
+              class="mb-3 mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="text"
               placeholder="Bogdan Bulakh"
               v-model="form.name"
@@ -44,52 +47,60 @@ const submit = () => {
               autofocus
               autocomplete="name"
             />
-            <!-- <InputError class="mt-2" :message="form.errors.name" /> -->
-            <label class="mt-3" for="email">{{ $t("Email") }}</label>
-            <input
+            <InputError :message="form.errors.name" />
+
+            <InputLabel class="mt-3" for="email" :value="$t('Email')" />
+            <TextInput
               id="email"
-              class="mt-3 border px-4 py-2"
+              class="mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="email"
               placeholder="user@mail.com"
               v-model="form.email"
               required
               autocomplete="username"
             />
-            <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
-            <label class="mt-5" for="password">{{ $t("Password") }}</label>
-            <input
+            <InputError :message="form.errors.email" />
+
+            <InputLabel class="mt-5" for="password" :value="$t('Password')" />
+            <TextInput
               id="password"
-              class="mt-3 border px-4 py-2"
+              class="mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="password"
               placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
               v-model="form.password"
               required
               autocomplete="new-password"
             />
-            <!-- <InputError class="mt-2" :message="form.errors.password" /> -->
-            <label class="mt-5" for="password_confirmation">{{ $t("Confirm Password") }}</label>
-            <input
+            <InputError :message="form.errors.password" />
+
+            <InputLabel class="mt-5" for="password_confirmation" :value="$t('Confirm Password')" />
+            <TextInput
               id="password_confirmation"
-              class="mt-3 border px-4 py-2"
+              class="mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="password"
               placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
               v-model="form.password_confirmation"
               required
               autocomplete="new-password"
             />
-            <!-- <InputError class="mt-2" :message="form.errors.password_confirmation" /> -->
+            <InputError :message="form.errors.password_confirmation" />
 
             <div class="mt-4 flex justify-between">
-              <div class="flex gap-2 items-center">
-                <input type="checkbox" />
-                <label for="checkbox">
+              <label class="flex gap-2 items-center">
+                <Checkbox v-model:checked="agreedToTerms" class="!text-amber-500 focus:!ring-amber-500" />
+                <span>
                   I have read and agree with
-                  <a href="#" class="text-amber-600">terms &amp; conditions</a>
-                </label>
-              </div>
+                  <a href="#" class="text-amber-600 hover:text-amber-700">terms &amp; conditions</a>
+                </span>
+              </label>
             </div>
 
-            <Button class="my-5 w-full uppercase" :class="{ 'opacity-25': form.processing }" :disabled="form.processing" @click="submit">
+            <Button
+              type="submit"
+              class="my-5 h-10 w-full !border-none !bg-amber-400 uppercase !text-black hover:!bg-yellow-300"
+              :class="{ 'opacity-25': form.processing }"
+              :disabled="form.processing"
+            >
               {{ $t("Sign up") }}
             </Button>
           </form>

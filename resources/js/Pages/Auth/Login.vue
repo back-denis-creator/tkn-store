@@ -1,10 +1,9 @@
 <script setup>
-// import Checkbox from '@/Components/Checkbox.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-// import InputError from '@/Components/InputError.vue';
-// import InputLabel from '@/Components/InputLabel.vue';
-// import PrimaryButton from '@/Components/PrimaryButton.vue';
-// import TextInput from '@/Components/TextInput.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
@@ -44,53 +43,67 @@ const submit = () => {
             {{ status }}
         </div>
         <!-- Login card  -->
-        <div class="container mx-auto border px-5 py-5 shadow-sm md:w-1/2 mt-10 mb-10">
+        <div class="container mx-auto rounded-lg border border-gray-200 px-5 py-5 shadow-sm md:w-1/2 mt-10 mb-10">
           <div class="">
             <p class="text-4xl font-bold uppercase">{{ $t("Log in") }}</p>
             <p>{{ $t("Welcome") }}! 👋🏻</p>
           </div>
 
-          <form class="mt-6 flex flex-col">
-            <label for="email">{{ $t("Email") }}</label>
-            <input
+          <form class="mt-6 flex flex-col" @submit.prevent="submit">
+            <InputLabel for="email" :value="$t('Email')" />
+            <TextInput
               id="email"
               v-model="form.email"
-              class="mb-3 mt-3 border px-4 py-2"
+              class="mb-3 mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="email"
               placeholder="youremail@domain.com"
               required
               autofocus
               autocomplete="username"
             />
-            <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
-            <label for="password">{{ $t("Password") }}</label>
-            <input
+            <InputError :message="form.errors.email" />
+
+            <InputLabel for="password" :value="$t('Password')" />
+            <TextInput
               id="password"
               v-model="form.password"
-              class="mt-3 border px-4 py-2"
+              class="mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="password"
               placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
               required
               autocomplete="current-password"
             />
-            <!-- <InputError class="mt-2" :message="form.errors.password" /> -->
+            <InputError class="mt-2" :message="form.errors.password" />
+
             <div class="mt-4 flex justify-between">
-              <div class="flex gap-2 items-center">
-                <input type="checkbox" v-model="form.remember" />
-                <label for="checkbox">{{  $t("Remember me") }}</label>
-              </div>
+              <label class="flex gap-2 items-center">
+                <Checkbox v-model:checked="form.remember" class="!text-amber-500 focus:!ring-amber-500" />
+                <span>{{ $t("Remember me") }}</span>
+              </label>
               <Link
                 v-if="canResetPassword"
                 :href="route('password.request')"
-                class="text-amber-600"
+                class="text-amber-600 hover:text-amber-700"
               >
                 {{ $t("Forgot Password?") }}
               </Link>
             </div>
 
-            <Button :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="my-5 w-full uppercase" @click="submit">
+            <Button
+              type="submit"
+              :class="{ 'opacity-25': form.processing }"
+              :disabled="form.processing"
+              class="my-5 h-10 w-full !border-none !bg-amber-400 uppercase !text-black hover:!bg-yellow-300"
+            >
               {{ $t("Log in") }}
             </Button>
+
+            <p v-if="canRegister" class="text-center text-sm text-gray-600">
+              {{ $t("Don't have an account?") }}
+              <Link :href="route('register')" class="font-medium text-amber-600 hover:text-amber-700">
+                {{ $t("Sign up") }}
+              </Link>
+            </p>
           </form>
         </div>
       <!-- /Login Card  -->
