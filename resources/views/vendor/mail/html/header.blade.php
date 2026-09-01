@@ -5,7 +5,7 @@
 @if (trim($slot) === 'Laravel')
 <img src="https://laravel.com/img/notification-logo.png" class="logo" alt="Laravel Logo">
 @else
-<img src="{{ asset('images/casanel-logo.png') }}" class="logo" alt="{{ $slot }}">
+<span style="font-family: 'Cinzel Decorative', Georgia, 'Times New Roman', serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em;">{{ $slot }}</span>
 @endif
 </a>
 </td>
