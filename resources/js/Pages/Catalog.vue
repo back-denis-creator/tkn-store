@@ -83,6 +83,88 @@
             </section>
             <!-- /sidebar  -->
 
+            <!-- Mobile filters — the "Filters" button above used to do nothing;
+                 same controls as the desktop sidebar, just reachable on phones. -->
+            <Drawer v-model:visible="mobileFiltersOpen" position="right" class="!w-full sm:!w-96">
+                <template #header>
+                    <span class="text-lg font-bold uppercase tracking-widest text-gray-800">Фільтри</span>
+                </template>
+
+                <div class="flex border-b pb-5">
+                    <div class="w-full">
+                        <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">Категорії</p>
+                        <Tree v-model:selectionKeys="selectedKey" v-model:expandedKeys="expandedKeys" :value="categories" @update:selectionKeys="handleUpdateCategory" selectionMode="checkbox" class="flex w-full" :pt="{root: 'my-root'}">
+                            <template #default="slotProps">
+                                <span>{{ slotProps.node.label }}</span>
+                                <span class="ml-1 text-xs text-gray-400">({{ slotProps.node.productsCount }})</span>
+                            </template>
+                        </Tree>
+                    </div>
+                </div>
+
+                <div class="flex border-b py-5">
+                    <div class="w-full">
+                    <p class="mb-6 text-xs font-bold uppercase tracking-widest text-gray-400">Ціна</p>
+                    <div class="w-full">
+                        <Slider v-model="priceRange" @update:modelValue="handleUpdatePrice" range :min="filters.prices.min" :max="filters.prices.max" class="w-auto mx-2" />
+                        <div class="flex justify-between w-auto ml-1 mt-2">
+                            <span>{{ filters.prices.min }}</span>
+                            <span>{{ filters.prices.max }}</span>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="flex py-5" v-for="attribute in filters.attributes">
+                    <div class="w-full">
+                        <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">{{ attribute.name }}</p>
+                        <div class="flex gap-2" v-if="attribute.name === 'Колір'">
+                            <Accordion :value="colorGroupsOpened" multiple class="w-full" lazy>
+                                <AccordionPanel v-for="group in attribute.color_groups" :value="group.id" class="px-0" v-show="groupHasColors(group.id)">
+                                    <AccordionHeader class="px-0">{{ group.name }}</AccordionHeader>
+                                    <AccordionContent>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button
+                                                v-for="option in getGroupColors(group.id)"
+                                                :key="option.value"
+                                                type="button"
+                                                :title="option.value"
+                                                @click="handleUpdateColor(option.value)"
+                                                class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
+                                                :class="{'ring-2 ring-amber-400 ring-offset-1': selectedColors.includes(option.value)}"
+                                            >
+                                                <img
+                                                    v-if="option.image_url"
+                                                    :src="option.image_url"
+                                                    :alt="option.value"
+                                                    class="h-full w-full object-cover"
+                                                />
+                                            </button>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionPanel>
+                            </Accordion>
+                        </div>
+                        <div class="flex flex-col gap-2" v-else>
+                            <div v-for="option in attribute.attribute_options" :key="option.id" class="flex items-center gap-2">
+                                <Checkbox v-model="attribute.checked" @update:modelValue="handleUpdateOption(attribute.slug, $event)" :inputId="String(option.id)" name="category" :value="option.value" />
+                                <label :for="option.id" class="text-sm text-gray-700">{{ option.value }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <template #footer>
+                    <Button
+                        type="button"
+                        class="h-10 w-full !border-none !bg-amber-400 !text-black hover:!bg-yellow-300"
+                        @click="mobileFiltersOpen = false"
+                    >
+                        Показати {{ products.total }} товар{{ products.total === 1 ? '' : 'ів' }}
+                    </Button>
+                </template>
+            </Drawer>
+
             <div class="w-full">
                 <div class="mb-5 flex items-center justify-between px-5">
                     <div class="flex gap-3">
@@ -94,25 +176,14 @@
                             class=""
                         />
 
-                        <button
-                            class="flex items-center justify-center border px-6 py-2 md:hidden"
-                        >
-                            Filters
-                            <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="mx-2 h-4 w-4"
-                            >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                            />
-                            </svg>
-                        </button>
+                        <Button
+                            type="button"
+                            outlined
+                            severity="secondary"
+                            :label="$t('Filters')"
+                            class="md:hidden"
+                            @click="mobileFiltersOpen = true"
+                        />
                     </div>
 
                     <div class="hidden gap-3 lg:flex">
@@ -326,6 +397,7 @@ const expandedKeys = ref({})
 const priceRange = ref([props.filters.prices.min, props.filters.prices.max])
 const selectedColors = ref([])
 const colorGroupsOpened = ref([])
+const mobileFiltersOpen = ref(false)
 
 const expandParentNodes = (node, parentKeys = []) => {
     //MB TODO
@@ -398,24 +470,24 @@ onMounted(() => {
 })
 const handleUpdateSort = (sort) => {
     Object.assign(filter.value, { sort: sort.key })
-    router.visit(route('catalog', filter.value), { preserveScroll: true })
+    router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }
 const handleUpdateCategory = (e) => {
     Object.assign(filter.value, { category: Object.keys(selectedKey.value).filter((id) => selectedKey.value[id].checked) })
     delete filter.value.min_price
     delete filter.value.max_price
     delete filter.value.page
-    router.visit(route('catalog', filter.value), { preserveScroll: true })
+    router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }
 const handleUpdatePrice = debounce((e) => {
     Object.assign(filter.value, { min_price: e[0], max_price: e[1] })
     delete filter.value.page
-    router.visit(route('catalog', filter.value), { preserveScroll: true })
+    router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }, 200)
 const handleUpdateOption = (slug, checkedOptions) => {
     Object.assign(filter.value, { [slug]: checkedOptions })
     delete filter.value.page
-    router.visit(route('catalog', filter.value), { preserveScroll: true })
+    router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }
 const handleUpdateColor = (color) => {
     if(!selectedColors.value.includes(color)) {
@@ -428,7 +500,7 @@ const handleUpdateColor = (color) => {
     }
     Object.assign(filter.value, { colors: selectedColors.value })
     delete filter.value.page
-    router.visit(route('catalog', filter.value), { preserveScroll: true })
+    router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }
 const getGroupColors = (groupId) => {
     let color = props.filters.attributes.find(({name}) => name === 'Колір')
@@ -445,7 +517,7 @@ const groupHasColors = (groupId) => {
 }
 const handleUpdatePage = (paginator) => {
     Object.assign(filter.value, { page: paginator.page + 1, rows: paginator.rows })
-    router.visit(route('catalog', filter.value), { preserveScroll: true })
+    router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }
 </script>
 <style scoped>
