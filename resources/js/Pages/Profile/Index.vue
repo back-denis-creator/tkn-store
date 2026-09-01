@@ -32,7 +32,11 @@ const tabLinkClass = (tab) => activeTab.value === tab
             class="container mx-auto w-full flex-grow max-w-[1200px] border-b py-5 lg:flex lg:flex-row lg:py-10"
         >
             <!-- sidebar  -->
-            <section class="w-full flex-shrink-0 px-4 lg:w-[300px]">
+            <!-- On mobile the sidebar and content just stack with nothing between
+                 them (on desktop they're separate flex columns, so this never came
+                 up there) — border + bottom spacing gives the menu a visible end
+                 before "Особисті дані" starts. -->
+            <section class="w-full flex-shrink-0 border-b px-4 pb-6 mb-6 lg:mb-0 lg:w-[300px] lg:border-none lg:pb-0">
                 <div class="flex items-center border-b py-5">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-bold text-black">
                         {{ userInitial }}

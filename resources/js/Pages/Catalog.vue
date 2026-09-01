@@ -181,7 +181,7 @@
                             outlined
                             severity="secondary"
                             :label="$t('Filters')"
-                            class="md:hidden"
+                            class="md:!hidden"
                             @click="mobileFiltersOpen = true"
                         />
                     </div>
