@@ -23,20 +23,20 @@
                             <div class="flex flex-col mt-6">
                                 <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                     <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                        <div class="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                        <div class="overflow-hidden border border-gray-200 md:rounded-lg">
+                                            <table class="min-w-full divide-y divide-gray-200">
+                                                <thead class="bg-gray-50">
                                                     <tr>
-                                                        <th scope="col" class="py-3.5 px-4 text-sm font-normal text-left text-gray-500 dark:text-gray-400">ID</th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500 dark:text-gray-400">Клієнт</th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500 dark:text-gray-400">Телефон</th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500 dark:text-gray-400">Сума</th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500 dark:text-gray-400">Статус</th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500 dark:text-gray-400">Дата</th>
+                                                        <th scope="col" class="py-3.5 px-4 text-sm font-normal text-left text-gray-500">ID</th>
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Клієнт</th>
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Телефон</th>
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Сума</th>
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Статус</th>
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Дата</th>
                                                         <th scope="col" class="relative py-3.5 px-4"></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
+                                                <tbody class="bg-white divide-y divide-gray-200">
                                                     <tr v-for="order in orders.data" :key="order.id">
                                                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap">{{ order.id }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.customer_name }} {{ order.customer_surname }}</td>
@@ -47,7 +47,7 @@
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
                                                             <Link
                                                                 :href="route('orders.show', order.uuid)"
-                                                                class="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500"
+                                                                class="px-6 py-2 font-medium tracking-wide text-black capitalize transition-colors duration-300 transform bg-amber-400 rounded-lg hover:bg-yellow-300"
                                                             >
                                                                 Переглянути
                                                             </Link>
@@ -70,7 +70,7 @@
                                     Назад
                                 </Link>
                                 <div class="items-center hidden md:flex gap-x-3">
-                                    <Link v-for="page in pages" :key="page.label" :href="page.url" class="px-2 py-1 text-sm" :class="!page.active ? 'text-gray-500 rounded-md hover:bg-gray-100' : 'text-blue-500 rounded-md bg-blue-100/60'">{{ page.label }}</Link>
+                                    <Link v-for="page in pages" :key="page.label" :href="page.url" class="px-2 py-1 text-sm" :class="!page.active ? 'text-gray-500 rounded-md hover:bg-gray-100' : 'text-amber-600 rounded-md bg-amber-100/60'">{{ page.label }}</Link>
                                 </div>
                                 <Link :class="{'pointer-events-none': !orders.next_page_url}" :href="orders.next_page_url || ''" class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100">
                                     Наступна

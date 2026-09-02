@@ -18,7 +18,7 @@
                        would either clip long titles or waste space on short ones. -->
                   <div class="grid grid-cols-[auto_1fr_auto_auto] items-start gap-x-4 gap-y-4 sm:gap-x-6 md:gap-x-8">
                       <template v-for="(item, index) in slotProps.items" :key="index">
-                          <div v-if="index !== 0" class="col-span-full border-t border-surface-200 dark:border-surface-700"></div>
+                          <div v-if="index !== 0" class="col-span-full border-t border-surface-200"></div>
 
                           <Link :href="route('product', item.slug)" class="w-24 md:w-40 shrink-0">
                               <img class="block mx-auto rounded max-h-24" :src="item.skus[0]?.media[0]?.original_url" :alt="item.name" />
@@ -26,7 +26,7 @@
 
                           <div class="flex flex-col items-start gap-2">
                               <div>
-                                  <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.category }}</span>
+                                  <span class="font-medium text-surface-500 text-sm">{{ item.category }}</span>
                                   <Link :href="route('product', item.slug)" class="block text-lg font-medium mt-2 hover:text-amber-600">{{ item.name }}</Link>
                               </div>
                               <div v-if="item.skus[0]?.attribute_options?.length" class="bg-surface-100 p-1 text-xs" style="border-radius: 30px">

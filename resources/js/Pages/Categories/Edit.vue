@@ -59,7 +59,7 @@ const handleUpdateCategory = (category) => {
                             </div>
                             <div class="my-6">
                                 <label for="slug"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Опис</label>
+                                    class="block mb-2 text-sm font-medium text-gray-900">Опис</label>
                                 <textarea type="text" v-model="form.description" name="content" id=""
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
 

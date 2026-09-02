@@ -22,26 +22,26 @@
                             <div class="flex flex-col mt-6">
                                 <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                     <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                        <div class="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                        <div class="overflow-hidden border border-gray-200 md:rounded-lg">
+                                            <table class="min-w-full divide-y divide-gray-200">
+                                                <thead class="bg-gray-50">
                                                     <tr>
-                                                        <th scope="col" class="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                        <th scope="col" class="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500">
                                                             <span>ID</span>
                                                         </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                                                             Фото
                                                         </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                                                             Назва
                                                         </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                                                             Категорії
                                                         </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                                                             Варіацій
                                                         </th>
-                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                        <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                                                             Ціна
                                                         </th>
                                                         <th scope="col" class="relative py-3.5 px-4">
@@ -49,10 +49,10 @@
                                                         </th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
+                                                <tbody class="bg-white divide-y divide-gray-200">
                                                     <tr v-for="product in products.data" :key="product.id">
                                                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap">
-                                                            <h2 class="font-medium text-gray-800 dark:text-white">{{ product.id }}</h2>
+                                                            <h2 class="font-medium text-gray-800">{{ product.id }}</h2>
                                                         </td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
                                                             <img
@@ -64,16 +64,16 @@
                                                             <span v-else class="text-gray-400">—</span>
                                                         </td>
                                                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap">
-                                                            <h2 class="font-medium text-gray-800 dark:text-white">{{ product.name }}</h2>
+                                                            <h2 class="font-medium text-gray-800">{{ product.name }}</h2>
                                                         </td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <p class="text-gray-500 dark:text-gray-400">{{ product.categories.map((c) => c.name).join(', ') || '—' }}</p>
+                                                            <p class="text-gray-500">{{ product.categories.map((c) => c.name).join(', ') || '—' }}</p>
                                                         </td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <p class="text-gray-500 dark:text-gray-400">{{ product.skus.length }}</p>
+                                                            <p class="text-gray-500">{{ product.skus.length }}</p>
                                                         </td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <p class="text-gray-500 dark:text-gray-400">
+                                                            <p class="text-gray-500">
                                                                 <span v-if="product.min_price === product.max_price">{{ product.min_price }} грн</span>
                                                                 <span v-else>{{ product.min_price }}–{{ product.max_price }} грн</span>
                                                             </p>
@@ -104,7 +104,7 @@
                                 <Link
                                     :class="{'pointer-events-none': !products.prev_page_url}"
                                     :href="products.prev_page_url || ''"
-                                    class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800"
+                                    class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100:bg-gray-800"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 rtl:-scale-x-100">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
@@ -114,9 +114,9 @@
                                     </span>
                                 </Link>
                                 <div class="items-center hidden md:flex gap-x-3">
-                                    <Link v-for="page in pages" :key="page.label" :href="page.url" class="px-2 py-1 text-sm" :class="!page.active ? 'text-gray-500 rounded-md dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100' : 'text-blue-500 rounded-md dark:bg-gray-800 bg-blue-100/60'">{{ page.label }}</Link>
+                                    <Link v-for="page in pages" :key="page.label" :href="page.url" class="px-2 py-1 text-sm" :class="!page.active ? 'text-gray-500 rounded-md:bg-gray-800 hover:bg-gray-100' : 'text-blue-500 rounded-md bg-blue-100/60'">{{ page.label }}</Link>
                                 </div>
-                                <Link :class="{'pointer-events-none': !products.next_page_url}" :href="products.next_page_url || ''" class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">
+                                <Link :class="{'pointer-events-none': !products.next_page_url}" :href="products.next_page_url || ''" class="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100:bg-gray-800">
                                     <span>
                                         Наступна
                                     </span>
