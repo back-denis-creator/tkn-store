@@ -77,7 +77,6 @@ const submit = () => {
                                 />
 
                                 <InputError
-                                    class="mt-2"
                                     :message="form.errors.name"
                                 />
                             </div>

@@ -46,7 +46,7 @@ const submit = () => {
                                 <TextInput id="title" type="text" class="mt-1 block w-full" v-model="form.title" required
                                     autofocus autocomplete="username" />
 
-                                <InputError class="mt-2" :message="form.errors.title" />
+                                <InputError :message="form.errors.title" />
                             </div>
                             <div class="my-6">
                                 <label for="slug"

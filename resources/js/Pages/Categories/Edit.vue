@@ -55,7 +55,7 @@ const handleUpdateCategory = (category) => {
                                 <TextInput id="name" type="text" class="mt-1 block w-full" v-model="form.name" required
                                     autofocus  />
 
-                                <InputError class="mt-2" :message="form.errors.name" />
+                                <InputError :message="form.errors.name" />
                             </div>
                             <div class="my-6">
                                 <label for="slug"

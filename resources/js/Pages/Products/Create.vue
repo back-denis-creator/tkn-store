@@ -185,7 +185,7 @@ const removeVariationImage = (index) => {
                                     required
                                     autofocus
                                 />
-                                <InputError class="mt-2" :message="form.errors.name" />
+                                <InputError :message="form.errors.name" />
                             </div>
                             <div>
                                 <InputLabel for="slug" value="URL Імʼя" />
@@ -195,7 +195,7 @@ const removeVariationImage = (index) => {
                                     class="mt-1 block w-full"
                                     v-model="form.slug"
                                 />
-                                <InputError class="mt-2" :message="form.errors.slug" />
+                                <InputError :message="form.errors.slug" />
                             </div>
                             <div>
                                 <InputLabel value="Опис" />
@@ -260,7 +260,6 @@ const removeVariationImage = (index) => {
                                         v-model="variation.code"
                                     />
                                     <InputError
-                                        class="mt-2"
                                         :message="form.errors[`variations.${vIndex}.code`]"
                                     />
                                 </div>
@@ -273,7 +272,6 @@ const removeVariationImage = (index) => {
                                         v-model="variation.price"
                                     />
                                     <InputError
-                                        class="mt-2"
                                         :message="form.errors[`variations.${vIndex}.price`]"
                                     />
                                 </div>

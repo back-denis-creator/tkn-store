@@ -39,7 +39,7 @@ const submit = () => {
             <InputLabel for="name" :value="$t('Name')" />
             <TextInput
               id="name"
-              class="mb-3 mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
+              class="mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="text"
               placeholder="Bogdan Bulakh"
               v-model="form.name"

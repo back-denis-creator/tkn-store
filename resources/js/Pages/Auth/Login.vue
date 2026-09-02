@@ -54,7 +54,7 @@ const submit = () => {
             <TextInput
               id="email"
               v-model="form.email"
-              class="mb-3 mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
+              class="mt-1 block w-full focus:!border-amber-500 focus:!ring-amber-500"
               type="email"
               placeholder="youremail@domain.com"
               required
@@ -63,7 +63,7 @@ const submit = () => {
             />
             <InputError :message="form.errors.email" />
 
-            <InputLabel for="password" :value="$t('Password')" />
+            <InputLabel class="mt-3" for="password" :value="$t('Password')" />
             <TextInput
               id="password"
               v-model="form.password"
@@ -73,7 +73,7 @@ const submit = () => {
               required
               autocomplete="current-password"
             />
-            <InputError class="mt-2" :message="form.errors.password" />
+            <InputError :message="form.errors.password" />
 
             <div class="mt-4 flex justify-between">
               <label class="flex gap-2 items-center">

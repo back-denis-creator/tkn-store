@@ -215,7 +215,7 @@ const deleteUploadedFileCallback = (index) => {
                                     required
                                     autofocus
                                 />
-                                <InputError class="mt-2" :message="form.errors.name" />
+                                <InputError :message="form.errors.name" />
                             </div>
                             <div>
                                 <InputLabel for="slug" value="URL Імʼя" />
@@ -225,7 +225,7 @@ const deleteUploadedFileCallback = (index) => {
                                     class="mt-1 block w-full"
                                     v-model="form.slug"
                                 />
-                                <InputError class="mt-2" :message="form.errors.slug" />
+                                <InputError :message="form.errors.slug" />
                             </div>
                             <div>
                                 <InputLabel value="Опис" />
@@ -290,7 +290,6 @@ const deleteUploadedFileCallback = (index) => {
                                         v-model="variation.code"
                                     />
                                     <InputError
-                                        class="mt-2"
                                         :message="form.errors[`variations.${index}.code`]"
                                     />
                                 </div>
@@ -303,7 +302,6 @@ const deleteUploadedFileCallback = (index) => {
                                         v-model="variation.price"
                                     />
                                     <InputError
-                                        class="mt-2"
                                         :message="form.errors[`variations.${index}.price`]"
                                     />
                                 </div>
