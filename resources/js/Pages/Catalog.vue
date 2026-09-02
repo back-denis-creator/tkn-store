@@ -399,18 +399,22 @@ const selectedColors = ref([])
 const colorGroupsOpened = ref([])
 const mobileFiltersOpen = ref(false)
 
-const expandParentNodes = (node, parentKeys = []) => {
-    //MB TODO
-    if (node.children && node.children.length) {
+// The category tree defaults to fully collapsed (only top-level categories
+// visible) so it doesn't push the other filters below it off-screen. The one
+// exception: if the user arrived with a category already selected (e.g. a
+// ?category=X link from another page), expand just the ancestor chain down
+// to it so their active filter stays visible instead of collapsing away.
+const expandPathToSelected = (node) => {
+    const isSelected = !!selectedKey.value[Number(node.key)]
+    const hasSelectedDescendant = (node.children || [])
+        .map(expandPathToSelected)
+        .some(Boolean)
+
+    if (isSelected || hasSelectedDescendant) {
         expandedKeys.value = Object.assign({}, expandedKeys.value, {[Number(node.key)]: true})
-        node.children.forEach(child => {
-            expandParentNodes(child, [...parentKeys, node.key]);
-        })
-    } else {
-        parentKeys.forEach(key => {
-            expandedKeys.value = Object.assign({}, expandedKeys.value, {[Number(key)]: true})
-        })
+        return true
     }
+    return false
 }
 
 onMounted(() => {
@@ -466,7 +470,7 @@ onMounted(() => {
             filter.value.category.push(Number(id))
         }
     })
-    categories.value.forEach(node => expandParentNodes(node))
+    categories.value.forEach(node => expandPathToSelected(node))
 })
 const handleUpdateSort = (sort) => {
     Object.assign(filter.value, { sort: sort.key })

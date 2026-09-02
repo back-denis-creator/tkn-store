@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Image\Enums\Fit;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class AttributeOption extends Model implements HasMedia
 {
@@ -19,16 +17,8 @@ class AttributeOption extends Model implements HasMedia
     protected $fillable = [
         'attribute_id',
         'value',
-        'meta'
+        'meta',
     ];
-
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        $this
-            ->addMediaConversion('preview')
-            ->fit(Fit::Contain, 300, 300)
-            ->nonQueued();
-    }
 
     const COLOR_GROUPS = [
         ['id' => 0, 'name' => 'Однотон'],
@@ -37,7 +27,7 @@ class AttributeOption extends Model implements HasMedia
         ['id' => 3, 'name' => 'Пасха'],
         ['id' => 4, 'name' => 'Квіти'],
         ['id' => 5, 'name' => 'Геометрія'],
-        ['id' => 6, 'name' => 'Прованс']
+        ['id' => 6, 'name' => 'Прованс'],
     ];
 
     public function attribute(): BelongsTo
