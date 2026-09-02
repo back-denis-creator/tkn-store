@@ -1,7 +1,7 @@
 <template>
     <section class="mx-auto w-full px-4 md:max-w-[400px]">
         <div class="">
-            <div class="border py-5 px-4 shadow-md">
+            <div class="rounded-lg border border-gray-200 px-5 py-5 shadow-sm">
                 <p class="font-bold uppercase">{{ $t("Order") }}</p>
 
                 <div v-for="product in $page.props.cart" class="flex justify-between border-b py-5">
