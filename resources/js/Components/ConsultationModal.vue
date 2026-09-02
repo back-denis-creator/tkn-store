@@ -40,6 +40,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
+import axios from 'axios';
 
 const visible = ref(false);
 const loading = ref(false);
@@ -63,7 +64,16 @@ const submitForm = async () => {
     loading.value = true;
     error.value = false;
     success.value = false;
-    
+
+    // Internal Telegram notification for the team — independent of the Google
+    // Sheet lead capture below, so a failure here must never affect the
+    // customer-facing success/error state.
+    axios.post('/consultation-requests', {
+        name: form.name,
+        phone: form.phone,
+        service: form.service,
+    }).catch(err => console.error('Telegram notify failed:', err));
+
     try {
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-sDbFPiyOie4ksI2a3cWDQ6oUdRkfNcJof4XvGvGVUUPcIOfmQwqkUr2Jau-n1Okb4Q/exec';
         

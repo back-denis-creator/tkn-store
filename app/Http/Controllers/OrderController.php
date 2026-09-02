@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendTelegramNotification;
 use App\Mail\OrderPlaced;
 use App\Models\Delivery;
 use App\Models\Order;
@@ -28,9 +29,9 @@ class OrderController extends Controller
             'email' => 'nullable|email|max:255',
             'comment' => 'nullable|string',
             'delivery_method' => "required|integer|in:{$deliveryIds}",
-            'np_city_ref' => 'required_if:delivery_method,' . Delivery::NOVA_POSHTA . '|nullable|string',
+            'np_city_ref' => 'required_if:delivery_method,'.Delivery::NOVA_POSHTA.'|nullable|string',
             'np_city_name' => 'nullable|string',
-            'np_warehouse_ref' => 'required_if:delivery_method,' . Delivery::NOVA_POSHTA . '|nullable|string',
+            'np_warehouse_ref' => 'required_if:delivery_method,'.Delivery::NOVA_POSHTA.'|nullable|string',
             'np_warehouse_name' => 'nullable|string',
             'payment_method' => "required|integer|in:{$paymentIds}",
         ]);
@@ -43,6 +44,7 @@ class OrderController extends Controller
         $order = DB::transaction(function () use ($validated, $cart) {
             $totalAmount = (int) round($cart->sum(function ($product) {
                 $sku = $product->skus[0];
+
                 return $sku->price * $product->quantity;
             }) * 100);
 
@@ -89,6 +91,8 @@ class OrderController extends Controller
             Mail::to($order->customer_email)->send(new OrderPlaced($order));
         }
 
+        SendTelegramNotification::dispatch($this->formatOrderTelegramMessage($order));
+
         if ((int) $validated['payment_method'] === Order::PAYMENT_LIQPAY) {
             return Redirect::route('liqpay.checkout', $order);
         }
@@ -134,5 +138,43 @@ class OrderController extends Controller
                 'paid_at' => $order->paid_at,
             ],
         ]);
+    }
+
+    private function formatOrderTelegramMessage(Order $order): string
+    {
+        $customerName = trim("{$order->customer_name} {$order->customer_surname}");
+        $deliveryName = Delivery::NAMES[$order->delivery_method] ?? 'Невідомо';
+        $paymentName = Order::PAYMENT_NAMES[$order->payment_method] ?? 'Невідомо';
+
+        $lines = [
+            "🛒 <b>Нове замовлення №{$order->id}</b>",
+            "Клієнт: {$customerName}",
+            "Телефон: {$order->customer_phone}",
+        ];
+
+        if ($order->customer_email) {
+            $lines[] = "Email: {$order->customer_email}";
+        }
+
+        $deliveryLine = "Доставка: {$deliveryName}";
+        if ($order->np_city_name) {
+            $deliveryLine .= " ({$order->np_city_name}, {$order->np_warehouse_name})";
+        }
+        $lines[] = $deliveryLine;
+        $lines[] = "Оплата: {$paymentName}";
+        $lines[] = sprintf('Сума: %s грн', number_format($order->total_amount / 100, 2, '.', ' '));
+
+        if ($order->comment) {
+            $lines[] = "Коментар: {$order->comment}";
+        }
+
+        $lines[] = '';
+        $lines[] = 'Товари:';
+        foreach ($order->orderItems as $item) {
+            $price = number_format($item->price / 100, 2, '.', ' ');
+            $lines[] = "• {$item->product_name} × {$item->quantity} — {$price} грн";
+        }
+
+        return implode("\n", $lines);
     }
 }

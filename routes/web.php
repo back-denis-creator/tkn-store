@@ -5,6 +5,7 @@ use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LiqPayController;
 use App\Http\Controllers\NPController;
@@ -34,6 +35,7 @@ Route::post('/order', [OrderController::class, 'store'])->name('order.store');
 Route::get('/order/success/{order:uuid}', [OrderController::class, 'success'])->name('order.success');
 Route::get('/order/liqpay/{order:uuid}', [LiqPayController::class, 'checkout'])->name('liqpay.checkout');
 Route::post('/payments/liqpay/callback', [LiqPayController::class, 'callback'])->name('liqpay.callback');
+Route::post('/consultation-requests', [ConsultationController::class, 'store'])->name('consultation.store');
 
 Route::get('/set-locale/{locale}', function ($locale) {
     if (! in_array($locale, config('app.locales'))) {

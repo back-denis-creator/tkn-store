@@ -3,20 +3,18 @@
 namespace App\Mail;
 
 use App\Models\Order;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
 
-class OrderPlaced extends Mailable
+class OrderPlaced extends Mailable implements ShouldQueue
 {
-    /**
-     * Sent synchronously (no ShouldQueue) — a queue worker may not be
-     * running in every environment, and order confirmation shouldn't
-     * silently depend on one being up.
-     */
-    public function __construct(public Order $order)
-    {
-    }
+    use Queueable, SerializesModels;
+
+    public function __construct(public Order $order) {}
 
     public function envelope(): Envelope
     {
