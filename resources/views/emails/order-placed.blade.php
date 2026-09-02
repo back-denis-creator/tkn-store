@@ -1,7 +1,7 @@
 <x-mail::message>
 # Дякуємо за замовлення, {{ $order->customer_name }}!
 
-Номер замовлення: **{{ $order->uuid }}**
+Номер замовлення: **{{ substr($order->uuid, 0, 8) }}**
 
 <x-mail::table>
 | Товар | К-сть | Сума |
