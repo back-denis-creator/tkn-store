@@ -107,7 +107,7 @@
 </template>
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from "vue"
 import Stepper from 'primevue/stepper';
 import StepList from 'primevue/steplist';
@@ -184,11 +184,17 @@ const backToCart = () => {
     router.visit(route('cart'), { preserveScroll: true })
 }
 
+// Prefill contact fields from the logged-in user (users table only has a
+// single `name` column, unlike the order's separate customer_name/customer_surname).
+const authUser = usePage().props.auth?.user
+const [prefillName, ...prefillSurnameParts] = (authUser?.name || '').trim().split(' ')
+const prefillSurname = prefillSurnameParts.join(' ')
+
 const form = useForm({
-    name: '',
-    surname: '',
+    name: prefillName || '',
+    surname: prefillSurname || '',
     phone: '',
-    email: '',
+    email: authUser?.email || '',
     comment: '',
     delivery_method: DELIVERY_NOVA_POSHTA,
     np_city_ref: null,
