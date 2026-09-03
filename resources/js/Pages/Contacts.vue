@@ -325,8 +325,8 @@ defineProps({
                 <div class="flex items-center">
                 <input class="mr-3" type="checkbox" />
                 <label for="checkbox">
-                    I have read and agree with
-                    <a href="#" class="text-amber-500">terms &amp; conditions</a>
+                    {{ $t('I have read and agree with') }}
+                    <a href="#" class="text-amber-500">{{ $t('terms & conditions') }}</a>
                 </label>
                 </div>
                 <button class="my-3 bg-amber-400 px-4 py-2 lg:my-0">

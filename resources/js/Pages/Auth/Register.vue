@@ -89,8 +89,8 @@ const submit = () => {
               <label class="flex gap-2 items-center">
                 <Checkbox v-model:checked="agreedToTerms" class="!text-amber-500 focus:!ring-amber-500" />
                 <span>
-                  I have read and agree with
-                  <a href="#" class="text-amber-600 hover:text-amber-700">terms &amp; conditions</a>
+                  {{ $t('I have read and agree with') }}
+                  <a href="#" class="text-amber-600 hover:text-amber-700">{{ $t('terms & conditions') }}</a>
                 </span>
               </label>
             </div>

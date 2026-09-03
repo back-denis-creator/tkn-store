@@ -82,9 +82,11 @@ const total = computed(() => items.value.reduce((sum, item) => sum + item.price 
             >{{ cartCount }}</span>
         </Link>
 
-        <!-- Cart dropdown on hover -->
+        <!-- Cart dropdown on hover — desktop only. On mobile there's no real
+        hover, so the tap that would trigger it should just navigate via the
+        Link above instead of revealing this preview. -->
         <div
-            class="absolute right-0 mt-0 w-80 pt-2 invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-[60]"
+            class="absolute right-0 mt-0 w-80 pt-2 invisible opacity-0 translate-y-2 lg:group-hover:visible lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-300 ease-out z-[60]"
         >
             <div class="bg-white rounded-md shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden border border-gray-100">
                 <div v-if="loading && !loaded" class="flex items-center justify-center py-10">
