@@ -2,17 +2,23 @@
 
 namespace App\Models;
 
+use App\Mail\OrderStatusChanged;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class Order extends Model
 {
     const STATUS_NEW = 1;
+
     const STATUS_PROCESSING = 2;
+
     const STATUS_SHIPPED = 3;
+
     const STATUS_COMPLETED = 4;
+
     const STATUS_CANCELLED = 5;
 
     const STATUS_NAMES = [
@@ -24,8 +30,11 @@ class Order extends Model
     ];
 
     const PAYMENT_CASH = 1;
+
     const PAYMENT_TRANSFER = 2;
+
     const PAYMENT_COD = 3;
+
     const PAYMENT_LIQPAY = 4;
 
     const PAYMENT_NAMES = [
@@ -69,6 +78,12 @@ class Order extends Model
     {
         static::creating(function (Order $order) {
             $order->uuid = $order->uuid ?: (string) Str::uuid();
+        });
+
+        static::updated(function (Order $order) {
+            if ($order->wasChanged('status') && $order->customer_email) {
+                Mail::to($order->customer_email)->send(new OrderStatusChanged($order));
+            }
         });
     }
 
