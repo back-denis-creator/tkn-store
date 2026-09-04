@@ -192,10 +192,18 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
-import { ref, onMounted, computed, watch } from "vue"
+import { ref, onMounted, computed, watch, inject } from "vue"
 import { useToast } from "primevue/usetoast"
 
 const toast = useToast()
+// The template's bare `route(...)` calls (e.g. the canonical <link>) resolve
+// fine via Vue's globalProperties in both client and SSR renders. But this
+// file also builds JSON-LD in a plain computed() below — that's regular JS,
+// not template-compiled, so it can't see globalProperties and needs the
+// route helper injected explicitly (ZiggyVue provides it under 'route').
+// Without this, SSR throws "ReferenceError: route is not defined" since,
+// unlike the browser, there's no global `route()` script running server-side.
+const route = inject('route')
 const props = defineProps({
     canLogin: {
         type: Boolean,
