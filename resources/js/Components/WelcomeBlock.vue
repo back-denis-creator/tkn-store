@@ -4,7 +4,7 @@
     <div class="relative overflow-hidden">
       <img
         class="w-full h-[600px] lg:h-[650px] object-cover object-center brightness-[0.35] filter transition-all duration-700 hover:scale-105"
-        src="/images/hero-bg.png"
+        src="/images/hero-bg.webp"
         alt="Custom sewing workshop"
       />
 

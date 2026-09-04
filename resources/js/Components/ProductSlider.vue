@@ -23,7 +23,7 @@
                   alt="portfolio item" 
                   class="w-full"
                   :pt="{
-                    image: { class: 'w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110' }
+                    image: { class: 'w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110', loading: 'lazy' }
                   }"
                 />
             </div>
@@ -57,7 +57,7 @@
     }"
   >
       <template #item="slotProps">
-          <img :src="slotProps.item.image" alt="portfolio item" class="max-h-screen object-contain" />
+          <img :src="slotProps.item.image" alt="portfolio item" class="max-h-screen object-contain" loading="lazy" />
       </template>
   </Galleria>
 
@@ -91,7 +91,7 @@ const handleKeydown = (event) => {
 onMounted(() => {
     // Vite's import.meta.glob can find all images in the directory
     // We map over the object to get the keys (which are the file paths)
-    const images = import.meta.glob('/public/images/works/*.{png,jpg,jpeg,JPG}', { eager: true });
+    const images = import.meta.glob('/public/images/works/*.webp', { eager: true });
     
     portfolioItems.value = Object.keys(images).map(path => ({
         // We strip '/public' from the path as it's the root for the dev server

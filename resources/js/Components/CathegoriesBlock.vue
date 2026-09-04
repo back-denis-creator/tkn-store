@@ -7,8 +7,9 @@
       <div @click="openConsultation($t('Service4'))" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
-          src="/images/service-tablecloth.png"
+          src="/images/service-tablecloth.webp"
           alt="Tablecloths"
+          loading="lazy"
         />
         <div class="absolute inset-0 flex items-center justify-center p-4 bg-black/20 group-hover:bg-transparent transition-all duration-500">
           <p class="text-white text-xl font-bold uppercase tracking-widest text-center">
@@ -21,8 +22,9 @@
       <div @click="openConsultation($t('Service2'))" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
-          src="/images/service-bedding.png"
+          src="/images/service-bedding.webp"
           alt="Bedding sets"
+          loading="lazy"
         />
         <div class="absolute inset-0 flex items-center justify-center p-4 bg-black/20 group-hover:bg-transparent transition-all duration-500">
           <p class="text-white text-xl font-bold uppercase tracking-widest text-center">
@@ -35,8 +37,9 @@
       <div @click="openConsultation($t('Service3'))" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
-          src="/images/service-pillows.png"
+          src="/images/service-pillows.webp"
           alt="Decorative pillows"
+          loading="lazy"
         />
         <div class="absolute inset-0 flex items-center justify-center p-4 bg-black/20 group-hover:bg-transparent transition-all duration-500">
           <p class="text-white text-xl font-bold uppercase tracking-widest text-center">
@@ -49,8 +52,9 @@
       <div @click="openConsultation($t('Service1'))" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
-          src="/images/service-curtains.png"
+          src="/images/service-curtains.webp"
           alt="Curtain sewing"
+          loading="lazy"
         />
         <div class="absolute inset-0 flex items-center justify-center p-4 bg-black/20 group-hover:bg-transparent transition-all duration-500">
           <p class="text-white text-xl font-bold uppercase tracking-widest text-center">
@@ -63,8 +67,9 @@
       <div @click="openConsultation($t('Service6'))" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
-          src="/images/service-repair.jpg"
+          src="/images/service-repair.webp"
           alt="Clothing repair"
+          loading="lazy"
         />
         <div class="absolute inset-0 flex items-center justify-center p-4 bg-black/20 group-hover:bg-transparent transition-all duration-500">
           <p class="text-white text-xl font-bold uppercase tracking-widest text-center">
@@ -78,8 +83,9 @@
       <Link href="/horeca" class="relative group cursor-pointer overflow-hidden rounded-sm">
         <img
           class="aspect-[4/3] w-full object-cover brightness-[0.7] group-hover:brightness-100 group-hover:scale-110 transition-all duration-500"
-          src="/images/service-covers.jpg"
+          src="/images/service-covers.webp"
           alt="Furniture covers"
+          loading="lazy"
         />
         <div class="absolute inset-0 flex items-center justify-center p-4 bg-black/20 group-hover:bg-transparent transition-all duration-500">
           <p class="text-white text-xl font-bold tracking-widest text-center">
