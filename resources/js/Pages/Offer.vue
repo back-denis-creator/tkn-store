@@ -1,6 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import { ScaleIcon } from '@heroicons/vue/24/outline';
 
 defineProps({
     canLogin: Boolean,
@@ -20,8 +21,16 @@ defineProps({
         </Head>
 
         <template #header>
-            <div class="bg-gray-900 text-white">
-                <div class="mx-auto max-w-[1200px] px-5 py-16 lg:py-20 text-center">
+            <div class="relative overflow-hidden bg-gray-900 text-white">
+                <!-- Decorative glow + watermark icon, matching Delivery's header. -->
+                <div class="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-amber-400/20 blur-3xl"></div>
+                <div class="pointer-events-none absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-amber-400/10 blur-3xl"></div>
+                <ScaleIcon
+                    class="pointer-events-none absolute -right-10 bottom-0 hidden h-64 w-64 text-amber-400/10 lg:block xl:h-80 xl:w-80"
+                    aria-hidden="true"
+                />
+
+                <div class="relative mx-auto max-w-[1200px] px-5 py-16 lg:py-20 text-center">
                     <h1 class="text-3xl font-bold sm:text-5xl mb-4">{{ $t('Offer') }}</h1>
                     <p class="text-lg max-w-2xl mx-auto font-light leading-relaxed text-gray-300">
                         {{ $t('Offer_Subtitle', 'Договір публічної оферти інтернет-магазину Casanel.com.ua') }}
