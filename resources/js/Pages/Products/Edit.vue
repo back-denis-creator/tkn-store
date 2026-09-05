@@ -316,7 +316,7 @@ const deleteUploadedFileCallback = (index) => {
 
                             <div>
                                 <InputLabel value="Зображення варіації" />
-                                <FileUpload class="mt-1" @select="onFilesVariation($event)" multiple accept="image/*">
+                                <FileUpload class="mt-1" @select="onFilesVariation($event)" @remove="onFilesVariation($event)" multiple accept="image/*">
                                     <template #header="{ chooseCallback, clearCallback, files }">
                                         <div class="flex flex-wrap items-center justify-between gap-4 flex-1">
                                             <div class="flex gap-2">
@@ -325,14 +325,14 @@ const deleteUploadedFileCallback = (index) => {
                                             </div>
                                         </div>
                                     </template>
-                                    <template #content="{ files }">
+                                    <template #content="{ files, removeFileCallback }">
                                         <div class="flex flex-col gap-6 pt-4">
                                             <div v-if="files.length">
                                                 <p class="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Нові</p>
                                                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                                     <div v-for="(file, fIndex) of files" :key="file.name + file.type + file.size" class="relative overflow-hidden rounded-md border border-gray-200">
                                                         <img role="presentation" :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
-                                                        <button type="button" @click="onFilesVariation({ files: files.filter((_, i) => i !== fIndex) })" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-600">
+                                                        <button type="button" @click="removeFileCallback(fIndex)" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-600">
                                                             <i class="pi pi-times text-xs"></i>
                                                         </button>
                                                         <p class="truncate bg-white/90 px-1.5 py-1 text-[11px] text-gray-500">{{ formatSize(file.size) }}</p>
