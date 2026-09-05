@@ -29,6 +29,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Кабінет
                                 </NavLink>
+                                <NavLink :href="route('orders.index')" :active="route().current('orders.index')">
+                                    Замовлення
+                                </NavLink>
                                 <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
                                     Новини
                                 </NavLink>
@@ -123,6 +126,9 @@ const showingNavigationDropdown = ref(false);
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Кабінет
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('orders.index')" :active="route().current('orders.index')">
+                            Замовлення
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
                             Новини

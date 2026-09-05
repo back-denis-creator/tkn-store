@@ -33,25 +33,21 @@
                                                         <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Сума</th>
                                                         <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Статус</th>
                                                         <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">Дата</th>
-                                                        <th scope="col" class="relative py-3.5 px-4"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="bg-white divide-y divide-gray-200">
-                                                    <tr v-for="order in orders.data" :key="order.id">
+                                                    <tr
+                                                        v-for="order in orders.data"
+                                                        :key="order.id"
+                                                        class="cursor-pointer hover:bg-gray-50"
+                                                        @click="router.visit(route('orders.show', order.uuid))"
+                                                    >
                                                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap">{{ order.id }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.customer_name }} {{ order.customer_surname }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.customer_phone }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.total_amount / 100 }} грн</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ statuses[order.status] }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ new Date(order.created_at).toLocaleString('uk-UA') }}</td>
-                                                        <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <Link
-                                                                :href="route('orders.show', order.uuid)"
-                                                                class="px-6 py-2 font-medium tracking-wide text-black capitalize transition-colors duration-300 transform bg-amber-400 rounded-lg hover:bg-yellow-300"
-                                                            >
-                                                                Переглянути
-                                                            </Link>
-                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
