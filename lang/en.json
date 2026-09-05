@@ -1,5 +1,7 @@
 {
     "Contacts": "Contacts",
+    "ProfileInfoDesc": "Update your account's profile information and email address.",
+    "UpdatePasswordDesc": "Ensure your account is using a long, random password to stay secure.",
     "Search": "Search",
     "Cart": "Cart",
     "Account": "Account",
