@@ -24,6 +24,7 @@ Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/horeca', [PageController::class, 'horeca'])->name('horeca');
 Route::get('/delivery', [PageController::class, 'delivery'])->name('delivery');
+Route::get('/offer', [PageController::class, 'offer'])->name('offer');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/cart', [PageController::class, 'cart'])->name('cart');
 Route::get('/cart/preview', [CartController::class, 'preview'])->name('cart.preview');

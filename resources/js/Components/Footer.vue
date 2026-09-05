@@ -48,6 +48,7 @@
           <ul class="text-sm space-y-3">
             <li><Link :href="route('delivery')" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Delivery') }}</Link></li>
             <li><Link :href="route('contacts')" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Contacts') }}</Link></li>
+            <li><Link :href="route('offer')" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Offer') }}</Link></li>
           </ul>
         </div>
       </div>

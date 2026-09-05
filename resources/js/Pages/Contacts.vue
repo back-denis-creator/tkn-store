@@ -197,7 +197,7 @@ const submitForm = async () => {
                         <Checkbox v-model="form.agreed" :binary="true" inputId="agree-terms" class="mr-3" required />
                         <label for="agree-terms">
                             {{ $t('I have read and agree with') }}
-                            <a href="#" class="text-amber-500">{{ $t('terms & conditions') }}</a>
+                            <a :href="route('offer')" target="_blank" class="text-amber-500">{{ $t('terms & conditions') }}</a>
                         </label>
                     </div>
                     <Button

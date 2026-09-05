@@ -90,7 +90,7 @@ const submit = () => {
                 <Checkbox v-model:checked="agreedToTerms" class="!text-amber-500 focus:!ring-amber-500" />
                 <span>
                   {{ $t('I have read and agree with') }}
-                  <a href="#" class="text-amber-600 hover:text-amber-700">{{ $t('terms & conditions') }}</a>
+                  <a :href="route('offer')" target="_blank" class="text-amber-600 hover:text-amber-700">{{ $t('terms & conditions') }}</a>
                 </span>
               </label>
             </div>
