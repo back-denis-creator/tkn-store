@@ -23,6 +23,7 @@ class SitemapController extends Controller
             ['loc' => route('horeca'), 'changefreq' => 'monthly', 'priority' => '0.7'],
             ['loc' => route('about'), 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => route('contacts'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+            ['loc' => route('delivery'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ];
 
         $xml = view('sitemap', ['urls' => $urls])->render();

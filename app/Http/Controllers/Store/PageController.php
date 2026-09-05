@@ -231,6 +231,17 @@ class PageController extends Controller
         ]);
     }
 
+    public function delivery()
+    {
+        return Inertia::render('Delivery', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'cart' => fn() => session()->get('cart', []),
+        ]);
+    }
+
     public function cart()
     {
         return Inertia::render('Cart', [

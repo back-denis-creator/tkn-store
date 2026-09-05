@@ -1,7 +1,11 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
+import { computed, reactive, ref } from 'vue';
+import axios from 'axios';
+import { trans, currentLocale } from 'laravel-vue-i18n';
+import { EnvelopeIcon, PhoneIcon, MapPinIcon } from '@heroicons/vue/24/outline';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-// import NavBar from '@/Components/NavBar.vue';
+
 defineProps({
     canLogin: {
         type: Boolean,
@@ -18,6 +22,58 @@ defineProps({
         required: true,
     },
 });
+
+// Labels are translated for display, but each value is kept in Ukrainian —
+// that's what lands in the Telegram message the (Ukrainian-speaking) team
+// reads, regardless of which locale the visitor filled the form in.
+const categories = computed(() => {
+    currentLocale.value; // eslint-disable-line no-unused-expressions -- track locale so this recomputes on change
+    return [
+        { label: trans('Category_Order', 'Замовлення та товари'), value: 'Замовлення та товари' },
+        { label: trans('Category_Delivery', 'Доставка'), value: 'Доставка' },
+        { label: trans('Category_Sewing', 'Індивідуальний пошив'), value: 'Індивідуальний пошив' },
+        { label: trans('Category_Partnership', 'Співпраця / HoReCa'), value: 'Співпраця / HoReCa' },
+        { label: trans('Category_Other', 'Інше'), value: 'Інше' },
+    ];
+});
+
+const form = reactive({
+    email: '',
+    name: '',
+    category: null,
+    message: '',
+    agreed: false,
+});
+
+const loading = ref(false);
+const success = ref(false);
+const error = ref(false);
+
+const submitForm = async () => {
+    loading.value = true;
+    error.value = false;
+    success.value = false;
+
+    try {
+        await axios.post(route('contact.store'), {
+            name: form.name,
+            email: form.email,
+            category: form.category,
+            message: form.message,
+        });
+        success.value = true;
+        form.email = '';
+        form.name = '';
+        form.category = null;
+        form.message = '';
+        form.agreed = false;
+    } catch (err) {
+        console.error('Contact form submission failed:', err);
+        error.value = true;
+    } finally {
+        loading.value = false;
+    }
+};
 </script>
 <template>
     <GuestLayout>
@@ -38,304 +94,141 @@ defineProps({
             <meta name="twitter:image" content="/images/casanel-logo.png">
         </Head>
         <template #header>
-            <!-- BG Image, Contacts  -->
             <div class="relative">
                 <img
-                    class="w-full object-cover brightness-50 filter lg:h-[500px]"
+                    class="w-full object-cover brightness-50 filter lg:h-[400px]"
                     src="/images/contact-bg.jpeg"
-                    alt="Iphone with Macbook image"
+                    alt="Casanel textile workshop"
                 />
                 <div
-                    class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white lg:ml-5"
+                    class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white"
                 >
-                <h1 class="text-4xl font-bold sm:text-5xl">Contact us</h1>
-                <p class="mx-auto pt-3 text-xs lg:w-3/5 lg:pt-5 lg:text-base">
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                    Consequatur aperiam natus, nulla, obcaecati nesciunt, itaque
-                    adipisci earum ducimus pariatur eaque labore.
-                </p>
+                    <h1 class="text-4xl font-bold sm:text-5xl">{{ $t('Contacts_Title', "Зв'яжіться з нами") }}</h1>
+                    <p class="mx-auto pt-3 max-w-2xl text-sm lg:pt-5 lg:text-lg font-light">
+                        {{ $t('Contacts_Subtitle', 'Маєте запитання щодо замовлення чи індивідуального пошиття? Ми завжди раді допомогти.') }}
+                    </p>
                 </div>
             </div>
-            <!-- /BG IMAGE, Contacts  -->
         </template>
-        <!-- Contact section  -->
+
+        <!-- Contact info -->
         <section class="w-full flex-grow">
-            <section
-                class="mx-auto w-full my-6 grid max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10 lg:grid-cols-3 lg:pt-10"
-            >
-            <div>
-                <div class="border py-5 shadow-md">
-                <div class="flex justify-between px-4 pb-5">
-                    <p class="text-xl font-bold">Delivery</p>
+            <section class="mx-auto w-full max-w-[700px] px-5 pb-10 pt-10 lg:pt-16">
+                <div class="bg-gray-50 rounded-3xl border border-gray-100 p-8 lg:p-10">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">{{ $t('Contacts_Info_Title', 'Наші контакти') }}</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 rounded-full bg-amber-100 shrink-0">
+                                <MapPinIcon class="h-5 w-5 text-amber-600" />
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">{{ $t('FooterAddressLabel') }}</p>
+                                <p class="text-gray-700">{{ $t('FooterAddress') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 rounded-full bg-amber-100 shrink-0">
+                                <EnvelopeIcon class="h-5 w-5 text-amber-600" />
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">{{ $t('Email') }}</p>
+                                <a href="mailto:casanel.connect@gmail.com" class="text-gray-700 hover:text-amber-600 transition-colors">casanel.connect@gmail.com</a>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 rounded-full bg-amber-100 shrink-0">
+                                <PhoneIcon class="h-5 w-5 text-amber-600" />
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Phone</p>
+                                <a :href="'tel:' + $t('FooterPhone')" class="text-gray-700 hover:text-amber-600 transition-colors font-medium">{{ $t('FooterPhone') }}</a>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="flex gap-3 mt-1">
+                                <a href="https://t.me/YafLa1GM5sYxNmRi" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-all hover:scale-110">
+                                    <img class="h-6 w-6" src="/images/telegram.svg" alt="telegram" />
+                                </a>
+                                <a href="https://www.instagram.com/casanel.ua?igsh=OHQybTZiYzBhNnVu&utm_source=qr" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-all hover:scale-110">
+                                    <img class="h-6 w-6" src="/images/instagram.svg" alt="instagram" />
+                                </a>
+                                <a href="https://www.facebook.com/share/18Bk66SNbU/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-all hover:scale-110">
+                                    <img class="h-6 w-6" src="/images/facebook.svg" alt="facebook" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="flex flex-col px-4">
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                            d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
-                        />
-                        <path
-                            d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z"
-                        />
-                    </svg>
-                    maybell@delivery.org</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        fill-rule="evenodd"
-                        d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z"
-                        clip-rule="evenodd"
-                        />
-                    </svg>
-                    +8(911)339-88-88</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        fill-rule="evenodd"
-                        d="M3.43 2.524A41.29 41.29 0 0110 2c2.236 0 4.43.18 6.57.524 1.437.231 2.43 1.49 2.43 2.902v5.148c0 1.413-.993 2.67-2.43 2.902a41.202 41.202 0 01-5.183.501.78.78 0 00-.528.224l-3.579 3.58A.75.75 0 016 17.25v-3.443a41.033 41.033 0 01-2.57-.33C1.993 13.244 1 11.986 1 10.573V5.426c0-1.413.993-2.67 2.43-2.902z"
-                        clip-rule="evenodd"
-                        />
-                    </svg>
-                    +8(911)339-88-88</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
-                        />
-                    </svg>
-                    @maybell</a
-                    >
-                </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="border py-5 shadow-md">
-                <div class="flex justify-between px-4 pb-5">
-                    <p class="text-xl font-bold">Support</p>
-                </div>
-
-                <div class="flex flex-col px-4">
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
-                        />
-                        <path
-                        d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z"
-                        />
-                    </svg>
-                    maybell@delivery.org</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        fill-rule="evenodd"
-                        d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z"
-                        clip-rule="evenodd"
-                        />
-                    </svg>
-                    +8(911)339-88-88</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        fill-rule="evenodd"
-                        d="M3.43 2.524A41.29 41.29 0 0110 2c2.236 0 4.43.18 6.57.524 1.437.231 2.43 1.49 2.43 2.902v5.148c0 1.413-.993 2.67-2.43 2.902a41.202 41.202 0 01-5.183.501.78.78 0 00-.528.224l-3.579 3.58A.75.75 0 016 17.25v-3.443a41.033 41.033 0 01-2.57-.33C1.993 13.244 1 11.986 1 10.573V5.426c0-1.413.993-2.67 2.43-2.902z"
-                        clip-rule="evenodd"
-                        />
-                    </svg>
-                    +8(911)339-88-88</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
-                        />
-                    </svg>
-                    @maybell</a
-                    >
-                </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="border py-5 shadow-md">
-                <div class="flex justify-between px-4 pb-5">
-                    <p class="text-xl font-bold">Careers</p>
-                </div>
-
-                <div class="flex flex-col px-4">
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
-                        />
-                        <path
-                        d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z"
-                        />
-                    </svg>
-                    maybell@delivery.org</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        fill-rule="evenodd"
-                        d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z"
-                        clip-rule="evenodd"
-                        />
-                    </svg>
-                    +8(911)339-88-88</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        fill-rule="evenodd"
-                        d="M3.43 2.524A41.29 41.29 0 0110 2c2.236 0 4.43.18 6.57.524 1.437.231 2.43 1.49 2.43 2.902v5.148c0 1.413-.993 2.67-2.43 2.902a41.202 41.202 0 01-5.183.501.78.78 0 00-.528.224l-3.579 3.58A.75.75 0 016 17.25v-3.443a41.033 41.033 0 01-2.57-.33C1.993 13.244 1 11.986 1 10.573V5.426c0-1.413.993-2.67 2.43-2.902z"
-                        clip-rule="evenodd"
-                        />
-                    </svg>
-                    +8(911)339-88-88</a
-                    >
-                    <a class="flex items-center" href="#"
-                    ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        class="mr-3 h-4 w-4 text-amber-500"
-                    >
-                        <path
-                        d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
-                        />
-                    </svg>
-                    @maybell</a
-                    >
-                </div>
-                </div>
-            </div>
             </section>
 
-            <!-- Contact section  -->
-
-            <section class="mx-auto my-5 text-center">
-            <h2 class="text-3xl font-bold">Have another question?</h2>
-            <p>Complete the form below</p>
+            <!-- Contact form -->
+            <section class="mx-auto my-5 text-center px-5">
+                <h2 class="text-3xl font-bold text-gray-900">{{ $t('Contacts_Form_Title', 'Залишились питання?') }}</h2>
+                <p class="text-gray-500 mt-2">{{ $t('Contacts_Form_Subtitle', 'Заповніть форму нижче — ми відповімо найближчим часом') }}</p>
             </section>
 
-            <!-- Form  -->
-
-            <form class="mx-auto my-5 max-w-[600px] px-5 pb-10" action="">
-            <div class="mx-auto">
-                <div class="my-3 flex w-full gap-2">
-                <input
-                    class="w-1/2 border px-4 py-2"
-                    type="email"
-                    placeholder="E-mail"
-                />
-                <input
-                    class="w-1/2 border px-4 py-2"
-                    type="text"
-                    placeholder="Full Name"
-                />
+            <form class="mx-auto my-5 max-w-[600px] px-5 pb-10" @submit.prevent="submitForm">
+                <div class="mx-auto">
+                    <div class="my-3 flex flex-col sm:flex-row w-full gap-3">
+                        <InputText v-model="form.email" class="w-full" type="email" :placeholder="$t('Email')" required />
+                        <InputText v-model="form.name" class="w-full" type="text" :placeholder="$t('Full Name', 'Ім’я')" required />
+                    </div>
                 </div>
-            </div>
 
-            <select
-                class="mb-3 w-full border px-4 py-2"
-                name="pets"
-                id="pet-select"
-            >
-                <option value="">Please choose a category</option>
-                <option value="delivery">Delivery</option>
-                <option value="support">Support</option>
-                <option value="profile">Profile</option>
-                <option value="careers">Careers</option>
-                <option value="another">Another category</option>
-            </select>
+                <Select
+                    v-model="form.category"
+                    :options="categories"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="$t('Choose Category', 'Оберіть тему звернення')"
+                    class="mb-3 w-full"
+                />
 
-            <textarea
-                class="w-full border px-4 py-2"
-                placeholder="Write a commentary..."
-                name=""
-                id=""
-            ></textarea>
+                <Textarea
+                    v-model="form.message"
+                    class="w-full"
+                    rows="5"
+                    :placeholder="$t('Write Message', 'Напишіть повідомлення...')"
+                    required
+                />
 
-            <div
-                class="lg:items:center container mt-4 flex flex-col justify-between lg:flex-row"
-            >
-                <div class="flex items-center">
-                <input class="mr-3" type="checkbox" />
-                <label for="checkbox">
-                    {{ $t('I have read and agree with') }}
-                    <a href="#" class="text-amber-500">{{ $t('terms & conditions') }}</a>
-                </label>
+                <div class="lg:items-center container mt-4 flex flex-col justify-between lg:flex-row gap-3">
+                    <div class="flex items-center">
+                        <Checkbox v-model="form.agreed" :binary="true" inputId="agree-terms" class="mr-3" required />
+                        <label for="agree-terms">
+                            {{ $t('I have read and agree with') }}
+                            <a href="#" class="text-amber-500">{{ $t('terms & conditions') }}</a>
+                        </label>
+                    </div>
+                    <Button
+                        type="submit"
+                        :label="$t('Send Message', 'Надіслати')"
+                        :loading="loading"
+                        :disabled="!form.agreed"
+                        class="!bg-amber-400 !border-none !text-black hover:!bg-amber-500"
+                    />
                 </div>
-                <button class="my-3 bg-amber-400 px-4 py-2 lg:my-0">
-                Send Message
-                </button>
-            </div>
+
+                <transition name="fade">
+                    <Message v-if="success" severity="success" icon="pi pi-check-circle" class="mt-4">{{ $t('Contacts_Form_Success', 'Дякуємо! Ваше повідомлення надіслано.') }}</Message>
+                </transition>
+                <transition name="fade">
+                    <Message v-if="error" severity="error" icon="pi pi-exclamation-triangle" class="mt-4">{{ $t('Contacts_Form_Error', 'Щось пішло не так. Спробуйте ще раз або напишіть нам напряму.') }}</Message>
+                </transition>
             </form>
-
             <!-- /Form  -->
         </section>
     </GuestLayout>
 </template>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

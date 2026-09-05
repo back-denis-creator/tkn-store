@@ -6,6 +6,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LiqPayController;
 use App\Http\Controllers\NPController;
@@ -22,6 +23,7 @@ Route::get('/catalog/{productSlug}', [PageController::class, 'product'])->name('
 Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/horeca', [PageController::class, 'horeca'])->name('horeca');
+Route::get('/delivery', [PageController::class, 'delivery'])->name('delivery');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/cart', [PageController::class, 'cart'])->name('cart');
 Route::get('/cart/preview', [CartController::class, 'preview'])->name('cart.preview');
@@ -36,6 +38,7 @@ Route::get('/order/success/{order:uuid}', [OrderController::class, 'success'])->
 Route::get('/order/liqpay/{order:uuid}', [LiqPayController::class, 'checkout'])->name('liqpay.checkout');
 Route::post('/payments/liqpay/callback', [LiqPayController::class, 'callback'])->name('liqpay.callback');
 Route::post('/consultation-requests', [ConsultationController::class, 'store'])->name('consultation.store');
+Route::post('/contact-messages', [ContactMessageController::class, 'store'])->name('contact.store');
 
 Route::get('/set-locale/{locale}', function ($locale) {
     if (! in_array($locale, config('app.locales'))) {

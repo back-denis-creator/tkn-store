@@ -43,14 +43,13 @@
           </ul>
         </div>
 
-        <!-- <div class="flex flex-col">
-          <p class="font-bold text-gray-800 uppercase tracking-wider mb-4">{{ $t('Catalog') }}</p>
-          <ul class="text-sm space-y-2">
-            <li><a href="#" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Service1') }}</a></li>
-            <li><a href="#" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Service2') }}</a></li>
-            <li><a href="#" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Service3') }}</a></li>
+        <div class="flex flex-col">
+          <p class="font-bold text-gray-800 uppercase tracking-wider mb-4">{{ $t('Information', 'Інформація') }}</p>
+          <ul class="text-sm space-y-3">
+            <li><Link :href="route('delivery')" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Delivery') }}</Link></li>
+            <li><Link :href="route('contacts')" class="text-gray-600 hover:text-amber-600 transition-colors">{{ $t('Contacts') }}</Link></li>
           </ul>
-        </div> -->
+        </div>
       </div>
     </footer>
     <!-- /Desktop Footer  -->
@@ -84,3 +83,7 @@
     <!-- /Payment and copyright  -->
     </div>
 </template>
+
+<script setup>
+import { Link } from '@inertiajs/vue3';
+</script>
