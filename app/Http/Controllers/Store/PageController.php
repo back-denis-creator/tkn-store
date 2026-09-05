@@ -161,9 +161,12 @@ class PageController extends Controller
             });
         }
 
+        $categories = Category::where('parent_id', null)->get();
+        Category::attachAggregateProductCounts($categories);
+
         $filters = [
             'attributes' => $attributesWithFirstImage,
-            'categories' => Category::where('parent_id', null)->get(),
+            'categories' => $categories,
             'prices' => [ 'min' => $minPrice / 100, 'max' => $maxPrice / 100 ]
         ];
 

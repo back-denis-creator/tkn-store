@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class Category extends Model
 {
@@ -44,5 +46,39 @@ class Category extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'product_categories');
+    }
+
+    /**
+     * Overwrites products_count (normally each category's own direct product
+     * count, via $withCount) with a count that also includes every
+     * descendant's products. The catalog's category checkboxes cascade —
+     * checking a parent auto-checks every descendant and filters by all of
+     * their ids — so the parent's badge should show what that selection
+     * actually returns, not just its own directly-tagged products.
+     *
+     * @param  Collection<int, self>  $categories  Root categories, each with children eager-loaded.
+     */
+    public static function attachAggregateProductCounts(Collection $categories): void
+    {
+        $productIdsByCategory = DB::table('product_categories')
+            ->select('category_id', 'product_id')
+            ->get()
+            ->groupBy('category_id')
+            ->map(fn ($rows) => $rows->pluck('product_id'));
+
+        $walk = function (self $category) use (&$walk, $productIdsByCategory) {
+            $ids = $productIdsByCategory->get($category->id, collect());
+            foreach ($category->children as $child) {
+                $ids = $ids->merge($walk($child));
+            }
+            $ids = $ids->unique();
+            $category->products_count = $ids->count();
+
+            return $ids;
+        };
+
+        foreach ($categories as $category) {
+            $walk($category);
+        }
     }
 }
