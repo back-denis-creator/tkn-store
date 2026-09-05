@@ -14,10 +14,12 @@
     </Head>
     <div>
         <NavBar />
-        <WelcomeBlock />
-        <ConsBages />
-        <CathegoriesBlock />
-        <ProductSlider />
+        <main>
+            <WelcomeBlock />
+            <ConsBages />
+            <CathegoriesBlock />
+            <ProductSlider />
+        </main>
         <Footer />
     </div>
 </template>

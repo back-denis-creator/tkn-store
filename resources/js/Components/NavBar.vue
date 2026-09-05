@@ -129,6 +129,7 @@ onMounted(() => { isMounted.value = true })
                   type="button"
                   class="inline-flex items-center justify-center px-2 py-2 bg-transparent text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-all"
                   :id="selectLang.value"
+                  :aria-label="$t('Change language', 'Змінити мову') + ': ' + selectLang.name"
               >
                   <div :class="`fi fis fiCircle inline-block fi-${selectLang.value}`" v-html="selectLang.icon" />
               </button>
@@ -226,9 +227,10 @@ onMounted(() => { isMounted.value = true })
           </div>
 
           <!-- Mobile Burger Menu -->
-          <button 
+          <button
               @click="mobileMenuOpen = true"
               class="lg:hidden p-2 rounded-md text-amber-500 hover:bg-gray-100 transition-colors"
+              :aria-label="$t('Menu')"
           >
               <i class="pi pi-bars text-xl"></i>
           </button>
