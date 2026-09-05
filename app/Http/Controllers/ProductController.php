@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Sku;
 use Cocur\Slugify\Slugify;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -259,6 +260,12 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        // skus.product_id has no ON DELETE rule (unlike order_items.product_id/sku_id,
+        // which SET NULL), so deleting a product while its skus still reference it
+        // fails with a 1451 FK violation. Deleting each sku through Eloquent first
+        // (rather than relying on a DB-level cascade) also runs Spatie's media
+        // cleanup and cascades the attribute_option_sku pivot as normal.
+        $product->skus->each(fn (Sku $sku) => $sku->delete());
         $product->delete();
 
         return redirect()->route('products.index')->with('message', 'Product Delete Successfully');
