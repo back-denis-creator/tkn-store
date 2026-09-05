@@ -27,6 +27,7 @@ class DashboardController extends Controller
                     'uuid' => $order->uuid,
                     'customer_name' => trim("{$order->customer_name} {$order->customer_surname}"),
                     'total_amount' => $order->total_amount / 100,
+                    'status' => $order->status,
                     'status_name' => Order::STATUS_NAMES[$order->status] ?? null,
                     'created_at' => $order->created_at,
                 ]),

@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 
 defineProps({
     stats: {
@@ -19,6 +19,16 @@ const cards = (stats) => [
     { label: 'Атрибути', value: stats.attributes, route: 'attributes.index', icon: 'pi-sliders-h' },
     { label: 'Нові замовлення', value: stats.newOrders, route: 'orders.index', icon: 'pi-shopping-bag', highlight: stats.newOrders > 0 },
 ];
+
+// Order::STATUS_* constants (app/Models/Order.php) — keep in sync.
+const STATUS_BADGE_CLASS = {
+    1: 'bg-blue-50 text-blue-700',      // New
+    2: 'bg-amber-50 text-amber-700',    // Processing
+    3: 'bg-indigo-50 text-indigo-700',  // Shipped
+    4: 'bg-green-50 text-green-700',    // Completed
+    5: 'bg-red-50 text-red-700',        // Cancelled
+};
+const statusBadgeClass = (status) => STATUS_BADGE_CLASS[status] || 'bg-gray-100 text-gray-600';
 </script>
 
 <template>
@@ -78,15 +88,20 @@ const cards = (stats) => [
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <tr v-for="order in recentOrders" :key="order.uuid" class="hover:bg-gray-50">
-                                    <td class="px-5 py-3 text-sm">
-                                        <Link :href="route('orders.show', order.uuid)" class="font-medium hover:text-amber-600">
-                                            {{ order.uuid.slice(0, 8) }}
-                                        </Link>
-                                    </td>
+                                <tr
+                                    v-for="order in recentOrders"
+                                    :key="order.uuid"
+                                    class="cursor-pointer hover:bg-gray-50"
+                                    @click="router.visit(route('orders.show', order.uuid))"
+                                >
+                                    <td class="px-5 py-3 text-sm font-medium">{{ order.uuid.slice(0, 8) }}</td>
                                     <td class="px-5 py-3 text-sm">{{ order.customer_name }}</td>
                                     <td class="px-5 py-3 text-sm">{{ order.total_amount }} грн</td>
-                                    <td class="px-5 py-3 text-sm">{{ order.status_name }}</td>
+                                    <td class="px-5 py-3 text-sm">
+                                        <span class="rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap" :class="statusBadgeClass(order.status)">
+                                            {{ order.status_name }}
+                                        </span>
+                                    </td>
                                     <td class="px-5 py-3 text-sm text-gray-500">
                                         {{ new Date(order.created_at).toLocaleDateString('uk-UA') }}
                                     </td>
