@@ -1,15 +1,15 @@
 <template>
     <Head>
-        <title>Текстиль для вашого простору</title>
-        <meta name="description" content="Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки." />
+        <title>{{ $t('HomeTitle', 'Текстиль для вашого простору') }}</title>
+        <meta name="description" :content="$t('HomeMetaDescription', 'Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки.')" />
         <link rel="canonical" :href="route('home')" />
-        <meta property="og:title" content="Casanel — Текстиль для вашого простору" />
-        <meta property="og:description" content="Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки." />
+        <meta property="og:title" :content="'Casanel — ' + $t('HomeTitle', 'Текстиль для вашого простору')" />
+        <meta property="og:description" :content="$t('HomeMetaDescription', 'Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки.')" />
         <meta property="og:image" content="/images/casanel-logo.png" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Casanel — Текстиль для вашого простору" />
-        <meta name="twitter:description" content="Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки." />
+        <meta name="twitter:title" :content="'Casanel — ' + $t('HomeTitle', 'Текстиль для вашого простору')" />
+        <meta name="twitter:description" :content="$t('HomeMetaDescription', 'Майстерня індивідуального пошиття Casanel. Шиємо столовий, кухонний і вуличний текстиль за вашими розмірами: скатертини, доріжки, серветки та подушки.')" />
         <meta name="twitter:image" content="/images/casanel-logo.png" />
     </Head>
     <div>
