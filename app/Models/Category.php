@@ -49,6 +49,35 @@ class Category extends Model
     }
 
     /**
+     * Ancestor chain from the root down to (not including) this category —
+     * e.g. for "Куверти" under Столовий текстиль > Скатертини > Куверти,
+     * returns [Столовий текстиль, Скатертини]. Used for breadcrumb-style
+     * display of a product's full category path.
+     *
+     * @return Collection<int, self>
+     */
+    public function ancestors(): Collection
+    {
+        $chain = collect();
+        $node = $this->parent;
+        while ($node) {
+            $chain->prepend($node);
+            $node = $node->parent;
+        }
+
+        return $chain;
+    }
+
+    /**
+     * This category's full path, root-first, as a display string —
+     * e.g. "Столовий текстиль > Скатертини > Куверти".
+     */
+    public function fullPath(): string
+    {
+        return $this->ancestors()->push($this)->pluck('name')->implode(' > ');
+    }
+
+    /**
      * Overwrites products_count (normally each category's own direct product
      * count, via $withCount) with a count that also includes every
      * descendant's products. The catalog's category checkboxes cascade —

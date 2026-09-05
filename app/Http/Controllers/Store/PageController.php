@@ -50,6 +50,10 @@ class PageController extends Controller
 
         $product = $query->first();
 
+        $product?->categories->each(function (Category $category) {
+            $category->full_path = $category->fullPath();
+        });
+
         $categoryIds = $product?->categories->pluck('id') ?? collect();
 
         $relatedProducts = $categoryIds->isEmpty() ? collect() : Product::with('skus')

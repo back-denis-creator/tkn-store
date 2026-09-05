@@ -63,7 +63,7 @@
           <h2 class="pt-3 text-2xl font-bold lg:pt-0 uppercase">{{ product.name }}</h2>
 
           <p v-if="product.categories?.length" class="mt-5 font-bold">
-            Категорії: <span class="font-normal">{{ product.categories.map((c) => c.name).join(', ') }}</span>
+            Категорії: <span class="font-normal">{{ product.categories.map((c) => c.full_path || c.name).join(', ') }}</span>
           </p>
           <p class="font-bold">
             {{ $t("Sku") }}: <span class="font-normal">{{ selectedSku?.code }}</span>
