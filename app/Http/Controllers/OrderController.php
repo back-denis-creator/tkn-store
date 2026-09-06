@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -105,7 +106,17 @@ class OrderController extends Controller
         SendTelegramNotification::dispatch($this->formatOrderTelegramMessage($order));
 
         if ((int) $validated['payment_method'] === Order::PAYMENT_LIQPAY) {
-            return Redirect::route('liqpay.checkout', $order);
+            // Inertia::location(), not Redirect::route() — this request came in
+            // as an Inertia visit (the checkout form's own submit), so a plain
+            // redirect gets followed by Inertia's client-side XHR instead of a
+            // real browser navigation. liqpay.checkout returns a bare Blade view
+            // (an auto-submitting <form> to LiqPay's hosted page), not an
+            // Inertia response, so the client can't do anything useful with it
+            // over XHR and just sits there. Inertia::location() sends a 409
+            // with X-Inertia-Location instead, which the client recognizes and
+            // turns into a full window.location navigation — the only way that
+            // auto-submit script actually gets to run.
+            return Inertia::location(route('liqpay.checkout', $order));
         }
 
         return Redirect::route('order.success', $order);
