@@ -4,6 +4,7 @@ import 'primeicons/primeicons.css'
 
 import { createSSRApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import { initSpaPageViews } from './analytics';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { i18nVue } from 'laravel-vue-i18n'
@@ -65,6 +66,7 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
+        initSpaPageViews()
         const app = createSSRApp({ render: () => h(App, props) })
         return app
             .use(plugin)

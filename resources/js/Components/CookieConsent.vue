@@ -28,7 +28,7 @@
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
-import { loadGoogleAnalytics } from '@/analytics'
+import { loadGoogleAnalytics, trackPageView } from '@/analytics'
 
 const STORAGE_KEY = 'casanel_cookie_consent'
 
@@ -61,6 +61,10 @@ const setConsent = (value) => {
 const accept = () => {
     setConsent('accepted')
     loadGoogleAnalytics()
+    // No Inertia navigation happens on this click, so unlike the onMounted
+    // path above, nothing else will send a page_view for the page the
+    // visitor is already on — this has to do it explicitly.
+    trackPageView()
 }
 const decline = () => setConsent('declined')
 </script>
