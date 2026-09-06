@@ -243,5 +243,7 @@
     "Delivery_Receiving_Title": "Receiving your order",
     "Receiving_Item_1": "Please check the parcel when you receive it.",
     "Receiving_Item_2": "If the packaging is damaged or you notice damage to the product, we recommend recording this immediately together with a representative of the postal operator and contacting us.",
-    "Receiving_Item_3": "We are not responsible for delivery delays caused by the postal operator, but we're always ready to help resolve any issue."
+    "Receiving_Item_3": "We are not responsible for delivery delays caused by the postal operator, but we're always ready to help resolve any issue.",
+    "Cookie_Consent_Text": "We use cookies that are necessary for the site to work and to improve your browsing experience.",
+    "Accept": "Accept"
 }

@@ -21,11 +21,13 @@
             <ProductSlider />
         </main>
         <Footer />
+        <CookieConsent />
     </div>
 </template>
 <script setup>
 import NavBar from '@/Components/NavBar.vue';
 import Footer from '@/Components/Footer.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
 import ProductSlider from '@/Components/ProductSlider.vue';
 import SpecialOfferCard from '@/Components/SpecialOfferCard.vue';
 import Recommendations from '@/Components/Recommendations.vue';

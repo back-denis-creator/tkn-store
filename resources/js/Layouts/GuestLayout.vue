@@ -2,6 +2,7 @@
 // import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import NavBar from '@/Components/NavBar.vue';
 import Footer from '@/Components/Footer.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
 // import { Link } from '@inertiajs/vue3';
 </script>
 
@@ -26,5 +27,6 @@ import Footer from '@/Components/Footer.vue';
                 </div>
         </main>
         <Footer />
+        <CookieConsent />
     </div>
 </template>
