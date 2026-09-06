@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -42,6 +43,19 @@ class HandleInertiaRequests extends Middleware
             // Shared globally (not per-page) so the cart icon badge in NavBar
             // stays accurate no matter which page is currently open.
             'cartCount' => fn () => collect($request->session()->get('cart', []))->sum('quantity'),
+            // Same reason — AnnouncementBar renders on every public page via
+            // GuestLayout/Welcome.vue, so it can't rely on any one controller
+            // passing this through.
+            'announcement' => function () {
+                $settings = SiteSetting::current();
+
+                return [
+                    'enabled' => $settings->announcement_enabled,
+                    'mode' => $settings->announcement_mode,
+                    'custom_text' => $settings->announcement_custom_text,
+                    'threshold' => $settings->free_shipping_threshold / 100,
+                ];
+            },
         ]);
     }
 

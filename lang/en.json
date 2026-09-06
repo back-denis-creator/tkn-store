@@ -225,7 +225,7 @@
     "NP_Item_1": "We send orders to a branch, parcel locker, or directly to your address.",
     "NP_Item_2": "Delivery usually takes 2–3 business days from the moment the order is shipped.",
     "NP_Item_3": "In some cases delivery may take longer due to logistics network load, weather conditions, air raid alerts, or other circumstances affecting the postal operator's work.",
-    "NP_Item_4": "Delivery cost is paid by the buyer according to Nova Poshta's current rates.",
+    "NP_Item_4": "Delivery cost is paid by the buyer according to Nova Poshta's current rates; for orders over ₴3500, we cover the delivery cost.",
     "NP_Item_5": "Once the order is shipped, we'll provide a tracking number for the parcel.",
     "Ukrposhta": "Ukrposhta",
     "UP_Item_1": "We send orders to a branch or directly to your address.",
@@ -246,5 +246,6 @@
     "Receiving_Item_3": "We are not responsible for delivery delays caused by the postal operator, but we're always ready to help resolve any issue.",
     "Cookie_Consent_Text": "We use cookies that are necessary for the site to work and to improve your browsing experience.",
     "Accept": "Accept",
-    "Decline": "Decline"
+    "Decline": "Decline",
+    "Free_Shipping_Banner": "Free shipping over ₴:amount"
 }

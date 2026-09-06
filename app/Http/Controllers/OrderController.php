@@ -7,6 +7,7 @@ use App\Mail\OrderPlaced;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\SiteSetting;
 use App\Services\CartService;
 use App\Services\LiqPayService;
 use Illuminate\Http\Request;
@@ -47,6 +48,10 @@ class OrderController extends Controller
 
                 return $sku->price * $product->quantity;
             }) * 100);
+            $settings = SiteSetting::current();
+            $freeShipping = $settings->announcement_enabled
+                && $settings->announcement_mode === SiteSetting::MODE_FREE_SHIPPING
+                && $totalAmount >= $settings->free_shipping_threshold;
 
             $order = Order::create([
                 'user_id' => auth()->id(),
@@ -63,6 +68,7 @@ class OrderController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'status' => Order::STATUS_NEW,
                 'total_amount' => $totalAmount,
+                'free_shipping' => $freeShipping,
             ]);
 
             foreach ($cart as $product) {
@@ -114,6 +120,7 @@ class OrderController extends Controller
                 'status_name' => Order::STATUS_NAMES[$order->status] ?? null,
                 'payment_name' => Order::PAYMENT_NAMES[$order->payment_method] ?? null,
                 'total_amount' => $order->total_amount / 100,
+                'free_shipping' => $order->free_shipping,
                 'created_at' => $order->created_at,
                 'items' => $order->orderItems->map(fn (OrderItem $item) => [
                     'product_name' => $item->product_name,
@@ -135,6 +142,7 @@ class OrderController extends Controller
                 'payment_method' => $order->payment_method,
                 'payment_name' => Order::PAYMENT_NAMES[$order->payment_method] ?? null,
                 'total_amount' => $order->total_amount / 100,
+                'free_shipping' => $order->free_shipping,
                 'paid_at' => $order->paid_at,
             ],
         ]);
@@ -163,6 +171,10 @@ class OrderController extends Controller
         $lines[] = $deliveryLine;
         $lines[] = "Оплата: {$paymentName}";
         $lines[] = sprintf('Сума: %s грн', number_format($order->total_amount / 100, 2, '.', ' '));
+
+        if ($order->free_shipping) {
+            $lines[] = '🎁 Безкоштовна доставка — оплачує магазин';
+        }
 
         if ($order->comment) {
             $lines[] = "Коментар: {$order->comment}";

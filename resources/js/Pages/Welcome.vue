@@ -13,7 +13,10 @@
         <meta name="twitter:image" content="/images/casanel-logo.png" />
     </Head>
     <div>
-        <NavBar />
+        <div class="flex flex-col">
+            <AnnouncementBar class="order-2 lg:order-1" />
+            <NavBar class="order-1 lg:order-2" />
+        </div>
         <main>
             <WelcomeBlock />
             <ConsBages />
@@ -28,6 +31,7 @@
 import NavBar from '@/Components/NavBar.vue';
 import Footer from '@/Components/Footer.vue';
 import CookieConsent from '@/Components/CookieConsent.vue';
+import AnnouncementBar from '@/Components/AnnouncementBar.vue';
 import ProductSlider from '@/Components/ProductSlider.vue';
 import SpecialOfferCard from '@/Components/SpecialOfferCard.vue';
 import Recommendations from '@/Components/Recommendations.vue';

@@ -3,12 +3,16 @@
 import NavBar from '@/Components/NavBar.vue';
 import Footer from '@/Components/Footer.vue';
 import CookieConsent from '@/Components/CookieConsent.vue';
+import AnnouncementBar from '@/Components/AnnouncementBar.vue';
 // import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
     <div class="flex flex-col min-h-screen">
-        <NavBar />
+        <div class="flex flex-col">
+            <AnnouncementBar class="order-2 lg:order-1" />
+            <NavBar class="order-1 lg:order-2" />
+        </div>
         <!-- <div>
             <Link href="/">
                 <ApplicationLogo class="w-20 h-20 fill-current text-gray-500" />

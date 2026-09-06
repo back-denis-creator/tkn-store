@@ -61,6 +61,7 @@ class Order extends Model
         'status',
         'total_amount',
         'paid_at',
+        'free_shipping',
     ];
 
     protected function casts(): array
@@ -71,6 +72,7 @@ class Order extends Model
             'status' => 'integer',
             'total_amount' => 'integer',
             'paid_at' => 'datetime',
+            'free_shipping' => 'boolean',
         ];
     }
 

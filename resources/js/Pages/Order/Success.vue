@@ -19,9 +19,13 @@
                     <span>Оплата</span>
                     <span class="font-medium">{{ order.payment_name }}</span>
                 </div>
-                <div class="flex justify-between py-2">
+                <div class="flex justify-between py-2" :class="{ 'border-b': order.free_shipping }">
                     <span>Сума</span>
                     <span class="font-medium">{{ order.total_amount }} грн.</span>
+                </div>
+                <div v-if="order.free_shipping" class="flex justify-between py-2">
+                    <span>Доставка</span>
+                    <span class="font-medium text-green-700">Безкоштовно 🎁</span>
                 </div>
             </div>
 

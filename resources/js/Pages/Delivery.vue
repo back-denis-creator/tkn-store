@@ -67,7 +67,7 @@ defineProps({
                                 <li class="flex gap-3"><span class="w-2 h-2 mt-2 bg-amber-400 rounded-full shrink-0"></span> {{ $t('NP_Item_1', 'Відправляємо замовлення у відділення, поштомат або за адресою.') }}</li>
                                 <li class="flex gap-3"><span class="w-2 h-2 mt-2 bg-amber-400 rounded-full shrink-0"></span> {{ $t('NP_Item_2', 'Зазвичай доставка займає 2–3 робочі дні з моменту відправлення замовлення.') }}</li>
                                 <li class="flex gap-3"><span class="w-2 h-2 mt-2 bg-amber-400 rounded-full shrink-0"></span> {{ $t('NP_Item_3', 'Звертаємо увагу, що в окремих випадках термін доставки може бути довшим через навантаження на логістичну мережу, погодні умови, повітряні тривоги або інші обставини, що впливають на роботу поштового оператора.') }}</li>
-                                <li class="flex gap-3"><span class="w-2 h-2 mt-2 bg-amber-400 rounded-full shrink-0"></span> {{ $t('NP_Item_4', 'Вартість доставки оплачується покупцем відповідно до чинних тарифів «Нової пошти».') }}</li>
+                                <li class="flex gap-3"><span class="w-2 h-2 mt-2 bg-amber-400 rounded-full shrink-0"></span> {{ $t('NP_Item_4', 'Вартість доставки оплачується покупцем відповідно до чинних тарифів «Нової пошти»; для замовлень від 3500 грн доставку оплачує магазин.') }}</li>
                                 <li class="flex gap-3"><span class="w-2 h-2 mt-2 bg-amber-400 rounded-full shrink-0"></span> {{ $t('NP_Item_5', 'Після відправлення замовлення ми надамо номер накладної для відстеження посилки.') }}</li>
                             </ul>
                         </div>

@@ -15,6 +15,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Store\PageController;
 use Illuminate\Support\Facades\Route;
@@ -78,6 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index')->middleware('admin');
     Route::patch('/reviews/{review}', [AdminReviewController::class, 'update'])->name('reviews.update')->middleware('admin');
     Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy')->middleware('admin');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index')->middleware('admin');
+    Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update')->middleware('admin');
 });
 
 require __DIR__.'/auth.php';

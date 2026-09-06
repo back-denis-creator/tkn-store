@@ -24,6 +24,9 @@
                                 Нова Пошта, {{ order.np_city_name }}, відділення: {{ order.np_warehouse_name }}
                             </p>
                             <p v-else>Самовивіз</p>
+                            <p v-if="order.free_shipping" class="mt-2 inline-block rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+                                🎁 Безкоштовна доставка — оплачує магазин
+                            </p>
                         </div>
 
                         <div>

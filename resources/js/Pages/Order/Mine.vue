@@ -40,6 +40,7 @@
                         <span>Сума</span>
                         <span>{{ order.total_amount }} грн.</span>
                     </div>
+                    <p v-if="order.free_shipping" class="mt-2 text-sm text-green-700">🎁 Безкоштовна доставка</p>
                 </div>
             </div>
 

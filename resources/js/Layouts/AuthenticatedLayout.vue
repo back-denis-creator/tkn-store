@@ -47,6 +47,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('attributes.index')" :active="route().current('attributes.index')">
                                     Атрибути
                                 </NavLink>
+                                <NavLink :href="route('settings.index')" :active="route().current('settings.index')">
+                                    Налаштування
+                                </NavLink>
                             </div>
                         </div>
 
@@ -147,6 +150,9 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('attributes.index')" :active="route().current('attributes.index')">
                             Атрибути
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('settings.index')" :active="route().current('settings.index')">
+                            Налаштування
                         </ResponsiveNavLink>
                     </div>
 
