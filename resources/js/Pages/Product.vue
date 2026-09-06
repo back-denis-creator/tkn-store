@@ -19,7 +19,7 @@
             <meta name="twitter:description" :content="metaDescription" />
             <meta v-if="product.default_image" name="twitter:image" :content="product.default_image" />
 
-            <component :is="'script'" type="application/ld+json" v-html="productJsonLd" />
+            <component :is="'script'" type="application/ld+json">{{ productJsonLd }}</component>
         </Head>
 
     <section
@@ -332,6 +332,9 @@ const metaDescription = computed(() => {
     return `${props.product.name} — індивідуальне пошиття від Casanel. Замовляйте текстиль ручної роботи за вашими розмірами.`
 })
 
+// Every opening-angle-bracket is Unicode-escaped so a product description
+// can never contain a literal closing script tag and break out of the
+// JSON-LD block; it round-trips back to a plain bracket for any consumer.
 const productJsonLd = computed(() => JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -345,7 +348,7 @@ const productJsonLd = computed(() => JSON.stringify({
         availability: 'https://schema.org/InStock',
         url: route('product', props.product.slug),
     } : undefined,
-}))
+}).replace(/</g, '\\u003c'))
 
 const quantity = ref(1)
 const attrModels = ref({})
