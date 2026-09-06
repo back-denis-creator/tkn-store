@@ -31,6 +31,32 @@ export function loadGoogleAnalytics() {
     // once for the current page shortly after this runs, whether this is the
     // very first page load or a returning visitor with consent already
     // recorded — calling trackPageView() here too would double-count it.
+
+    suppressGtagWebVitalsBug();
+}
+
+// gtag.js bundles Google's own web-vitals library to auto-report Core Web
+// Vitals (LCP/CLS/INP). That library assumes a real full-page navigation and
+// gets confused by Inertia's pushState-only transitions — Performance API
+// entries from the previous "page" are still around, so its continuous
+// LCP/CLS reporting callback (reportAllChanges) sometimes reads .startTime
+// off an entry that no longer applies and throws. It's caught inside gtag.js's
+// own setTimeout, so it never touches our app's execution — this exists
+// purely to keep that specific, known-harmless noise out of the console
+// (and any error-monitoring tool that's watching it).
+let suppressorInstalled = false;
+function suppressGtagWebVitalsBug() {
+    if (suppressorInstalled || typeof window === 'undefined') return;
+    suppressorInstalled = true;
+
+    window.addEventListener('error', (event) => {
+        const isGtagWebVitalsBug =
+            event.message?.includes("reading 'startTime'") &&
+            event.error?.stack?.includes('reportAllChanges');
+        if (isGtagWebVitalsBug) {
+            event.preventDefault();
+        }
+    });
 }
 
 export function trackPageView() {
