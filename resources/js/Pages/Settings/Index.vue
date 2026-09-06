@@ -17,7 +17,7 @@ const form = useForm({
     announcement_enabled: props.settings.announcement_enabled,
     announcement_mode: props.settings.announcement_mode,
     announcement_custom_text: props.settings.announcement_custom_text,
-    free_shipping_threshold: props.settings.free_shipping_threshold,
+    free_shipping_threshold: props.settings.free_shipping_threshold.toString(),
 });
 
 const submit = () => {

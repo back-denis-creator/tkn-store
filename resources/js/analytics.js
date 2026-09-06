@@ -50,16 +50,22 @@ export function loadGoogleAnalytics() {
 // own setTimeout, so it never touches our app's execution — this exists
 // purely to keep that specific, known-harmless noise out of the console
 // (and any error-monitoring tool that's watching it).
+//
+// Matched on message text alone, not the stack: the throw happens inside a
+// dynamically-evaluated sub-script gtag.js creates internally (shows in
+// DevTools as "VM<n>", no real URL of its own) — our <script> tag's
+// crossorigin attribute only governs errors from that tag's own top-level
+// code, not this inner blob, so event.error/stack stay unavailable here
+// regardless. The message text is the only reliably-present detail; it's
+// specific enough (confirmed nowhere else in this codebase) that matching on
+// it alone is safe.
 let suppressorInstalled = false;
 function suppressGtagWebVitalsBug() {
     if (suppressorInstalled || typeof window === 'undefined') return;
     suppressorInstalled = true;
 
     window.addEventListener('error', (event) => {
-        const isGtagWebVitalsBug =
-            event.message?.includes("reading 'startTime'") &&
-            event.error?.stack?.includes('reportAllChanges');
-        if (isGtagWebVitalsBug) {
+        if (event.message?.includes("reading 'startTime'")) {
             event.preventDefault();
         }
     });
