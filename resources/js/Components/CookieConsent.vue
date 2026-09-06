@@ -28,19 +28,21 @@
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
+import { loadGoogleAnalytics } from '@/analytics'
 
-// Only "necessary" cookies (session, CSRF) are in use today, so there's
-// nothing to actually toggle yet — decline just records the choice and
-// dismisses the banner the same as accept. Once analytics/marketing scripts
-// are added, gate their injection on this flag being exactly 'accepted'
-// (not merely present) so a past decline still blocks them.
 const STORAGE_KEY = 'casanel_cookie_consent'
 
 const visible = ref(false)
 
 onMounted(() => {
     try {
-        visible.value = localStorage.getItem(STORAGE_KEY) === null
+        const consent = localStorage.getItem(STORAGE_KEY)
+        visible.value = consent === null
+        // Returning visitor who already accepted on a previous visit — start
+        // analytics on this page load too, not just right after the click.
+        if (consent === 'accepted') {
+            loadGoogleAnalytics()
+        }
     } catch (e) {
         visible.value = false
     }
@@ -56,6 +58,9 @@ const setConsent = (value) => {
     }
 }
 
-const accept = () => setConsent('accepted')
+const accept = () => {
+    setConsent('accepted')
+    loadGoogleAnalytics()
+}
 const decline = () => setConsent('declined')
 </script>
