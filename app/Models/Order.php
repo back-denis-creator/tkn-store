@@ -84,7 +84,12 @@ class Order extends Model
 
         static::updated(function (Order $order) {
             if ($order->wasChanged('status') && $order->customer_email) {
-                Mail::to($order->customer_email)->send(new OrderStatusChanged($order));
+                // ->queue(), not ->send() — same reason as OrderPlaced in
+                // OrderController::store(): this class already declares
+                // ShouldQueue, but send() ignores that. A slow/unreachable
+                // SMTP server would otherwise hang the admin's status-update
+                // request until the mail attempt times out.
+                Mail::to($order->customer_email)->queue(new OrderStatusChanged($order));
             }
         });
     }

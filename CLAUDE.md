@@ -43,6 +43,7 @@ Casanel.online is a modern, high-performance e-commerce platform developed using
 - No Docker/CI config in the repo — deployed directly to a VPS/shared host, not containerized.
 - Production path: `/home/casanel/casanel.online/www`, running as `www-data`.
 - SSR worker managed by Supervisor (`laravel-worker.cnf`): runs `php artisan inertia:start-ssr`, logs to `/home/casanel/casanel.online/laravel-worker.log`. `INERTIA_SSR_PORT=13715` is deliberately non-default to avoid port conflicts on the host.
+- **After every `npm run build` on prod, restart the SSR worker: `sudo supervisorctl restart laravel-worker:*`.** The worker is a long-running Node process that holds the built SSR chunk graph (hashed filenames) in memory; a fresh build overwrites `bootstrap/ssr/assets/` with new hashes, and the still-running old process then fails with `ERR_MODULE_NOT_FOUND` trying to import a chunk that no longer exists. This is silent from the outside (Inertia falls back to CSR, so the site still loads) but shows up as `Inertia\Ssr\SsrException` in `storage/logs/laravel.log` and loses the SSR/SEO benefit until restarted.
 - Local dev DB is SQLite (`DB_CONNECTION=sqlite`); production likely MySQL/Postgres (driver-agnostic migrations) — confirm actual prod driver before assuming SQLite semantics matter.
 - `FILESYSTEM_DISK=local` currently — AWS S3 env vars exist but are blank, so S3 is not actively wired up for media storage yet.
 

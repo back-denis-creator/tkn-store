@@ -94,7 +94,12 @@ class OrderController extends Controller
         session()->forget('cart');
 
         if ($order->customer_email) {
-            Mail::to($order->customer_email)->send(new OrderPlaced($order));
+            // ->queue(), not ->send() — OrderPlaced already declares ShouldQueue,
+            // but send() ignores that and sends synchronously regardless. A slow
+            // or unreachable SMTP server would otherwise hang the whole checkout
+            // request (and the LiqPay redirect after it) until the mail attempt
+            // times out.
+            Mail::to($order->customer_email)->queue(new OrderPlaced($order));
         }
 
         SendTelegramNotification::dispatch($this->formatOrderTelegramMessage($order));
