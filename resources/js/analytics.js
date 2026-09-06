@@ -65,6 +65,8 @@ function suppressGtagWebVitalsBug() {
     suppressorInstalled = true;
 
     window.addEventListener('error', (event) => {
+        // TEMP DEBUG — remove after diagnosing why suppression isn't taking effect.
+        console.log('GTAG_DEBUG error event:', JSON.stringify(event.message), event.filename, event.lineno, event.colno);
         if (event.message?.includes("reading 'startTime'")) {
             event.preventDefault();
         }
@@ -75,6 +77,8 @@ function suppressGtagWebVitalsBug() {
     // wraps the reportAllChanges callback in a Promise) — 'error' alone
     // doesn't catch this path, only 'unhandledrejection' does.
     window.addEventListener('unhandledrejection', (event) => {
+        // TEMP DEBUG — remove after diagnosing why suppression isn't taking effect.
+        console.log('GTAG_DEBUG unhandledrejection event:', JSON.stringify(event.reason?.message));
         if (event.reason?.message?.includes("reading 'startTime'")) {
             event.preventDefault();
         }
