@@ -24,6 +24,12 @@ export function loadGoogleAnalytics() {
 
     const script = document.createElement('script');
     script.async = true;
+    // Without this, the browser reports errors thrown inside this
+    // cross-origin script to our own 'error' listener as a sanitized
+    // "Script error." with no message/stack — exactly the detail
+    // suppressGtagWebVitalsBug() needs to identify it. googletagmanager.com
+    // serves gtag.js with permissive CORS headers, so this doesn't block it.
+    script.crossOrigin = 'anonymous';
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
     document.head.appendChild(script);
 
