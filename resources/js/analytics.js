@@ -69,6 +69,16 @@ function suppressGtagWebVitalsBug() {
             event.preventDefault();
         }
     });
+
+    // Same known gtag.js/web-vitals bug, but reaching us as a rejected
+    // promise instead of a synchronous throw (e.g. if its internal scheduler
+    // wraps the reportAllChanges callback in a Promise) — 'error' alone
+    // doesn't catch this path, only 'unhandledrejection' does.
+    window.addEventListener('unhandledrejection', (event) => {
+        if (event.reason?.message?.includes("reading 'startTime'")) {
+            event.preventDefault();
+        }
+    });
 }
 
 export function trackPageView() {
