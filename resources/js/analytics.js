@@ -11,10 +11,6 @@ export function loadGoogleAnalytics() {
     if (loaded || !GA_MEASUREMENT_ID || typeof window === 'undefined') return;
     loaded = true;
 
-    // Must run before gtag.js's own script executes — see the big comment on
-    // guardAgainstWebVitalsBug() below for why this exists at all.
-    guardAgainstWebVitalsBug();
-
     window.dataLayer = window.dataLayer || [];
     window.gtag = function gtag() {
         window.dataLayer.push(arguments);
@@ -36,65 +32,6 @@ export function loadGoogleAnalytics() {
     // once for the current page shortly after this runs, whether this is the
     // very first page load or a returning visitor with consent already
     // recorded — calling trackPageView() here too would double-count it.
-}
-
-// gtag.js bundles Google's own web-vitals library to auto-report Core Web
-// Vitals (LCP/CLS/INP). That library assumes a real full-page navigation and
-// gets confused by Inertia's pushState-only transitions — Performance API
-// entries from the previous "page" are still around, so its continuous
-// LCP/CLS reporting callback (reportAllChanges) sometimes reads .startTime
-// off an entry that no longer applies and throws.
-//
-// Tried and confirmed NOT to work: window.addEventListener('error'/
-// 'unhandledrejection', ...) with event.preventDefault(). Verified live on
-// production with temporary debug logging — neither listener fires at all
-// for this error, meaning it never reaches window's normal uncaught-error
-// pipeline in the first place (most likely reported by Chromium directly
-// from its native scheduling/observer callback invocation, bypassing
-// window.onerror entirely — a known quirk for some browser callback APIs).
-// So the only place left to intercept it is the callback itself, before the
-// browser ever gets to invoke it and report the throw.
-//
-// setTimeout is wrapped because the real stack trace's outermost frame is
-// "n.timeout" (some internal scheduler that bottoms out in a real timer).
-// PerformanceObserver is wrapped too since reportAllChanges is Web Vitals'
-// own observer-driven reporting callback — whichever of the two actually
-// invokes the throwing code, both are covered.
-let guardInstalled = false;
-function guardAgainstWebVitalsBug() {
-    if (guardInstalled || typeof window === 'undefined') return;
-    guardInstalled = true;
-
-    const isKnownBug = (error) => error?.message?.includes("reading 'startTime'");
-
-    const nativeSetTimeout = window.setTimeout;
-    window.setTimeout = function guardedSetTimeout(handler, timeout, ...args) {
-        if (typeof handler !== 'function') return nativeSetTimeout(handler, timeout, ...args);
-
-        return nativeSetTimeout(function guardedTimeoutCallback(...callbackArgs) {
-            try {
-                return handler.apply(this, callbackArgs);
-            } catch (error) {
-                if (!isKnownBug(error)) throw error;
-            }
-        }, timeout, ...args);
-    };
-
-    if (typeof window.PerformanceObserver === 'function') {
-        const NativePerformanceObserver = window.PerformanceObserver;
-        function GuardedPerformanceObserver(callback) {
-            return new NativePerformanceObserver(function guardedObserverCallback(...callbackArgs) {
-                try {
-                    return callback.apply(this, callbackArgs);
-                } catch (error) {
-                    if (!isKnownBug(error)) throw error;
-                }
-            });
-        }
-        GuardedPerformanceObserver.prototype = NativePerformanceObserver.prototype;
-        GuardedPerformanceObserver.supportedEntryTypes = NativePerformanceObserver.supportedEntryTypes;
-        window.PerformanceObserver = GuardedPerformanceObserver;
-    }
 }
 
 export function trackPageView() {
