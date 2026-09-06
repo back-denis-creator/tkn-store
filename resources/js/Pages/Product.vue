@@ -183,7 +183,11 @@
               <Link :href="route('login')" class="text-amber-600 underline">{{ $t('Log in') }}</Link>
             </p>
           </template>
-          <template v-else-if="myReview">
+          <!-- An approved review already appears once in the list above (it's
+               just another entry there) — repeating it here as "Ваш відгук"
+               would show the same comment twice. Only pending/rejected ones,
+               which the public list never includes, get shown here. -->
+          <template v-else-if="myReview && myReview.status !== 1">
             <p class="font-medium">{{ $t('Your review') }}</p>
             <div class="mt-1 flex">
               <StarIconSolid v-for="i in 5" :key="i" class="h-4 w-4" :class="i <= myReview.rating ? 'text-amber-400' : 'text-gray-200'" />
@@ -191,7 +195,7 @@
             <p class="mt-2 text-sm text-gray-700">{{ myReview.comment }}</p>
             <p class="mt-2 text-sm text-gray-400">{{ reviewStatusLabels[myReview.status] }}</p>
           </template>
-          <template v-else>
+          <template v-else-if="!myReview">
             <p class="font-medium">{{ $t('Leave a review') }}</p>
             <div class="mt-2 flex">
               <button

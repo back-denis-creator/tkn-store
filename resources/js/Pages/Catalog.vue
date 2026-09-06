@@ -248,7 +248,9 @@
                         </Link>
 
                         <div>
-                            <p class="mt-2 truncate" :title="product.name">{{ product.name }}</p>
+                            <Link :href="route('product', product.slug)">
+                                <p class="mt-2 truncate hover:underline" :title="product.name">{{ product.name }}</p>
+                            </Link>
                             <p class="font-medium text-amber-600">
                                 {{ product.default_price }} грн.
                             </p>

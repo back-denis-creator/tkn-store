@@ -8,7 +8,7 @@
     />
     <div
         v-else
-        class="relative aspect-square w-full touch-pan-y overflow-hidden select-none"
+        class="group/carousel relative aspect-square w-full touch-pan-y overflow-hidden select-none cursor-grab active:cursor-grabbing"
         @touchstart="onDragStart"
         @touchmove="onDragMove"
         @touchend="onDragEnd"
@@ -26,6 +26,22 @@
                 @error="$emit('broken')"
             />
         </div>
+        <button
+            v-if="activeIndex > 0"
+            type="button"
+            class="absolute top-1/2 left-1 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 opacity-0 shadow-sm transition-opacity group-hover/carousel:opacity-100 hover:bg-white"
+            @click="goPrev"
+        >
+            <ChevronLeftIcon class="h-4 w-4" />
+        </button>
+        <button
+            v-if="activeIndex < images.length - 1"
+            type="button"
+            class="absolute top-1/2 right-1 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 opacity-0 shadow-sm transition-opacity group-hover/carousel:opacity-100 hover:bg-white"
+            @click="goNext"
+        >
+            <ChevronRightIcon class="h-4 w-4" />
+        </button>
         <div class="absolute inset-x-0 bottom-2 flex justify-center gap-1">
             <span
                 v-for="(image, i) in images"
@@ -38,6 +54,7 @@
 </template>
 <script setup>
 import { ref, computed } from 'vue'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid'
 
 const props = defineProps({
     images: {
@@ -82,8 +99,15 @@ const onDragMove = (e) => {
     const dx = p.x - startX
     const dy = p.y - startY
     if (axisLocked === null) {
-        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
-        axisLocked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+        // A mouse/trackpad drag is rarely perfectly straight, so deciding the
+        // axis from the first ~5px of jitter locked onto 'y' constantly and
+        // made the swipe feel like it only worked "sometimes". Waiting for
+        // more movement, and treating this as a horizontal carousel by
+        // default (only locking vertical once the drag is CLEARLY more
+        // vertical than horizontal), makes it reliable without breaking a
+        // real vertical scroll gesture on touch.
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return
+        axisLocked = Math.abs(dy) > Math.abs(dx) * 1.5 ? 'y' : 'x'
     }
     if (axisLocked === 'x') {
         if (e.cancelable) e.preventDefault()
@@ -130,6 +154,19 @@ const onClick = (e) => {
         e.stopPropagation()
         didSwipe = false
     }
+}
+
+// The arrows sit inside the same Inertia <Link> as the slides — clicking one
+// must move the carousel, not navigate to the product.
+const goPrev = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (activeIndex.value > 0) activeIndex.value--
+}
+const goNext = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (activeIndex.value < props.images.length - 1) activeIndex.value++
 }
 
 const trackStyle = computed(() => ({
