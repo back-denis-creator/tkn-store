@@ -11,6 +11,10 @@ export function loadGoogleAnalytics() {
     if (loaded || !GA_MEASUREMENT_ID || typeof window === 'undefined') return;
     loaded = true;
 
+    // Must run before gtag.js's own script executes — see the big comment on
+    // guardAgainstWebVitalsBug() below for why this exists at all.
+    guardAgainstWebVitalsBug();
+
     window.dataLayer = window.dataLayer || [];
     window.gtag = function gtag() {
         window.dataLayer.push(arguments);
@@ -24,11 +28,6 @@ export function loadGoogleAnalytics() {
 
     const script = document.createElement('script');
     script.async = true;
-    // Without this, the browser reports errors thrown inside this
-    // cross-origin script to our own 'error' listener as a sanitized
-    // "Script error." with no message/stack — exactly the detail
-    // suppressGtagWebVitalsBug() needs to identify it. googletagmanager.com
-    // serves gtag.js with permissive CORS headers, so this doesn't block it.
     script.crossOrigin = 'anonymous';
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
     document.head.appendChild(script);
@@ -37,8 +36,6 @@ export function loadGoogleAnalytics() {
     // once for the current page shortly after this runs, whether this is the
     // very first page load or a returning visitor with consent already
     // recorded — calling trackPageView() here too would double-count it.
-
-    suppressGtagWebVitalsBug();
 }
 
 // gtag.js bundles Google's own web-vitals library to auto-report Core Web
@@ -46,43 +43,58 @@ export function loadGoogleAnalytics() {
 // gets confused by Inertia's pushState-only transitions — Performance API
 // entries from the previous "page" are still around, so its continuous
 // LCP/CLS reporting callback (reportAllChanges) sometimes reads .startTime
-// off an entry that no longer applies and throws. It's caught inside gtag.js's
-// own setTimeout, so it never touches our app's execution — this exists
-// purely to keep that specific, known-harmless noise out of the console
-// (and any error-monitoring tool that's watching it).
+// off an entry that no longer applies and throws.
 //
-// Matched on message text alone, not the stack: the throw happens inside a
-// dynamically-evaluated sub-script gtag.js creates internally (shows in
-// DevTools as "VM<n>", no real URL of its own) — our <script> tag's
-// crossorigin attribute only governs errors from that tag's own top-level
-// code, not this inner blob, so event.error/stack stay unavailable here
-// regardless. The message text is the only reliably-present detail; it's
-// specific enough (confirmed nowhere else in this codebase) that matching on
-// it alone is safe.
-let suppressorInstalled = false;
-function suppressGtagWebVitalsBug() {
-    if (suppressorInstalled || typeof window === 'undefined') return;
-    suppressorInstalled = true;
+// Tried and confirmed NOT to work: window.addEventListener('error'/
+// 'unhandledrejection', ...) with event.preventDefault(). Verified live on
+// production with temporary debug logging — neither listener fires at all
+// for this error, meaning it never reaches window's normal uncaught-error
+// pipeline in the first place (most likely reported by Chromium directly
+// from its native scheduling/observer callback invocation, bypassing
+// window.onerror entirely — a known quirk for some browser callback APIs).
+// So the only place left to intercept it is the callback itself, before the
+// browser ever gets to invoke it and report the throw.
+//
+// setTimeout is wrapped because the real stack trace's outermost frame is
+// "n.timeout" (some internal scheduler that bottoms out in a real timer).
+// PerformanceObserver is wrapped too since reportAllChanges is Web Vitals'
+// own observer-driven reporting callback — whichever of the two actually
+// invokes the throwing code, both are covered.
+let guardInstalled = false;
+function guardAgainstWebVitalsBug() {
+    if (guardInstalled || typeof window === 'undefined') return;
+    guardInstalled = true;
 
-    window.addEventListener('error', (event) => {
-        // TEMP DEBUG — remove after diagnosing why suppression isn't taking effect.
-        console.log('GTAG_DEBUG error event:', JSON.stringify(event.message), event.filename, event.lineno, event.colno);
-        if (event.message?.includes("reading 'startTime'")) {
-            event.preventDefault();
-        }
-    });
+    const isKnownBug = (error) => error?.message?.includes("reading 'startTime'");
 
-    // Same known gtag.js/web-vitals bug, but reaching us as a rejected
-    // promise instead of a synchronous throw (e.g. if its internal scheduler
-    // wraps the reportAllChanges callback in a Promise) — 'error' alone
-    // doesn't catch this path, only 'unhandledrejection' does.
-    window.addEventListener('unhandledrejection', (event) => {
-        // TEMP DEBUG — remove after diagnosing why suppression isn't taking effect.
-        console.log('GTAG_DEBUG unhandledrejection event:', JSON.stringify(event.reason?.message));
-        if (event.reason?.message?.includes("reading 'startTime'")) {
-            event.preventDefault();
+    const nativeSetTimeout = window.setTimeout;
+    window.setTimeout = function guardedSetTimeout(handler, timeout, ...args) {
+        if (typeof handler !== 'function') return nativeSetTimeout(handler, timeout, ...args);
+
+        return nativeSetTimeout(function guardedTimeoutCallback(...callbackArgs) {
+            try {
+                return handler.apply(this, callbackArgs);
+            } catch (error) {
+                if (!isKnownBug(error)) throw error;
+            }
+        }, timeout, ...args);
+    };
+
+    if (typeof window.PerformanceObserver === 'function') {
+        const NativePerformanceObserver = window.PerformanceObserver;
+        function GuardedPerformanceObserver(callback) {
+            return new NativePerformanceObserver(function guardedObserverCallback(...callbackArgs) {
+                try {
+                    return callback.apply(this, callbackArgs);
+                } catch (error) {
+                    if (!isKnownBug(error)) throw error;
+                }
+            });
         }
-    });
+        GuardedPerformanceObserver.prototype = NativePerformanceObserver.prototype;
+        GuardedPerformanceObserver.supportedEntryTypes = NativePerformanceObserver.supportedEntryTypes;
+        window.PerformanceObserver = GuardedPerformanceObserver;
+    }
 }
 
 export function trackPageView() {
