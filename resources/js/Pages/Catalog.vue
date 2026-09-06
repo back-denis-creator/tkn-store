@@ -232,12 +232,11 @@
                             :href="route('product', product.slug)"
                         >
                             <div class="relative flex">
-                                <img
-                                    v-if="product.default_image && !brokenImages.has(product.id)"
-                                    :src="product.default_image"
-                                    class="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                <ProductImageCarousel
+                                    v-if="productImages(product).length && !brokenImages.has(product.id)"
+                                    :images="productImages(product)"
                                     :alt="product.name"
-                                    @error="brokenImages.add(product.id)"
+                                    @broken="brokenImages.add(product.id)"
                                 />
                                 <div
                                     v-else
@@ -297,6 +296,7 @@ import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 import Tree from 'primevue/tree';
 import GuestLayout from '@/Layouts/GuestLayout.vue'
+import ProductImageCarousel from '@/Components/ProductImageCarousel.vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import { ref, reactive, onMounted, computed } from "vue"
 import { useToast } from "primevue/usetoast"
@@ -305,6 +305,10 @@ const toast = useToast()
 // Tracks product IDs whose default_image 404'd (DB record exists, file missing) so
 // the card falls back to the placeholder instead of a broken-image icon.
 const brokenImages = reactive(new Set())
+// The catalog card mirrors Product::getDefaultImageAttribute()'s source (the
+// first sku's media) rather than aggregating every variant's images, so the
+// carousel reads as "more photos of this item" and not a mix of variants.
+const productImages = (product) => product.skus?.[0]?.media || []
 const props = defineProps({
     canLogin: {
         type: Boolean,

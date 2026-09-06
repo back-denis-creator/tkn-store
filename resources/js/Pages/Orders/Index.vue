@@ -46,7 +46,9 @@
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.customer_name }} {{ order.customer_surname }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.customer_phone }}</td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ order.total_amount / 100 }} грн</td>
-                                                        <td class="px-4 py-4 text-sm whitespace-nowrap">{{ statuses[order.status] }}</td>
+                                                        <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                                            <span class="rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap" :class="statusBadgeClass(order.status)">{{ statuses[order.status] }}</span>
+                                                        </td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">{{ new Date(order.created_at).toLocaleString('uk-UA') }}</td>
                                                     </tr>
                                                 </tbody>
@@ -102,6 +104,15 @@ const props = defineProps({
 const status = ref(props.statusFilter || '')
 const pages = computed(() => props.orders.links.filter(({label}) => isNumeric(label)))
 const isNumeric = (value) => /^-?\d+$/.test(value)
+
+const STATUS_BADGE_CLASS = {
+    1: 'bg-blue-50 text-blue-700',
+    2: 'bg-amber-50 text-amber-700',
+    3: 'bg-indigo-50 text-indigo-700',
+    4: 'bg-green-50 text-green-700',
+    5: 'bg-red-50 text-red-700',
+};
+const statusBadgeClass = (orderStatus) => STATUS_BADGE_CLASS[orderStatus] || 'bg-gray-100 text-gray-600';
 
 const applyFilter = () => {
     router.get(route('orders.index'), { status: status.value }, { preserveState: true })
