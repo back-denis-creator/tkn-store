@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\AdminReviewController;
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\NPController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Store\PageController;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/profile/orders', [OrderController::class, 'myOrders'])->name('orders.mine');
+    Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
     Route::resource('/blogs', BlogController::class)->middleware('admin');
     Route::resource('/products', ProductController::class, ['except' => ['update']])->middleware('admin');
@@ -72,6 +75,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->parameters(['orders' => 'order:uuid'])
         ->only(['index', 'show', 'update'])
         ->middleware('admin');
+    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index')->middleware('admin');
+    Route::patch('/reviews/{review}', [AdminReviewController::class, 'update'])->name('reviews.update')->middleware('admin');
+    Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy')->middleware('admin');
 });
 
 require __DIR__.'/auth.php';

@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\Sku;
 use App\Services\CartService;
 use Cocur\Slugify\Slugify;
@@ -54,6 +55,14 @@ class PageController extends Controller
             $category->full_path = $category->fullPath();
         });
 
+        if ($product) {
+            $product->load(['reviews' => fn ($q) => $q->approved()->latest()]);
+            $product->reviews_count = $product->reviews->count();
+            $product->average_rating = $product->reviews_count
+                ? round($product->reviews->avg('rating'), 1)
+                : null;
+        }
+
         $categoryIds = $product?->categories->pluck('id') ?? collect();
 
         $relatedProducts = $categoryIds->isEmpty() ? collect() : Product::with('skus')
@@ -66,6 +75,9 @@ class PageController extends Controller
         return Inertia::render('Product', [
             'product' => fn() => $product,
             'relatedProducts' => fn() => $relatedProducts,
+            'myReview' => fn() => (auth()->check() && $product)
+                ? Review::where('product_id', $product->id)->where('user_id', auth()->id())->first()
+                : null,
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,

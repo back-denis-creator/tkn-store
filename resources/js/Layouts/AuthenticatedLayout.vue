@@ -32,6 +32,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('orders.index')" :active="route().current('orders.index')">
                                     Замовлення
                                 </NavLink>
+                                <NavLink :href="route('reviews.index')" :active="route().current('reviews.index')">
+                                    Відгуки
+                                </NavLink>
                                 <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
                                     Новини
                                 </NavLink>
@@ -129,6 +132,9 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('orders.index')" :active="route().current('orders.index')">
                             Замовлення
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('reviews.index')" :active="route().current('reviews.index')">
+                            Відгуки
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
                             Новини

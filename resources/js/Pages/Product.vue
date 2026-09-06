@@ -146,6 +146,83 @@
 
       <!-- /description  -->
 
+      <!-- reviews -->
+      <section class="container mx-auto max-w-[1200px] px-5 py-5 lg:py-10">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl">{{ $t('Reviews') }}</h2>
+          <div v-if="product.reviews_count" class="flex items-center gap-2">
+            <div class="flex">
+              <StarIconSolid
+                v-for="i in 5" :key="i"
+                class="h-5 w-5"
+                :class="i <= Math.round(product.average_rating) ? 'text-amber-400' : 'text-gray-200'"
+              />
+            </div>
+            <span class="text-sm text-gray-500">{{ product.average_rating }} ({{ product.reviews_count }})</span>
+          </div>
+        </div>
+
+        <div v-if="product.reviews?.length" class="mt-6 flex flex-col gap-6 lg:w-3/4">
+          <div v-for="review in product.reviews" :key="review.id" class="border-b pb-6">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="font-medium">{{ review.author_name }}</p>
+              <p class="text-sm text-gray-400">{{ new Date(review.created_at).toLocaleDateString('uk-UA') }}</p>
+            </div>
+            <div class="mt-1 flex">
+              <StarIconSolid v-for="i in 5" :key="i" class="h-4 w-4" :class="i <= review.rating ? 'text-amber-400' : 'text-gray-200'" />
+            </div>
+            <p class="mt-2 text-sm whitespace-pre-line text-gray-700">{{ review.comment }}</p>
+          </div>
+        </div>
+        <p v-else class="mt-4 text-sm text-gray-500">{{ $t('No reviews yet') }}</p>
+
+        <div class="mt-8 max-w-lg">
+          <template v-if="!authUser">
+            <p class="text-sm text-gray-500">
+              {{ $t('Login to leave a review') }}
+              <Link :href="route('login')" class="text-amber-600 underline">{{ $t('Log in') }}</Link>
+            </p>
+          </template>
+          <template v-else-if="myReview">
+            <p class="font-medium">{{ $t('Your review') }}</p>
+            <div class="mt-1 flex">
+              <StarIconSolid v-for="i in 5" :key="i" class="h-4 w-4" :class="i <= myReview.rating ? 'text-amber-400' : 'text-gray-200'" />
+            </div>
+            <p class="mt-2 text-sm text-gray-700">{{ myReview.comment }}</p>
+            <p class="mt-2 text-sm text-gray-400">{{ reviewStatusLabels[myReview.status] }}</p>
+          </template>
+          <template v-else>
+            <p class="font-medium">{{ $t('Leave a review') }}</p>
+            <div class="mt-2 flex">
+              <button
+                v-for="i in 5" :key="i"
+                type="button"
+                @click="reviewForm.rating = i"
+              >
+                <StarIconSolid v-if="i <= reviewForm.rating" class="h-7 w-7 text-amber-400" />
+                <StarIconOutline v-else class="h-7 w-7 text-gray-300" />
+              </button>
+            </div>
+            <p v-if="reviewForm.errors.rating" class="mt-1 text-sm text-red-600">{{ reviewForm.errors.rating }}</p>
+
+            <textarea
+              v-model="reviewForm.comment"
+              rows="3"
+              class="mt-3 w-full rounded-sm border border-gray-300 p-2 text-sm focus:border-amber-400 focus:ring-amber-400"
+              :placeholder="$t('Comment')"
+            ></textarea>
+            <p v-if="reviewForm.errors.comment" class="mt-1 text-sm text-red-600">{{ reviewForm.errors.comment }}</p>
+
+            <Button
+              :label="$t('Submit review')"
+              :loading="reviewForm.processing"
+              class="mt-3 !px-6 !py-2"
+              @click="submitReview()"
+            />
+          </template>
+        </div>
+      </section>
+      <!-- /reviews -->
 
       <template v-if="relatedProducts.length">
         <p class="mx-auto mt-10 mb-5 max-w-[1200px] px-5">Схожі товари</p>
@@ -191,11 +268,19 @@
 </template>
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
 import { ref, onMounted, computed, watch, inject } from "vue"
 import { useToast } from "primevue/usetoast"
+import { StarIcon as StarIconSolid } from '@heroicons/vue/24/solid'
+import { StarIcon as StarIconOutline } from '@heroicons/vue/24/outline'
 
 const toast = useToast()
+const page = usePage()
+const authUser = computed(() => page.props.auth?.user)
+// Mirrors Review::STATUS_NAMES in app/Models/Review.php — status labels are
+// only ever shown on the Ukrainian storefront/admin, same as Order::STATUS_NAMES,
+// so they're not routed through $t().
+const reviewStatusLabels = { 0: 'На модерації', 1: 'Опубліковано', 2: 'Відхилено' }
 // The template's bare `route(...)` calls (e.g. the canonical <link>) resolve
 // fine via Vue's globalProperties in both client and SSR renders. But this
 // file also builds JSON-LD in a plain computed() below — that's regular JS,
@@ -226,6 +311,10 @@ const props = defineProps({
     relatedProducts: {
         type: Array,
         default: () => []
+    },
+    myReview: {
+        type: Object,
+        default: null
     },
     status: {
         required: true,
@@ -382,6 +471,19 @@ const addRelatedToCart = (relatedProduct) => {
         preserveScroll: true,
         onSuccess: () => {
             toast.add({ severity: 'success', summary: 'Додано', life: 3000 })
+        },
+    })
+}
+const reviewForm = useForm({
+    rating: 0,
+    comment: '',
+})
+const submitReview = () => {
+    reviewForm.post(route('reviews.store', props.product.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.add({ severity: 'success', summary: 'Дякуємо за відгук!', life: 3000 })
+            reviewForm.reset()
         },
     })
 }
