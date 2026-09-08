@@ -18,6 +18,7 @@ import InputError from '@/Components/InputError.vue';
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import CheckboxArray from '@/Components/CheckboxArray.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import { ref, computed, onMounted } from 'vue';
 import { usePrimeVue } from 'primevue/config';
 
@@ -43,6 +44,7 @@ const form = useForm({
     name: props.product.name,
     slug: props.product.slug,
     description: props.product.description,
+    has_fabric_selection: props.product.has_fabric_selection,
     category_ids: [...props.categories.map((category) => {
         if(!!(props.product.categories.findIndex(({id}) => id === category.id) >= 0)) {
             return category.id
@@ -244,6 +246,22 @@ const deleteUploadedFileCallback = (index) => {
                         </div>
                         <div class="p-6">
                             <CheckboxArray :items="categoryItems" @update:checked="handleUpdateCategories" />
+                        </div>
+                    </div>
+
+                    <!-- Fabric selection -->
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Тканина</h3>
+                        </div>
+                        <div class="flex items-center gap-2 p-6">
+                            <Checkbox
+                                id="has_fabric_selection"
+                                v-model:checked="form.has_fabric_selection"
+                            />
+                            <label for="has_fabric_selection" class="text-sm font-medium text-gray-900">
+                                Дозволити вибір тканини (весь глобальний каталог кольорів і тканин)
+                            </label>
                         </div>
                     </div>
 

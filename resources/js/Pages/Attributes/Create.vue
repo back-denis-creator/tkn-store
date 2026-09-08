@@ -5,11 +5,16 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import OptionsEditor from "./Partials/OptionsEditor.vue";
+import Checkbox from "@/Components/Checkbox.vue";
 import { Head, useForm } from "@inertiajs/vue3";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
 const props = defineProps({
     color_groups: {
+        type: Array,
+        default: () => ([]),
+    },
+    default_colors: {
         type: Array,
         default: () => ([]),
     },
@@ -18,10 +23,9 @@ const props = defineProps({
 const form = useForm({
     name: "",
     description: "",
+    is_color_attribute: false,
     options: [],
 });
-
-const isColor = computed(() => form.name.trim() === 'Колір');
 
 const optionsEditor = ref(null);
 
@@ -85,12 +89,23 @@ const submit = () => {
                                 </div>
                             </div>
 
+                            <div class="my-6 flex items-center gap-2">
+                                <Checkbox
+                                    id="is_color_attribute"
+                                    v-model:checked="form.is_color_attribute"
+                                />
+                                <label for="is_color_attribute" class="text-sm font-medium text-gray-900">
+                                    Це атрибут кольору
+                                </label>
+                            </div>
+
                             <div class="my-6">
                                 <OptionsEditor
                                     ref="optionsEditor"
                                     :options="form.options"
-                                    :is-color="isColor"
+                                    :is-color="form.is_color_attribute"
                                     :color-groups="color_groups"
+                                    :default-colors="default_colors"
                                     :error="form.errors.options"
                                 />
                             </div>

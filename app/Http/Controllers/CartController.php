@@ -27,6 +27,7 @@ class CartController extends Controller
                     'name' => $option->attribute->name,
                     'value' => $option->value,
                 ]),
+                'fabric' => $product->selected_fabric?->value,
             ])->values()
         );
     }
@@ -34,9 +35,14 @@ class CartController extends Controller
     public function addToCart(Request $request)
     {
         $addedQuantity = (int) ($request->input('quantity') ?: 1);
+        $fabricAttributeOptionId = $request->input('fabric_attribute_option_id');
         $productData = [
             'product_id' => $request->input('product_id'),
             'sku_id' => $request->input('sku_id'),
+            // Fabric is decoupled from the Sku (see Product::has_fabric_selection)
+            // — the same Sku can be in the cart once per chosen fabric, so this
+            // travels alongside sku_id as its own line-identifying field.
+            'fabric_attribute_option_id' => $fabricAttributeOptionId !== null ? (int) $fabricAttributeOptionId : null,
             'quantity' => $addedQuantity
         ];
 
@@ -47,9 +53,13 @@ class CartController extends Controller
         // Cast to int: sku_id round-trips through the session/request as either
         // an int or a numeric string depending on how it was serialized on the
         // way in, and strict comparison silently treats those as "different".
+        // Two different fabrics of the same sku_id are different lines, so the
+        // fabric id must match too (both null is a match, for non-fabric skus).
         $existProductIndex = null;
         foreach ($cart as $index => $item) {
-            if((int) $productData['sku_id'] === (int) $item['sku_id']) {
+            $sameSku = (int) $productData['sku_id'] === (int) $item['sku_id'];
+            $sameFabric = $productData['fabric_attribute_option_id'] === (($item['fabric_attribute_option_id'] ?? null) !== null ? (int) $item['fabric_attribute_option_id'] : null);
+            if ($sameSku && $sameFabric) {
                 $existProductIndex = $index;
                 break;
             }
@@ -70,13 +80,23 @@ class CartController extends Controller
     {
         // Получаем текущую корзину из сессии
         $cart = session()->get('cart', []);
+        // Two different fabrics of the same sku_id are different lines (see
+        // addToCart) — only remove the one matching both, not every fabric
+        // variant of that sku.
+        $fabricAttributeOptionId = $request->filled('fabricAttributeOptionId')
+            ? (int) $request->fabricAttributeOptionId
+            : null;
 
-        $updated = array_map(function ($item) use($request) {
+        $updated = array_map(function ($item) use($request, $fabricAttributeOptionId) {
             if($request->has('skuId') && (int) $request->skuId !== (int) $item['sku_id']) {
                 return $item;
             }
+            $itemFabricId = ($item['fabric_attribute_option_id'] ?? null) !== null ? (int) $item['fabric_attribute_option_id'] : null;
+            if ($itemFabricId !== $fabricAttributeOptionId) {
+                return $item;
+            }
         }, $cart);
-        
+
         session(['cart' => array_values(array_filter($updated))]);
 
         return back()->with('status', __('Successfully'));
@@ -86,9 +106,13 @@ class CartController extends Controller
     {
         // Получаем текущую корзину из сессии
         $cart = session()->get('cart', []);
+        $fabricAttributeOptionId = $request->filled('fabricAttributeOptionId')
+            ? (int) $request->fabricAttributeOptionId
+            : null;
 
-        $updated = array_map(function ($item) use($request) {
-            if($request->has('skuId') && (int) $request->skuId === (int) $item['sku_id']) {
+        $updated = array_map(function ($item) use($request, $fabricAttributeOptionId) {
+            $itemFabricId = ($item['fabric_attribute_option_id'] ?? null) !== null ? (int) $item['fabric_attribute_option_id'] : null;
+            if($request->has('skuId') && (int) $request->skuId === (int) $item['sku_id'] && $itemFabricId === $fabricAttributeOptionId) {
                 $item['quantity'] = $request->quantity;
             }
             return $item;

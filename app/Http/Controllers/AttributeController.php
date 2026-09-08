@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attribute;
 use App\Models\AttributeOption;
+use App\Models\DefaultColor;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -31,6 +32,7 @@ class AttributeController extends Controller
     {
         return Inertia::render('Attributes/Create', [
             'color_groups' => AttributeOption::COLOR_GROUPS,
+            'default_colors' => DefaultColor::orderBy('sort_order')->get(),
         ]);
     }
 
@@ -42,12 +44,16 @@ class AttributeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
+            'is_color_attribute' => 'boolean',
             'options.*.new_file' => 'nullable|image|max:5120',
+            'options.*.default_color_ids' => 'array',
+            'options.*.default_color_ids.*' => 'exists:default_colors,id',
         ]);
 
         $attribute = Attribute::create([
             'name' => $request->name,
-            'description' => $request->description
+            'description' => $request->description,
+            'is_color_attribute' => $request->boolean('is_color_attribute'),
         ]);
 
         $this->syncOptions($request, $attribute);
@@ -69,7 +75,7 @@ class AttributeController extends Controller
     public function edit(Attribute $attribute)
     {
         // Загружаем коллекцию AttributeOption с нужным attribute_id
-        $attributeOptions = AttributeOption::where('attribute_id', $attribute->id)->get();
+        $attributeOptions = AttributeOption::where('attribute_id', $attribute->id)->with('defaultColors')->get();
 
         // Получаем URL первого изображения для каждого элемента коллекции
         $options = $attributeOptions->map(function ($attributeOption) {
@@ -78,15 +84,17 @@ class AttributeController extends Controller
                 'value' => $attributeOption->value,
                 'meta' => $attributeOption->meta,
                 'img_url' => $attributeOption->getMedia('default')->first()?->getUrl(),
+                'default_color_ids' => $attributeOption->defaultColors->pluck('id'),
             ];
         });
 
         return Inertia::render('Attributes/Edit', [
             'attribute' => $attribute,
             'options' => $options,
-            // Always sent (not just for the Колір attribute) so the option editor can
-            // react live if the admin renames an attribute to/from "Колір" mid-edit.
+            // Always sent (not just for the color attribute) so the option editor can
+            // react live if the admin toggles the "is color" checkbox mid-edit.
             'color_groups' => AttributeOption::COLOR_GROUPS,
+            'default_colors' => DefaultColor::orderBy('sort_order')->get(),
         ]);
     }
 
@@ -98,11 +106,15 @@ class AttributeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
+            'is_color_attribute' => 'boolean',
             'options.*.new_file' => 'nullable|image|max:5120',
+            'options.*.default_color_ids' => 'array',
+            'options.*.default_color_ids.*' => 'exists:default_colors,id',
         ]);
 
         $attribute->name = $request->name;
         $attribute->description = $request->description;
+        $attribute->is_color_attribute = $request->boolean('is_color_attribute');
         $attribute->save();
 
         $blockedValues = [];
@@ -167,8 +179,12 @@ class AttributeController extends Controller
             }
 
             // isset(), not empty() — the "Однотон" group's id is 0, which empty() treats as absent.
-            if ($attributeOption && $attribute->name === Attribute::COLOR && isset($option['meta']['id']) && $option['meta']['id'] !== '') {
+            if ($attributeOption && $attribute->is_color_attribute && isset($option['meta']['id']) && $option['meta']['id'] !== '') {
                 $attributeOption->update(['meta' => $option['meta']['id']]);
+            }
+
+            if ($attributeOption && $attribute->is_color_attribute) {
+                $attributeOption->defaultColors()->sync($option['default_color_ids'] ?? []);
             }
 
             $file = $request->file("options.$index.new_file");

@@ -13,10 +13,16 @@ class Attribute extends Model
     protected $fillable = [
         'name',
         'description',
-        'unit_type'
+        'unit_type',
+        'is_color_attribute',
     ];
 
-    const COLOR = 'Колір';
+    protected function casts(): array
+    {
+        return [
+            'is_color_attribute' => 'boolean',
+        ];
+    }
 
     public function attributeOptions(): HasMany
     {

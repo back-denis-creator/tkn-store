@@ -22,6 +22,10 @@ const props = defineProps({
         type: Array,
         default: () => ([]),
     },
+    defaultColors: {
+        type: Array,
+        default: () => ([]),
+    },
     error: {
         type: String,
         default: null,
@@ -33,8 +37,24 @@ const newOptionValue = ref('');
 const addOption = () => {
     const value = newOptionValue.value.trim();
     if (!value) return;
-    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, _pendingDelete: false });
+    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, default_color_ids: [], _pendingDelete: false });
     newOptionValue.value = '';
+};
+
+// "Мультиколор" has no fixed hex (that's the whole point of it) — rendered as a
+// rainbow ring instead of a solid fill so it still reads as a deliberate choice,
+// not a missing/broken swatch.
+const MULTICOLOR_STYLE = { background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' };
+const swatchStyle = (color) => (color.hex ? { backgroundColor: color.hex } : MULTICOLOR_STYLE);
+
+const toggleDefaultColor = (option, colorId) => {
+    if (!option.default_color_ids) option.default_color_ids = [];
+    const index = option.default_color_ids.indexOf(colorId);
+    if (index === -1) {
+        option.default_color_ids.push(colorId);
+    } else {
+        option.default_color_ids.splice(index, 1);
+    }
 };
 
 // A brand-new, not-yet-saved option can just be dropped outright. An existing one is only
@@ -154,6 +174,23 @@ watch(() => props.error, (value) => {
                         <Select v-model="option.meta" :options="colorGroups" optionLabel="name" placeholder="Обрати групу" class="w-full" :disabled="option._pendingDelete" />
                         <FileUpload v-if="!option._pendingDelete" mode="basic" chooseLabel="Завантажити фото" @select="onFileSelect(index, $event)" customUpload auto severity="secondary" class="p-button-outlined w-fit" />
                         <p v-if="isBusy" class="text-xs text-gray-400">Обробка фото…</p>
+
+                        <div v-if="defaultColors.length" class="flex flex-col gap-1">
+                            <p class="text-xs text-gray-500">Дефолтні кольори</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button
+                                    v-for="color in defaultColors"
+                                    :key="color.id"
+                                    type="button"
+                                    :disabled="option._pendingDelete"
+                                    @click="toggleDefaultColor(option, color.id)"
+                                    class="h-6 w-6 shrink-0 rounded-full border-2 transition"
+                                    :class="option.default_color_ids?.includes(color.id) ? 'border-indigo-600' : 'border-gray-200'"
+                                    :style="swatchStyle(color)"
+                                    :title="color.name"
+                                />
+                            </div>
+                        </div>
                     </template>
 
                     <p v-if="option._pendingDelete" class="text-xs text-red-500">Буде видалено після збереження</p>

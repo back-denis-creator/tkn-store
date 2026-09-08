@@ -13,8 +13,16 @@ class Product extends Model
     protected $fillable = [
         'name',
         'description',
-        'slug'
+        'slug',
+        'has_fabric_selection',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'has_fabric_selection' => 'boolean',
+        ];
+    }
 
     protected $appends = [
         'default_image',

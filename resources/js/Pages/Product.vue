@@ -73,32 +73,61 @@
             {{ totalPrice }} грн.
           </p>
 
-          <div class="mt-6" v-for="attribute in attributes" :key="attribute.name">
-            <p class="pb-2 text-xs text-gray-500">{{ attribute.name }}</p>
-
-            <div class="flex flex-wrap gap-2" v-if="attribute.name === 'Колір'">
-              <button
-                v-for="option in attribute.options" :key="option.value"
-                type="button"
-                :title="option.value"
-                @click="attrModels[attribute.name] = option.value"
-                class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
-                :class="{'ring-2 ring-amber-400 ring-offset-1': attrModels[attribute.name] === option.value}"
-              >
-                <img
-                    v-if="option.image_url"
-                    :src="option.image_url"
-                    :alt="option.value"
-                    class="h-full w-full object-cover"
+          <div class="mt-6" v-for="attribute in attributes" :key="attribute.name" v-show="attribute.options.length">
+            <template v-if="attribute.isColorAttribute">
+              <!-- Step 1: which of this product's own default colors — always a
+                   short, fixed-size list, unlike the "Колір" values themselves
+                   which can grow into the hundreds. -->
+              <p class="pb-2 text-xs text-gray-500">{{ $t("Color") }}</p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="color in relevantDefaultColors" :key="color.id"
+                  type="button"
+                  :title="color.name"
+                  @click="selectedDefaultColorId = color.id"
+                  class="h-8 w-8 shrink-0 rounded-full border-2 transition"
+                  :class="selectedDefaultColorId === color.id ? 'border-amber-400' : 'border-gray-200'"
+                  :style="swatchStyle(color)"
                 />
-              </button>
-            </div>
-            <div v-else class="flex flex-col gap-2">
+              </div>
+
+              <!-- Step 2: only the actual "Колір" values tagged under the
+                   default color chosen above. -->
+              <template v-if="selectedDefaultColorId">
+                <p class="pb-2 pt-3 text-xs text-gray-500">{{ attribute.name }}</p>
+                <div class="space-y-3 border-l border-gray-200 pl-3">
+                  <div v-for="group in groupedVisibleColorOptions" :key="group.key">
+                    <p v-if="group.name" class="pb-1 text-[11px] uppercase tracking-wide text-gray-400">{{ group.name }}</p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="option in group.options" :key="option.value"
+                        type="button"
+                        :title="option.value"
+                        @click="attrModels[attribute.name] = option.value"
+                        class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
+                        :class="{'ring-2 ring-amber-400 ring-offset-1': attrModels[attribute.name] === option.value}"
+                      >
+                        <img
+                            v-if="option.image_url"
+                            :src="option.image_url"
+                            :alt="option.value"
+                            class="h-full w-full object-cover"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </template>
+            <template v-else>
+              <p class="pb-2 text-xs text-gray-500">{{ attribute.name }}</p>
+              <div class="flex flex-col gap-2">
                 <label v-for="(option, index) in attribute.options" :key="option.value" :for="`${index}_${attribute.name}`" class="flex items-center gap-2 cursor-pointer">
                     <RadioButton v-model="attrModels[attribute.name]" :inputId="`${index}_${attribute.name}`" :name="attribute.name" :value="option.value" />
                     <span>{{ option.value }}</span>
                 </label>
-            </div>
+              </div>
+            </template>
           </div>
 
           <div class="mt-6">
@@ -275,6 +304,7 @@ import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
 import { ref, onMounted, computed, watch, inject } from "vue"
 import { useToast } from "primevue/usetoast"
+import { trans } from 'laravel-vue-i18n'
 import { StarIcon as StarIconSolid } from '@heroicons/vue/24/solid'
 import { StarIcon as StarIconOutline } from '@heroicons/vue/24/outline'
 
@@ -311,6 +341,18 @@ const props = defineProps({
     product: {
         type: Object,
         required: true
+    },
+    colorGroups: {
+        type: Array,
+        default: () => []
+    },
+    fabricOptions: {
+        type: Array,
+        default: () => []
+    },
+    defaultColors: {
+        type: Array,
+        default: () => []
     },
     relatedProducts: {
         type: Array,
@@ -424,20 +466,140 @@ const attributes = computed(() => {
         sku.attribute_options.forEach((option) => {
             const attrName = option.attribute.name
             if (!attrName) return
-            if (!uniqueAttributes[attrName]) uniqueAttributes[attrName] = { name: attrName, options: [] }
+            // Fabric/color is decoupled from this product's own Skus once
+            // has_fabric_selection is on (see PageController::product()) —
+            // any legacy Sku-linked values here are irrelevant, the global
+            // catalog appended below replaces this attribute entirely.
+            if (props.product.has_fabric_selection && option.attribute.is_color_attribute) return
+            if (!uniqueAttributes[attrName]) {
+                uniqueAttributes[attrName] = { name: attrName, isColorAttribute: !!option.attribute.is_color_attribute, options: [] }
+            }
             if (!uniqueAttributes[attrName].options.some((opt) => opt.value === option.value)) {
                 uniqueAttributes[attrName].options.push({
                     value: option.value,
                     image_url: option.media[0]?.original_url,
-                    id: [sku.id]
+                    id: [sku.id],
+                    defaultColors: option.default_colors || [],
+                    meta: option.meta,
                 })
             } else {
                 uniqueAttributes[attrName].options.find(({value}) => value === option.value)?.id?.push(sku.id)
             }
         })
     })
-    return Object.values(uniqueAttributes)
+    // A "Колір" value with no default-color tag is never selectable from the
+    // storefront — tagging every value the admin wants buyers to see is their
+    // responsibility (see Attributes/Edit's default-color picker).
+    Object.values(uniqueAttributes).forEach((attribute) => {
+        if (attribute.isColorAttribute) {
+            attribute.options = attribute.options.filter((option) => option.defaultColors.length > 0)
+        }
+    })
+    const result = Object.values(uniqueAttributes)
+    // has_fabric_selection: append the complete global fabric catalog as its
+    // own attribute entry, independent of this product's Skus — every such
+    // product shows the exact same list. `id: []` keeps these options out of
+    // intersectionIds/selectedSku resolution below, since fabric never
+    // determines which Sku (price/stock) is selected.
+    if (props.product.has_fabric_selection && props.fabricOptions.length) {
+        result.push({
+            name: props.fabricOptions[0].attribute.name,
+            isColorAttribute: true,
+            options: props.fabricOptions.map((option) => ({
+                value: option.value,
+                image_url: option.media?.[0]?.original_url,
+                id: [],
+                defaultColors: option.default_colors || [],
+                meta: option.meta,
+            })),
+        })
+    }
+    return result
 })
+
+const colorAttribute = computed(() => attributes.value.find((attribute) => attribute.isColorAttribute))
+
+// Always a short, fixed list (≤20) regardless of how many actual "Колір"
+// values this product has — the union of default colors tagged on any of
+// them. has_fabric_selection always shows the complete global palette
+// instead, per product decision — every fabric-enabled product looks the
+// same, whether or not a given color already has a fabric tagged under it.
+const relevantDefaultColors = computed(() => {
+    if (props.product.has_fabric_selection) {
+        return [...props.defaultColors].sort((a, b) => a.sort_order - b.sort_order)
+    }
+    if (!colorAttribute.value) return []
+    const byId = new Map()
+    colorAttribute.value.options.forEach((option) => {
+        option.defaultColors.forEach((color) => {
+            if (!byId.has(color.id)) byId.set(color.id, color)
+        })
+    })
+    return [...byId.values()].sort((a, b) => a.sort_order - b.sort_order)
+})
+
+const selectedDefaultColorId = ref(null)
+// Always pre-select the first default color, so a buyer never lands on an
+// empty picker with nothing highlighted — same courtesy already applied to
+// the fabric step below (visibleColorOptions' own watcher).
+watch(relevantDefaultColors, (colors) => {
+    if (colors.length) selectedDefaultColorId.value = colors[0].id
+}, { immediate: true })
+
+const visibleColorOptions = computed(() => {
+    if (!colorAttribute.value || !selectedDefaultColorId.value) return []
+    return colorAttribute.value.options.filter((option) =>
+        option.defaultColors.some((color) => color.id === selectedDefaultColorId.value)
+    )
+})
+// Same courtesy for the actual color value: always pre-select the first one
+// tagged under the chosen default, so a second click is never required — the
+// buyer can still switch to another one manually. immediate:true also covers
+// the single-default-color case above, where selectedDefaultColorId is set
+// synchronously during setup, before this watcher would otherwise exist to
+// react to it.
+watch(visibleColorOptions, (options) => {
+    if (options.length && colorAttribute.value) {
+        attrModels.value = Object.assign(attrModels.value, { [colorAttribute.value.name]: options[0].value })
+    }
+}, { immediate: true })
+
+// The values under one default color can span several fabric "groups" (e.g.
+// Однотон/Мармур, set in the admin's "Обрати групу" field on each value —
+// AttributeOption::COLOR_GROUPS, sent here as `colorGroups`). Split the flat
+// swatch row into labeled sub-rows so a buyer isn't left guessing which
+// swatches are plain and which are a print. Skip the labels when every
+// visible option is in the same bucket — a lone heading here would only add
+// noise, not information.
+const UNGROUPED = Symbol('ungrouped')
+const groupedVisibleColorOptions = computed(() => {
+    const buckets = new Map()
+    visibleColorOptions.value.forEach((option) => {
+        const key = (option.meta === null || option.meta === undefined || option.meta === '') ? UNGROUPED : Number(option.meta)
+        if (!buckets.has(key)) buckets.set(key, [])
+        buckets.get(key).push(option)
+    })
+    if (buckets.size <= 1) {
+        return [{ key: UNGROUPED, name: null, options: visibleColorOptions.value }]
+    }
+    const order = props.colorGroups.map((group) => group.id)
+    return [...buckets.entries()]
+        .sort(([a], [b]) => {
+            if (a === UNGROUPED) return 1
+            if (b === UNGROUPED) return -1
+            return order.indexOf(a) - order.indexOf(b)
+        })
+        .map(([key, options]) => ({
+            key,
+            name: key === UNGROUPED ? trans('Other') : (props.colorGroups.find((group) => group.id === key)?.name ?? null),
+            options,
+        }))
+})
+
+// "Мультиколор" has no fixed hex (that's the point of it) — a rainbow ring
+// instead of a solid fill, matching the same treatment in the admin editor.
+const MULTICOLOR_STYLE = { background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }
+const swatchStyle = (color) => (color.hex ? { backgroundColor: color.hex } : MULTICOLOR_STYLE)
 const updateQuantity = (action) => {
     if (action === '+') {
         quantity.value ++
@@ -450,11 +612,21 @@ const form = useForm({
     sku_id: null,
     quantity: quantity.value,
     price: null,
+    fabric_attribute_option_id: null,
+})
+// Resolves the chosen fabric's real AttributeOption id (needed by the cart)
+// from the plain value string attrModels holds — fabric never affects
+// selectedSku, so this is looked up independently of it.
+const selectedFabricOptionId = computed(() => {
+    if (!props.product.has_fabric_selection || !colorAttribute.value) return null
+    const value = attrModels.value[colorAttribute.value.name]
+    return props.fabricOptions.find((option) => option.value === value)?.id ?? null
 })
 const addToCart = () => {
     Object.assign(form, {
         sku_id: selectedSku.value?.id,
-        price: selectedSku.value?.price
+        price: selectedSku.value?.price,
+        fabric_attribute_option_id: selectedFabricOptionId.value,
     })
     form.post(route('cart.add'), {
         preserveScroll: true,
@@ -497,6 +669,11 @@ const submitReview = () => {
 onMounted(() => {
     props.product.skus.forEach((sku) => {
         sku.attribute_options.forEach((option) => {
+            // Driven by the default-color picker instead (see relevantDefaultColors/
+            // visibleColorOptions above) — naively defaulting to the first SKU's
+            // value here could pick one with no default-color tag, which would
+            // then never render as selected in the (filtered) color picker.
+            if (option.attribute.is_color_attribute) return
             if(!attrModels.value.hasOwnProperty(option.attribute.name)) {
                 attrModels.value = Object.assign(attrModels.value, {[option.attribute.name]: option.value})
             }

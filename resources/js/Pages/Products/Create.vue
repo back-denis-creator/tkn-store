@@ -18,6 +18,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import CheckboxArray from '@/Components/CheckboxArray.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -40,6 +41,7 @@ const form = useForm({
     slug: "",
     description: "",
     category_ids: [],
+    has_fabric_selection: false,
     variations: []
 });
 
@@ -214,6 +216,22 @@ const removeVariationImage = (index) => {
                         </div>
                         <div class="p-6">
                             <CheckboxArray :items="categoryItems" @update:checked="handleUpdateCategories" />
+                        </div>
+                    </div>
+
+                    <!-- Fabric selection -->
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Тканина</h3>
+                        </div>
+                        <div class="flex items-center gap-2 p-6">
+                            <Checkbox
+                                id="has_fabric_selection"
+                                v-model:checked="form.has_fabric_selection"
+                            />
+                            <label for="has_fabric_selection" class="text-sm font-medium text-gray-900">
+                                Дозволити вибір тканини (весь глобальний каталог кольорів і тканин)
+                            </label>
                         </div>
                     </div>
 

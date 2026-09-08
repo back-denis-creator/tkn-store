@@ -74,9 +74,17 @@ class OrderController extends Controller
 
             foreach ($cart as $product) {
                 $sku = $product->skus[0];
-                $attributesSummary = $sku->attributeOptions->map(function ($option) {
+                $summaryParts = $sku->attributeOptions->map(function ($option) {
                     return "{$option->attribute->name}: {$option->value}";
-                })->implode(', ');
+                })->all();
+                // Fabric is decoupled from the Sku (has_fabric_selection) —
+                // fold it into the same snapshot string so the workshop sees
+                // it alongside the real Sku attributes, with no separate
+                // order_items column or admin/customer view changes needed.
+                if ($product->selected_fabric) {
+                    $summaryParts[] = "{$product->selected_fabric->attribute->name}: {$product->selected_fabric->value}";
+                }
+                $attributesSummary = implode(', ', $summaryParts);
 
                 $order->orderItems()->create([
                     'product_id' => $product->id,

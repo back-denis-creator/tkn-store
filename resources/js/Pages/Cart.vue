@@ -29,9 +29,12 @@
                                   <span class="font-medium text-surface-500 text-sm">{{ item.category }}</span>
                                   <Link :href="route('product', item.slug)" class="block text-lg font-medium mt-2 hover:text-amber-600">{{ item.name }}</Link>
                               </div>
-                              <div v-if="item.skus[0]?.attribute_options?.length" class="bg-surface-100 p-1 text-xs" style="border-radius: 30px">
+                              <div v-if="item.skus[0]?.attribute_options?.length || item.selected_fabric" class="bg-surface-100 p-1 text-xs" style="border-radius: 30px">
                                   <div v-for="option in item.skus[0]?.attribute_options">
                                     <span>{{ option.attribute.name }}: {{ option.value }}</span>
+                                  </div>
+                                  <div v-if="item.selected_fabric">
+                                    <span>{{ item.selected_fabric.attribute.name }}: {{ item.selected_fabric.value }}</span>
                                   </div>
                               </div>
                           </div>
@@ -46,7 +49,7 @@
                               </InputGroupAddon>
                           </InputGroup>
 
-                          <div @click="deleteFromCart(item.skus[0]?.id)" class="m-0 mt-2 h-5 w-5 cursor-pointer">
+                          <div @click="deleteFromCart(item.skus[0]?.id, item.selected_fabric?.id)" class="m-0 mt-2 h-5 w-5 cursor-pointer">
                               <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   viewBox="0 0 20 20"
@@ -107,10 +110,10 @@ const goToCheckout = () => {
     router.visit(route('checkout'), { preserveScroll: true })
 }
 
-const form = useForm({ skuId: null, quantity: null })
+const form = useForm({ skuId: null, quantity: null, fabricAttributeOptionId: null })
 
-const deleteFromCart = (skuId) => {
-    Object.assign(form, { skuId })
+const deleteFromCart = (skuId, fabricAttributeOptionId = null) => {
+    Object.assign(form, { skuId, fabricAttributeOptionId })
     form.delete(route('cart.delete'), {
         preserveScroll: true,
         onSuccess: () => {
@@ -128,9 +131,11 @@ const updateQuantity = (index, action) => {
     } else if (props.cart[index].quantity > 1) {
         props.cart[index].quantity --
     }
-    console.log('props.cart[index]: ', props.cart[index])
-    Object.assign(form, { skuId: props.cart[index].skus[0].id, quantity: props.cart[index].quantity })
-    console.log('form: ', form)
+    Object.assign(form, {
+        skuId: props.cart[index].skus[0].id,
+        quantity: props.cart[index].quantity,
+        fabricAttributeOptionId: props.cart[index].selected_fabric?.id ?? null,
+    })
     form.post(route('cart.update'), {
         preserveScroll: true,
         only: ['cart'],

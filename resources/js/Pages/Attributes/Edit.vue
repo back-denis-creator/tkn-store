@@ -5,8 +5,9 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import OptionsEditor from "./Partials/OptionsEditor.vue";
+import Checkbox from "@/Components/Checkbox.vue";
 import { Head, useForm } from "@inertiajs/vue3";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
 const props = defineProps({
     attribute: {
@@ -20,12 +21,17 @@ const props = defineProps({
     color_groups: {
         type: Array,
         default: () => ([]),
-    }
+    },
+    default_colors: {
+        type: Array,
+        default: () => ([]),
+    },
 });
 
 const form = useForm({
     name: props.attribute.name,
     description: props.attribute.description,
+    is_color_attribute: props.attribute.is_color_attribute,
     options: [...props.options.map((option) => {
         return {
             id: option.id,
@@ -33,13 +39,12 @@ const form = useForm({
             src: option.img_url ? option.img_url : null,
             new_file: null,
             new_preview: null,
-            meta: option.meta ? props.color_groups.find(({id}) => id === Number(option.meta)) : {}
+            meta: option.meta ? props.color_groups.find(({id}) => id === Number(option.meta)) : {},
+            default_color_ids: [...(option.default_color_ids ?? [])],
         }
     })],
     deleted_option_ids: [],
 });
-
-const isColor = computed(() => form.name.trim() === 'Колір');
 
 const optionsEditor = ref(null);
 
@@ -103,13 +108,24 @@ const submit = () => {
                                 </div>
                             </div>
 
+                            <div class="my-6 flex items-center gap-2">
+                                <Checkbox
+                                    id="is_color_attribute"
+                                    v-model:checked="form.is_color_attribute"
+                                />
+                                <label for="is_color_attribute" class="text-sm font-medium text-gray-900">
+                                    Це атрибут кольору
+                                </label>
+                            </div>
+
                             <div class="my-6">
                                 <OptionsEditor
                                     ref="optionsEditor"
                                     :options="form.options"
                                     :deleted-ids="form.deleted_option_ids"
-                                    :is-color="isColor"
+                                    :is-color="form.is_color_attribute"
                                     :color-groups="color_groups"
+                                    :default-colors="default_colors"
                                     :error="form.errors.options"
                                 />
                             </div>

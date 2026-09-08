@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Models\AttributeOption;
 use App\Models\Category;
+use App\Models\DefaultColor;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Product;
@@ -46,6 +47,7 @@ class PageController extends Controller
             'skus',
             'skus.attributeOptions.attribute',
             'skus.attributeOptions.media',
+            'skus.attributeOptions.defaultColors',
             'categories'
         ]);
 
@@ -74,6 +76,19 @@ class PageController extends Controller
 
         return Inertia::render('Product', [
             'product' => fn() => $product,
+            'colorGroups' => AttributeOption::COLOR_GROUPS,
+            // Fabric is decoupled from this product's own Skus (see
+            // has_fabric_selection): the same complete global catalog is
+            // shown on every product that opts in, so it's fetched
+            // independently of $product->skus.
+            'fabricOptions' => fn() => $product?->has_fabric_selection
+                ? AttributeOption::whereHas('attribute', fn ($q) => $q->where('is_color_attribute', true))
+                    ->with(['attribute', 'defaultColors', 'media'])
+                    ->get()
+                : [],
+            'defaultColors' => fn() => $product?->has_fabric_selection
+                ? DefaultColor::orderBy('sort_order')->get()
+                : [],
             'relatedProducts' => fn() => $relatedProducts,
             'myReview' => fn() => (auth()->check() && $product)
                 ? Review::where('product_id', $product->id)->where('user_id', auth()->id())->first()
@@ -129,6 +144,22 @@ class PageController extends Controller
             $query->whereIn('product_id', $filteredProductIds);
         })->with('attributeOptions.media')->get();
 
+        // A has_fabric_selection product shows the complete global fabric
+        // catalog, unrelated to its own Skus — the Sku-scoped query above
+        // would never find it. When at least one such product is in the
+        // current result set, every color/fabric value is a valid filter
+        // for it, so replace the color attribute's option list with the
+        // full global catalog instead of the Sku-derived subset.
+        $hasFabricSelectionProduct = Product::whereIn('id', $filteredProductIds)
+            ->where('has_fabric_selection', true)
+            ->exists();
+        if ($hasFabricSelectionProduct) {
+            $colorAttribute = Attribute::where('is_color_attribute', true)->with('attributeOptions.media')->first();
+            if ($colorAttribute) {
+                $attributes = $attributes->reject(fn ($attribute) => $attribute->is_color_attribute)->push($colorAttribute);
+            }
+        }
+
         $slugify = new Slugify();
         $attributesWithFirstImage = $attributes->map(function ($attribute) use($slugify, $request, $query) {
             $slug = $slugify->slugify($attribute->name);
@@ -136,7 +167,7 @@ class PageController extends Controller
             if($request->has($slug)) {
                 $checked = $request[$slug];
                 // Фильтрация по всем атрибутам кроме цвета
-                if($slug !== $slugify->slugify(Attribute::COLOR)) {
+                if(!$attribute->is_color_attribute) {
                     $query->whereHas('skus', function ($query) use ($checked, $attribute) {
                         $query->whereHas('attributeOptions', function ($query) use ($checked, $attribute) {
                             $query->whereHas('attribute', function ($query) use($attribute) {
@@ -151,6 +182,7 @@ class PageController extends Controller
                 'name' => $attribute->name,
                 'unit_type' => $attribute->unit_type,
                 'description' => $attribute->description,
+                'is_color_attribute' => $attribute->is_color_attribute,
                 'checked' => $checked,
                 'slug' => $slug,
                 'attribute_options' => $attribute->attributeOptions->map(function ($option) {
@@ -162,18 +194,23 @@ class PageController extends Controller
                     ];
                 }),
             ];
-            if($attribute->name === Attribute::COLOR) $data['color_groups'] = AttributeOption::COLOR_GROUPS;
+            if($attribute->is_color_attribute) $data['color_groups'] = AttributeOption::COLOR_GROUPS;
             return $data;
         });
 
-        // Фильтрация по цвету
+        // Фильтрация по цвету — товар с has_fabric_selection поддерживает
+        // абсолютно любой колір/тканину (весь глобальний каталог), тому
+        // повинен збігатись з фільтром незалежно від того, який саме колір
+        // обрано, навіть якщо ця тканина не прив'язана до жодного його Sku.
         if($request->colors) {
-            $query->whereHas('skus', function ($query) use ($request) {
-                $query->whereHas('attributeOptions', function ($query) use ($request) {
-                    $query->whereHas('attribute', function ($query) {
-                        $query->where('name', Attribute::COLOR);
-                    })->whereIn('value', $request->colors);
-                });
+            $query->where(function ($query) use ($request) {
+                $query->whereHas('skus', function ($query) use ($request) {
+                    $query->whereHas('attributeOptions', function ($query) use ($request) {
+                        $query->whereHas('attribute', function ($query) {
+                            $query->where('is_color_attribute', true);
+                        })->whereIn('value', $request->colors);
+                    });
+                })->orWhere('has_fabric_selection', true);
             });
         }
 

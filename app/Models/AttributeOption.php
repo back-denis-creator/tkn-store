@@ -53,4 +53,9 @@ class AttributeOption extends Model implements HasMedia
     {
         return $this->hasOne(Storage::class);
     }
+
+    public function defaultColors(): BelongsToMany
+    {
+        return $this->belongsToMany(DefaultColor::class, 'attribute_option_default_color');
+    }
 }

@@ -45,7 +45,7 @@
                 <div class="flex py-5" v-for="attribute in filters.attributes">
                     <div class="w-full">
                         <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">{{ attribute.name }}</p>
-                        <div class="flex gap-2" v-if="attribute.name === 'Колір'">
+                        <div class="flex gap-2" v-if="attribute.is_color_attribute">
                             <Accordion :value="colorGroupsOpened" multiple class="w-full" lazy>
                                 <AccordionPanel v-for="group in attribute.color_groups" :value="group.id" class="px-0" v-show="groupHasColors(group.id)">
                                     <AccordionHeader class="px-0">{{ group.name }}</AccordionHeader>
@@ -118,7 +118,7 @@
                 <div class="flex py-5" v-for="attribute in filters.attributes">
                     <div class="w-full">
                         <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">{{ attribute.name }}</p>
-                        <div class="flex gap-2" v-if="attribute.name === 'Колір'">
+                        <div class="flex gap-2" v-if="attribute.is_color_attribute">
                             <Accordion :value="colorGroupsOpened" multiple class="w-full" lazy>
                                 <AccordionPanel v-for="group in attribute.color_groups" :value="group.id" class="px-0" v-show="groupHasColors(group.id)">
                                     <AccordionHeader class="px-0">{{ group.name }}</AccordionHeader>
@@ -493,16 +493,16 @@ const handleUpdateColor = (color) => {
     router.visit(route('catalog', filter.value), { preserveScroll: true, preserveState: true })
 }
 const getGroupColors = (groupId) => {
-    let color = props.filters.attributes.find(({name}) => name === 'Колір')
+    let color = props.filters.attributes.find((attribute) => attribute.is_color_attribute)
     return color?.attribute_options.filter(({meta}) => meta == groupId)
 }
 const getGroupColorIdByValue = (colorValue) => {
-    let color = props.filters.attributes.find(({name}) => name === 'Колір')
+    let color = props.filters.attributes.find((attribute) => attribute.is_color_attribute)
     let meta = color?.attribute_options.find(({value}) => value == colorValue)?.meta
     return color?.color_groups.find(({id}) => id == meta).id
 }
 const groupHasColors = (groupId) => {
-    let color = props.filters.attributes.find(({name}) => name === 'Колір')
+    let color = props.filters.attributes.find((attribute) => attribute.is_color_attribute)
     return !!color?.attribute_options.find(({meta}) => meta == groupId)
 }
 const handleUpdatePage = (paginator) => {

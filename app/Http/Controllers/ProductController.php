@@ -54,6 +54,7 @@ class ProductController extends Controller
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
             'category_ids' => 'array',
+            'has_fabric_selection' => 'boolean',
             'variations' => 'array',
             'variations.*.code' => 'required|string|max:255',
             'variations.*.price' => 'required|numeric|min:0',
@@ -65,6 +66,7 @@ class ProductController extends Controller
             'name' => $request->name,
             'slug' => $request->slug ?: $slugify->slugify($request->name),
             'description' => $request->description,
+            'has_fabric_selection' => $request->boolean('has_fabric_selection'),
         ]);
 
         // CREATE VARIATIONS
@@ -143,6 +145,7 @@ class ProductController extends Controller
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
             'category_ids' => 'array',
+            'has_fabric_selection' => 'boolean',
             'delete_variations_ids' => 'array',
             'variations' => 'array',
             'variations.*.code' => 'required|string|max:255',
@@ -154,6 +157,7 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->slug = $request->slug ?: $slugify->slugify($request->name);
         $product->description = $request->description;
+        $product->has_fabric_selection = $request->boolean('has_fabric_selection');
         $product->save();
 
         if (! empty($request->category_ids)) {
