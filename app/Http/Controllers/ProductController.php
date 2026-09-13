@@ -79,7 +79,10 @@ class ProductController extends Controller
             ]);
 
             // SET VARIATION IMAGES
-            foreach ($variation['images'] as $image) {
+            // A variation with no files never gets an 'images' key at all —
+            // multipart/FormData drops empty arrays entirely, it doesn't
+            // send them as [].
+            foreach ($variation['images'] ?? [] as $image) {
                 $sku->addMedia($image)->toMediaCollection('variation_images');
             }
 
