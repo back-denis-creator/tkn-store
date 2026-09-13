@@ -4,8 +4,6 @@
             <title>{{ product.name }}</title>
             <meta name="description" :content="metaDescription" />
             <link rel="canonical" :href="route('product', product.slug)" />
-            <!-- TODO: remove once the catalog is fully populated and linked from the UI. -->
-            <meta name="robots" content="noindex, nofollow" />
 
             <meta property="og:type" content="product" />
             <meta property="og:title" :content="product.name" />

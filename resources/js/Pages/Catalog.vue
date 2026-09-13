@@ -4,8 +4,6 @@
             <title>{{ $t('Catalog', 'Каталог товарів') }}</title>
             <meta name="description" content="Каталог текстилю Casanel: скатертини, доріжки, серветки, подушки та інший текстиль ручної роботи на замовлення." />
             <link rel="canonical" :href="route('catalog')" />
-            <!-- TODO: remove once the catalog is fully populated and linked from the UI. -->
-            <meta name="robots" content="noindex, nofollow" />
         </Head>
 
         <p class="mx-auto mt-10 mb-2 max-w-[1200px] px-5 text-2xl font-bold uppercase tracking-widest text-gray-800 text-center lg:text-left">
