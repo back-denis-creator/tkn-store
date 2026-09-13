@@ -55,6 +55,7 @@ class ProductController extends Controller
             'description' => 'nullable|string|max:255',
             'category_ids' => 'array',
             'has_fabric_selection' => 'boolean',
+            'share_variation_images' => 'boolean',
             'variations' => 'array',
             'variations.*.code' => 'required|string|max:255',
             'variations.*.price' => 'required|numeric|min:0',
@@ -67,6 +68,7 @@ class ProductController extends Controller
             'slug' => $request->slug ?: $slugify->slugify($request->name),
             'description' => $request->description,
             'has_fabric_selection' => $request->boolean('has_fabric_selection'),
+            'share_variation_images' => $request->boolean('share_variation_images'),
         ]);
 
         // CREATE VARIATIONS
@@ -105,6 +107,8 @@ class ProductController extends Controller
         if (! empty($request->category_ids)) {
             $product->categories()->sync($request->category_ids);
         }
+
+        $this->syncSharedVariationImages($product);
 
         return redirect()->route('products.index')->with('message', 'Product Created Successfully');
     }
@@ -146,6 +150,7 @@ class ProductController extends Controller
             'description' => 'nullable|string|max:255',
             'category_ids' => 'array',
             'has_fabric_selection' => 'boolean',
+            'share_variation_images' => 'boolean',
             'delete_variations_ids' => 'array',
             'variations' => 'array',
             'variations.*.code' => 'required|string|max:255',
@@ -158,6 +163,7 @@ class ProductController extends Controller
         $product->slug = $request->slug ?: $slugify->slugify($request->name);
         $product->description = $request->description;
         $product->has_fabric_selection = $request->boolean('has_fabric_selection');
+        $product->share_variation_images = $request->boolean('share_variation_images');
         $product->save();
 
         if (! empty($request->category_ids)) {
@@ -256,7 +262,36 @@ class ProductController extends Controller
             }
         }
 
+        $this->syncSharedVariationImages($product);
+
         return redirect()->route('products.index')->with('message', 'Product Updated Successfully');
+    }
+
+    /**
+     * When share_variation_images is on, every variation should show the same
+     * photos as the first one, so the admin only has to upload them once.
+     * Re-copying on every save (rather than only when the flag flips) also
+     * picks up new photos added to the first variation later.
+     */
+    private function syncSharedVariationImages(Product $product): void
+    {
+        if (! $product->share_variation_images) {
+            return;
+        }
+
+        $skus = $product->skus()->orderBy('id')->get();
+        $firstSku = $skus->first();
+        if (! $firstSku) {
+            return;
+        }
+
+        $sourceMedia = $firstSku->getMedia('variation_images');
+        foreach ($skus->skip(1) as $sku) {
+            $sku->clearMediaCollection('variation_images');
+            foreach ($sourceMedia as $media) {
+                $media->copy($sku, 'variation_images');
+            }
+        }
     }
 
     /**

@@ -15,12 +15,14 @@ class Product extends Model
         'description',
         'slug',
         'has_fabric_selection',
+        'share_variation_images',
     ];
 
     protected function casts(): array
     {
         return [
             'has_fabric_selection' => 'boolean',
+            'share_variation_images' => 'boolean',
         ];
     }
 

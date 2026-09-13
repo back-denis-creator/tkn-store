@@ -45,6 +45,7 @@ const form = useForm({
     slug: props.product.slug,
     description: props.product.description,
     has_fabric_selection: props.product.has_fabric_selection,
+    share_variation_images: props.product.share_variation_images,
     category_ids: [...props.categories.map((category) => {
         if(!!(props.product.categories.findIndex(({id}) => id === category.id) >= 0)) {
             return category.id
@@ -271,6 +272,16 @@ const deleteUploadedFileCallback = (index) => {
                             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Варіації товару</h3>
                         </div>
 
+                        <div class="flex items-center gap-2 border-b border-gray-100 p-6">
+                            <Checkbox
+                                id="share_variation_images"
+                                v-model:checked="form.share_variation_images"
+                            />
+                            <label for="share_variation_images" class="text-sm font-medium text-gray-900">
+                                Використовувати зображення першої варіації для всіх варіацій
+                            </label>
+                        </div>
+
                         <div class="flex flex-wrap items-center gap-2 border-b border-gray-100 px-6 pt-4">
                             <button
                                 v-for="(variation, index) in form.variations"
@@ -334,7 +345,7 @@ const deleteUploadedFileCallback = (index) => {
 
                             <div>
                                 <InputLabel value="Зображення варіації" />
-                                <FileUpload class="mt-1" @select="onFilesVariation($event)" @remove="onFilesVariation($event)" multiple accept="image/*">
+                                <FileUpload v-if="index === 0 || !form.share_variation_images" class="mt-1" @select="onFilesVariation($event)" @remove="onFilesVariation($event)" multiple accept="image/*">
                                     <template #header="{ chooseCallback, clearCallback, files }">
                                         <div class="flex flex-wrap items-center justify-between gap-4 flex-1">
                                             <div class="flex gap-2">
@@ -375,6 +386,17 @@ const deleteUploadedFileCallback = (index) => {
                                         <span class="text-sm text-gray-400">Перетягніть зображення сюди.</span>
                                     </template>
                                 </FileUpload>
+                                <div v-else class="mt-1 rounded-md border border-dashed border-gray-300 p-4">
+                                    <p class="text-xs text-gray-400">Зображення підтягуються автоматично з першої варіації.</p>
+                                    <div v-if="form.variations[0].images.length || form.variations[0].new_images.length" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                        <div v-for="file of form.variations[0].images" :key="'img-' + file.id" class="overflow-hidden rounded-md border border-gray-200">
+                                            <img role="presentation" :alt="file.name" :src="file.original_url" class="aspect-square w-full object-cover" />
+                                        </div>
+                                        <div v-for="file of form.variations[0].new_images" :key="'new-' + file.name + file.size" class="overflow-hidden rounded-md border border-gray-200">
+                                            <img role="presentation" :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
