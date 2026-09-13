@@ -46,6 +46,8 @@ class AttributeController extends Controller
             'description' => 'nullable|string|max:255',
             'is_color_attribute' => 'boolean',
             'options.*.new_file' => 'nullable|image|max:5120',
+            'options.*.description' => 'nullable|string|max:1000',
+            'options.*.article' => 'nullable|string|max:255',
             'options.*.default_color_ids' => 'array',
             'options.*.default_color_ids.*' => 'exists:default_colors,id',
         ]);
@@ -83,6 +85,8 @@ class AttributeController extends Controller
                 'id' => $attributeOption->id,
                 'value' => $attributeOption->value,
                 'meta' => $attributeOption->meta,
+                'description' => $attributeOption->description,
+                'article' => $attributeOption->article,
                 'img_url' => $attributeOption->getMedia('default')->first()?->getUrl(),
                 'default_color_ids' => $attributeOption->defaultColors->pluck('id'),
             ];
@@ -108,6 +112,8 @@ class AttributeController extends Controller
             'description' => 'nullable|string|max:255',
             'is_color_attribute' => 'boolean',
             'options.*.new_file' => 'nullable|image|max:5120',
+            'options.*.description' => 'nullable|string|max:1000',
+            'options.*.article' => 'nullable|string|max:255',
             'options.*.default_color_ids' => 'array',
             'options.*.default_color_ids.*' => 'exists:default_colors,id',
         ]);
@@ -172,10 +178,16 @@ class AttributeController extends Controller
             if ($option['id'] === 'new') {
                 $attributeOption = $attribute->attributeOptions()->create([
                     'value' => $option['value'],
+                    'description' => $option['description'] ?? null,
+                    'article' => $option['article'] ?? null,
                 ]);
             } else {
                 $attributeOption = AttributeOption::find($option['id']);
-                $attributeOption?->update(['value' => $option['value']]);
+                $attributeOption?->update([
+                    'value' => $option['value'],
+                    'description' => $option['description'] ?? null,
+                    'article' => $option['article'] ?? null,
+                ]);
             }
 
             // isset(), not empty() — the "Однотон" group's id is 0, which empty() treats as absent.

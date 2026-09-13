@@ -287,6 +287,21 @@ class PageController extends Controller
         ]);
     }
 
+    public function fabrics()
+    {
+        return Inertia::render('Fabrics', [
+            'fabricOptions' => AttributeOption::whereHas('attribute', fn ($q) => $q->where('is_color_attribute', true))
+                ->with('media')
+                ->get(),
+            'colorGroups' => AttributeOption::COLOR_GROUPS,
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'cart' => fn() => session()->get('cart', []),
+        ]);
+    }
+
     public function delivery()
     {
         return Inertia::render('Delivery', [

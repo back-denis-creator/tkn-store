@@ -20,6 +20,8 @@ class AttributeOption extends Model implements HasMedia
         'attribute_id',
         'value',
         'meta',
+        'description',
+        'article',
     ];
 
     public function registerMediaConversions(?Media $media = null): void

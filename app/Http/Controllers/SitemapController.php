@@ -22,6 +22,7 @@ class SitemapController extends Controller
             ['loc' => route('home'), 'changefreq' => 'daily', 'priority' => '1.0'],
             ['loc' => route('horeca'), 'changefreq' => 'monthly', 'priority' => '0.7'],
             ['loc' => route('about'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+            ['loc' => route('fabrics'), 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => route('contacts'), 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => route('delivery'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ];

@@ -40,6 +40,8 @@ const form = useForm({
             new_file: null,
             new_preview: null,
             meta: option.meta ? props.color_groups.find(({id}) => id === Number(option.meta)) : {},
+            description: option.description ?? '',
+            article: option.article ?? '',
             default_color_ids: [...(option.default_color_ids ?? [])],
         }
     })],

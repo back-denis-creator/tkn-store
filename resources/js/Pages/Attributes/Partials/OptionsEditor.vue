@@ -37,7 +37,7 @@ const newOptionValue = ref('');
 const addOption = () => {
     const value = newOptionValue.value.trim();
     if (!value) return;
-    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, default_color_ids: [], _pendingDelete: false });
+    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, description: '', article: '', default_color_ids: [], _pendingDelete: false });
     newOptionValue.value = '';
 };
 
@@ -169,6 +169,8 @@ watch(() => props.error, (value) => {
 
                 <div class="flex flex-1 flex-col gap-2">
                     <TextInput v-model="option.value" class="w-full" :disabled="option._pendingDelete" />
+                    <TextInput v-model="option.description" placeholder="Опис" class="w-full" :disabled="option._pendingDelete" />
+                    <TextInput v-model="option.article" placeholder="Артикул" class="w-full" :disabled="option._pendingDelete" />
 
                     <template v-if="isColor">
                         <Select v-model="option.meta" :options="colorGroups" optionLabel="name" placeholder="Обрати групу" class="w-full" :disabled="option._pendingDelete" />
