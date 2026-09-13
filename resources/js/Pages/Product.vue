@@ -79,7 +79,7 @@
                    short, fixed-size list, unlike the "Колір" values themselves
                    which can grow into the hundreds. -->
               <p class="pb-2 text-xs text-gray-500">{{ $t("Color") }}</p>
-              <div class="flex flex-wrap gap-2">
+              <div class="grid grid-cols-10 gap-2">
                 <button
                   v-for="color in relevantDefaultColors" :key="color.id"
                   type="button"
@@ -568,9 +568,10 @@ watch(visibleColorOptions, (options) => {
 // Однотон/Мармур, set in the admin's "Обрати групу" field on each value —
 // AttributeOption::COLOR_GROUPS, sent here as `colorGroups`). Split the flat
 // swatch row into labeled sub-rows so a buyer isn't left guessing which
-// swatches are plain and which are a print. Skip the labels when every
-// visible option is in the same bucket — a lone heading here would only add
-// noise, not information.
+// swatches are plain and which are a print. The label still shows when every
+// visible option is in the same bucket, so a buyer always knows what kind of
+// fabric/print they're looking at, not just when there's something to
+// distinguish it from.
 const UNGROUPED = Symbol('ungrouped')
 const groupedVisibleColorOptions = computed(() => {
     const buckets = new Map()
@@ -579,9 +580,6 @@ const groupedVisibleColorOptions = computed(() => {
         if (!buckets.has(key)) buckets.set(key, [])
         buckets.get(key).push(option)
     })
-    if (buckets.size <= 1) {
-        return [{ key: UNGROUPED, name: null, options: visibleColorOptions.value }]
-    }
     const order = props.colorGroups.map((group) => group.id)
     return [...buckets.entries()]
         .sort(([a], [b]) => {
