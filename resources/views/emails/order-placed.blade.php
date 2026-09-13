@@ -7,7 +7,11 @@
 | Товар | К-сть | Сума |
 | :--- | :---: | ---: |
 @foreach ($order->orderItems as $item)
-| {{ $item->product_name }}{{ $item->attributes_summary ? ' — '.$item->attributes_summary : '' }} | {{ $item->quantity }} | {{ number_format($item->price * $item->quantity / 100, 2) }} грн |
+@php
+    $label = $item->product_name.($item->attributes_summary ? ' — '.$item->attributes_summary : '');
+    $productUrl = $item->product?->slug ? route('product', $item->product->slug) : null;
+@endphp
+| {{ $productUrl ? "[$label]($productUrl)" : $label }} | {{ $item->quantity }} | {{ number_format($item->price * $item->quantity / 100, 2) }} грн |
 @endforeach
 </x-mail::table>
 

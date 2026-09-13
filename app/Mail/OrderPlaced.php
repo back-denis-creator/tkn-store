@@ -27,7 +27,7 @@ class OrderPlaced extends Mailable implements ShouldQueue
     {
         return new Content(
             markdown: 'emails.order-placed',
-            with: ['order' => $this->order->load('orderItems')],
+            with: ['order' => $this->order->load('orderItems.product')],
         );
     }
 }
