@@ -29,10 +29,11 @@
          <div class="mx-auto w-full max-w-[500px] px-4">
             <div
                 ref="imageContainer"
-                class="relative aspect-square w-full overflow-hidden rounded-sm bg-gray-50 lg:cursor-zoom-in"
+                class="relative aspect-square w-full cursor-pointer overflow-hidden rounded-sm bg-gray-50 lg:cursor-zoom-in"
                 @mousemove="onImageMouseMove"
                 @mouseenter="zoomActive = true"
                 @mouseleave="zoomActive = false"
+                @click="openLightbox"
             >
                 <img :src="activeImage?.original_url" :alt="product.name" class="h-full w-full object-contain" />
                 <div
@@ -54,6 +55,27 @@
                     <img :src="item.original_url" :alt="product.name" class="h-full w-full object-cover" />
                 </button>
             </div>
+
+            <!-- Full screen viewer — same Galleria pattern as the homepage's
+                 "Приклади наших робіт" lightbox. -->
+            <Galleria
+                v-model:activeIndex="activeIndex"
+                v-model:visible="galleryVisible"
+                :value="galleryItems"
+                :circular="true"
+                :fullScreen="true"
+                :showItemNavigators="true"
+                :showThumbnails="false"
+                :pt="{
+                    itemPrevButton: { class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
+                    itemNextButton: { class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
+                    closeButton: { class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center !transition-all focus:!ring-2 focus:!ring-amber-400 !outline-none' }
+                }"
+            >
+                <template #item="slotProps">
+                    <img :src="slotProps.item.image" :alt="product.name" class="max-h-screen object-contain" loading="lazy" />
+                </template>
+            </Galleria>
          </div>
         <!-- /image gallery  -->
 
@@ -302,7 +324,7 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
-import { ref, onMounted, computed, watch, inject } from "vue"
+import { ref, onMounted, onUnmounted, computed, watch, inject } from "vue"
 import { useToast } from "primevue/usetoast"
 import { trans } from 'laravel-vue-i18n'
 import { StarIcon as StarIconSolid } from '@heroicons/vue/24/solid'
@@ -419,6 +441,27 @@ const media = computed(() => selectedSku.value?.media || [])
 const activeIndex = ref(0)
 const activeImage = computed(() => media.value[activeIndex.value] || media.value[0])
 watch(selectedSku, () => { activeIndex.value = 0 })
+
+// Fullscreen viewer — same Galleria pattern as ProductSlider.vue's "Приклади
+// наших робіт" lightbox. Reuses `activeIndex` directly (already driving the
+// thumbnail strip below) so the fullscreen view and the thumbnails never
+// fall out of sync with each other.
+const galleryItems = computed(() => media.value.map((item) => ({ image: item.original_url })))
+const galleryVisible = ref(false)
+const openLightbox = () => { if (media.value.length) galleryVisible.value = true }
+
+const handleGalleryKeydown = (event) => {
+    if (!galleryVisible.value || !media.value.length) return
+    if (event.key === 'ArrowRight') {
+        activeIndex.value = (activeIndex.value + 1) % media.value.length
+    } else if (event.key === 'ArrowLeft') {
+        activeIndex.value = (activeIndex.value - 1 + media.value.length) % media.value.length
+    } else if (event.key === 'Escape') {
+        galleryVisible.value = false
+    }
+}
+onMounted(() => { window.addEventListener('keydown', handleGalleryKeydown) })
+onUnmounted(() => { window.removeEventListener('keydown', handleGalleryKeydown) })
 
 const imageContainer = ref(null)
 const zoomActive = ref(false)
