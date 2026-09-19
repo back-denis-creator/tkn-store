@@ -155,6 +155,11 @@ const onFilesVariation = (e) => {
     variations.value[selectedVariation.value].images = e.files
 }
 
+// A freshly picked (not yet uploaded) File has .type; an already-saved Sku
+// media item has .mime_type instead — this covers both without the caller
+// needing to know which one it has.
+const isVideoFile = (file) => (file.type || file.mime_type || '').startsWith('video/')
+
 const removeVariationImage = (index) => {
     variations.value[selectedVariation.value].images = variations.value[selectedVariation.value].images.filter((_, i) => i !== index)
 }
@@ -315,7 +320,7 @@ const removeVariationImage = (index) => {
 
                             <div>
                                 <InputLabel value="Зображення варіації" />
-                                <FileUpload v-if="vIndex === 0 || !form.share_variation_images" class="mt-1" @select="onFilesVariation($event)" multiple accept="image/*" :maxFileSize="1000000">
+                                <FileUpload v-if="vIndex === 0 || !form.share_variation_images" class="mt-1" @select="onFilesVariation($event)" multiple accept="image/*,video/*" :maxFileSize="20000000">
                                     <template #header="{ chooseCallback, clearCallback, files }">
                                         <div class="flex flex-wrap items-center justify-between gap-4 flex-1">
                                             <div class="flex gap-2">
@@ -327,7 +332,8 @@ const removeVariationImage = (index) => {
                                     <template #content="{ files }">
                                         <div v-if="files.length" class="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-3">
                                             <div v-for="(file, index) of files" :key="file.name + file.size" class="relative overflow-hidden rounded-md border border-gray-200">
-                                                <img :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
+                                                <video v-if="isVideoFile(file)" :src="file.objectURL" class="aspect-square w-full object-cover" muted playsinline preload="metadata"></video>
+                                                <img v-else :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
                                                 <button type="button" @click="removeVariationImage(index)" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-600">
                                                     <i class="pi pi-times text-xs"></i>
                                                 </button>
@@ -335,14 +341,15 @@ const removeVariationImage = (index) => {
                                         </div>
                                     </template>
                                     <template #empty>
-                                        <span class="text-sm text-gray-400">Перетягніть зображення сюди.</span>
+                                        <span class="text-sm text-gray-400">Перетягніть зображення або відео сюди.</span>
                                     </template>
                                 </FileUpload>
                                 <div v-else class="mt-1 rounded-md border border-dashed border-gray-300 p-4">
                                     <p class="text-xs text-gray-400">Зображення підтягуються автоматично з першої варіації.</p>
                                     <div v-if="variations[0].images.length" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                                         <div v-for="file of variations[0].images" :key="file.name + file.size" class="overflow-hidden rounded-md border border-gray-200">
-                                            <img :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
+                                            <video v-if="isVideoFile(file)" :src="file.objectURL" class="aspect-square w-full object-cover" muted playsinline preload="metadata"></video>
+                                            <img v-else :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
                                         </div>
                                     </div>
                                 </div>

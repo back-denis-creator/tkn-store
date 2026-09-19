@@ -12,7 +12,9 @@ return [
      * The maximum file size of an item in bytes.
      * Adding a larger file will result in an exception.
      */
-    'max_file_size' => 1024 * 1024 * 10, // 10MB
+    // Raised from the 10MB default so a short product video (fabric drape,
+    // texture close-up) fits — matches the frontend's own 20MB FileUpload limit.
+    'max_file_size' => 1024 * 1024 * 20, // 20MB
 
     /*
      * This queue connection will be used to generate derived and responsive images.

@@ -188,6 +188,11 @@ const onFilesVariation = (e) => {
 const deleteUploadedFileCallback = (index) => {
     form.variations[selectedVariation.value].images = [...form.variations[selectedVariation.value].images.filter((v, i) => i !== index)]
 }
+
+// A freshly picked (not yet uploaded) File has .type; an already-saved Sku
+// media item has .mime_type instead — this covers both without the caller
+// needing to know which one it has.
+const isVideoFile = (file) => (file.type || file.mime_type || '').startsWith('video/')
 </script>
 
 <template>
@@ -345,7 +350,7 @@ const deleteUploadedFileCallback = (index) => {
 
                             <div>
                                 <InputLabel value="Зображення варіації" />
-                                <FileUpload v-if="index === 0 || !form.share_variation_images" class="mt-1" @select="onFilesVariation($event)" @remove="onFilesVariation($event)" multiple accept="image/*">
+                                <FileUpload v-if="index === 0 || !form.share_variation_images" class="mt-1" @select="onFilesVariation($event)" @remove="onFilesVariation($event)" multiple accept="image/*,video/*" :maxFileSize="20000000">
                                     <template #header="{ chooseCallback, clearCallback, files }">
                                         <div class="flex flex-wrap items-center justify-between gap-4 flex-1">
                                             <div class="flex gap-2">
@@ -360,7 +365,8 @@ const deleteUploadedFileCallback = (index) => {
                                                 <p class="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Нові</p>
                                                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                                     <div v-for="(file, fIndex) of files" :key="file.name + file.type + file.size" class="relative overflow-hidden rounded-md border border-gray-200">
-                                                        <img role="presentation" :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
+                                                        <video v-if="isVideoFile(file)" :src="file.objectURL" class="aspect-square w-full object-cover" muted playsinline preload="metadata"></video>
+                                                        <img v-else role="presentation" :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
                                                         <button type="button" @click="removeFileCallback(fIndex)" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-600">
                                                             <i class="pi pi-times text-xs"></i>
                                                         </button>
@@ -372,7 +378,8 @@ const deleteUploadedFileCallback = (index) => {
                                                 <p class="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Завантажені</p>
                                                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                                     <div v-for="(file, uIndex) of variation.images" :key="file.name + file.type + file.size" class="relative overflow-hidden rounded-md border border-gray-200">
-                                                        <img role="presentation" :alt="file.name" :src="file.original_url" class="aspect-square w-full object-cover" />
+                                                        <video v-if="isVideoFile(file)" :src="file.original_url" class="aspect-square w-full object-cover" controls muted playsinline preload="metadata"></video>
+                                                        <img v-else role="presentation" :alt="file.name" :src="file.original_url" class="aspect-square w-full object-cover" />
                                                         <button type="button" @click="deleteUploadedFileCallback(uIndex)" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-600">
                                                             <i class="pi pi-times text-xs"></i>
                                                         </button>
@@ -383,17 +390,19 @@ const deleteUploadedFileCallback = (index) => {
                                         </div>
                                     </template>
                                     <template #empty>
-                                        <span class="text-sm text-gray-400">Перетягніть зображення сюди.</span>
+                                        <span class="text-sm text-gray-400">Перетягніть зображення або відео сюди.</span>
                                     </template>
                                 </FileUpload>
                                 <div v-else class="mt-1 rounded-md border border-dashed border-gray-300 p-4">
                                     <p class="text-xs text-gray-400">Зображення підтягуються автоматично з першої варіації.</p>
                                     <div v-if="form.variations[0].images.length || form.variations[0].new_images.length" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                                         <div v-for="file of form.variations[0].images" :key="'img-' + file.id" class="overflow-hidden rounded-md border border-gray-200">
-                                            <img role="presentation" :alt="file.name" :src="file.original_url" class="aspect-square w-full object-cover" />
+                                            <video v-if="isVideoFile(file)" :src="file.original_url" class="aspect-square w-full object-cover" muted playsinline preload="metadata"></video>
+                                            <img v-else role="presentation" :alt="file.name" :src="file.original_url" class="aspect-square w-full object-cover" />
                                         </div>
                                         <div v-for="file of form.variations[0].new_images" :key="'new-' + file.name + file.size" class="overflow-hidden rounded-md border border-gray-200">
-                                            <img role="presentation" :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
+                                            <video v-if="isVideoFile(file)" :src="file.objectURL" class="aspect-square w-full object-cover" muted playsinline preload="metadata"></video>
+                                            <img v-else role="presentation" :alt="file.name" :src="file.objectURL" class="aspect-square w-full object-cover" />
                                         </div>
                                     </div>
                                 </div>

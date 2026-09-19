@@ -59,6 +59,7 @@ class ProductController extends Controller
             'variations' => 'array',
             'variations.*.code' => 'required|string|max:255',
             'variations.*.price' => 'required|numeric|min:0',
+            'variations.*.images.*' => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:20000',
         ]);
 
         $slugify = new Slugify;
@@ -158,6 +159,7 @@ class ProductController extends Controller
             'variations' => 'array',
             'variations.*.code' => 'required|string|max:255',
             'variations.*.price' => 'required|numeric|min:0',
+            'variations.*.new_images.*' => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:20000',
         ]);
 
         $slugify = new Slugify;

@@ -27,18 +27,40 @@
          <div class="mx-auto w-full max-w-[500px] px-4">
             <div
                 ref="imageContainer"
-                class="relative aspect-square w-full cursor-pointer overflow-hidden rounded-sm bg-gray-50 lg:cursor-zoom-in"
-                @mousemove="onImageMouseMove"
+                class="relative aspect-square w-full overflow-hidden rounded-sm bg-gray-50"
+                :class="isVideo(activeImage) ? 'cursor-default' : 'cursor-pointer lg:cursor-zoom-in'"
+                @mousemove="!isVideo(activeImage) && onImageMouseMove($event)"
                 @mouseenter="zoomActive = true"
                 @mouseleave="zoomActive = false"
-                @click="openLightbox"
+                @click="!isVideo(activeImage) && openLightbox()"
             >
-                <img :src="activeImage?.original_url" :alt="product.name" class="h-full w-full object-contain" />
+                <video
+                    v-if="isVideo(activeImage)"
+                    :key="activeImage.id"
+                    :src="activeImage.original_url"
+                    class="h-full w-full bg-black object-contain"
+                    controls
+                    playsinline
+                    preload="metadata"
+                ></video>
+                <img v-else :src="activeImage?.original_url" :alt="product.name" class="h-full w-full object-contain" />
                 <div
-                    v-if="zoomActive && activeImage"
+                    v-if="zoomActive && activeImage && !isVideo(activeImage)"
                     class="pointer-events-none absolute hidden rounded-sm border-2 border-white shadow-lg lg:block"
                     :style="lensStyle"
                 ></div>
+                <!-- Video has no zoom-in click to expand (that click belongs to
+                     the native player controls), so it gets its own explicit
+                     button to reach the same fullscreen lightbox as photos. -->
+                <button
+                    v-if="isVideo(activeImage)"
+                    type="button"
+                    @click.stop="openLightbox"
+                    class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/75"
+                    aria-label="Розгорнути на весь екран"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
             </div>
 
             <div v-if="media.length > 1" class="mt-3 flex gap-2 overflow-x-auto">
@@ -47,10 +69,14 @@
                     :key="item.id"
                     type="button"
                     @click="activeIndex = index"
-                    class="h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 transition-colors"
+                    class="relative h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 transition-colors"
                     :class="activeIndex === index ? 'border-amber-400' : 'border-transparent hover:border-gray-200'"
                 >
-                    <img :src="item.original_url" :alt="product.name" class="h-full w-full object-cover" />
+                    <video v-if="isVideo(item)" :src="item.original_url" class="h-full w-full object-cover" muted playsinline preload="metadata"></video>
+                    <img v-else :src="item.original_url" :alt="product.name" class="h-full w-full object-cover" />
+                    <span v-if="isVideo(item)" class="absolute inset-0 flex items-center justify-center bg-black/25">
+                        <svg viewBox="0 0 24 24" fill="white" class="h-5 w-5 drop-shadow"><path d="M8 5v14l11-7z"/></svg>
+                    </span>
                 </button>
             </div>
 
@@ -71,7 +97,23 @@
                 }"
             >
                 <template #item="slotProps">
-                    <img :src="slotProps.item.image" :alt="product.name" class="max-h-screen object-contain" loading="lazy" />
+                    <!-- object-contain only rescales the video FRAME inside
+                         whatever box the element already has — with no
+                         explicit width, that box falls back to the video's
+                         own reported dimensions (or the ~300x150 browser
+                         default before metadata loads), not the screen. A
+                         fixed box, unlike max-h-screen alone, stays large
+                         regardless of the source video's own resolution. -->
+                    <video
+                        v-if="slotProps.item.isVideo"
+                        :key="slotProps.item.image"
+                        :src="slotProps.item.image"
+                        class="h-[90vh] w-[min(90vw,960px)] bg-black object-contain"
+                        controls
+                        playsinline
+                        preload="metadata"
+                    ></video>
+                    <img v-else :src="slotProps.item.image" :alt="product.name" class="max-h-screen object-contain" loading="lazy" />
                 </template>
             </Galleria>
          </div>
@@ -440,11 +482,15 @@ const activeIndex = ref(0)
 const activeImage = computed(() => media.value[activeIndex.value] || media.value[0])
 watch(selectedSku, () => { activeIndex.value = 0 })
 
+// A Sku's media collection holds both photos and short videos (fabric drape,
+// texture close-ups) — mime_type is how Spatie Media tells them apart.
+const isVideo = (item) => !!item?.mime_type?.startsWith('video/')
+
 // Fullscreen viewer — same Galleria pattern as ProductSlider.vue's "Приклади
 // наших робіт" lightbox. Reuses `activeIndex` directly (already driving the
 // thumbnail strip below) so the fullscreen view and the thumbnails never
 // fall out of sync with each other.
-const galleryItems = computed(() => media.value.map((item) => ({ image: item.original_url })))
+const galleryItems = computed(() => media.value.map((item) => ({ image: item.original_url, isVideo: isVideo(item) })))
 const galleryVisible = ref(false)
 const openLightbox = () => { if (media.value.length) galleryVisible.value = true }
 
