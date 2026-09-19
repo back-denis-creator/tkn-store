@@ -156,7 +156,12 @@ class PageController extends Controller
         if ($hasFabricSelectionProduct) {
             $colorAttribute = Attribute::where('is_color_attribute', true)->with('attributeOptions.media')->first();
             if ($colorAttribute) {
-                $attributes = $attributes->reject(fn ($attribute) => $attribute->is_color_attribute)->push($colorAttribute);
+                // reject() keeps the original keys, so removing an item from
+                // the middle leaves a gap (e.g. keys 0,1,3). A gapped integer
+                // key set serializes to a JSON object instead of an array,
+                // which breaks every `filters.attributes.find/forEach` call
+                // on the frontend. values() restores a sequential 0..n-1 list.
+                $attributes = $attributes->reject(fn ($attribute) => $attribute->is_color_attribute)->push($colorAttribute)->values();
             }
         }
 

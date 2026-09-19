@@ -52,7 +52,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:20000',
             'category_ids' => 'array',
             'has_fabric_selection' => 'boolean',
             'share_variation_images' => 'boolean',
@@ -150,7 +150,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:20000',
             'category_ids' => 'array',
             'has_fabric_selection' => 'boolean',
             'share_variation_images' => 'boolean',

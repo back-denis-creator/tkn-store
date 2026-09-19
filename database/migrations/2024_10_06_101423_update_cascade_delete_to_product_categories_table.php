@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('product_categories', function (Blueprint $table) {
-            $table->dropForeign('product_categories_product_id_foreign');
-            $table->dropForeign('product_categories_category_id_foreign');
+            // Column-array form, not the named-string form — SQLite can only
+            // drop a foreign key this way (it rebuilds the table under the
+            // hood), and this already-applied migration only needs to stay
+            // replayable for a fresh environment (tests, local, CI).
+            $table->dropForeign(['product_id']);
+            $table->dropForeign(['category_id']);
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
@@ -24,9 +28,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('categories', function (Blueprint $table) {
-            $table->dropForeign('product_categories_product_id_foreign');
-            $table->dropForeign('product_categories_category_id_foreign');
+        Schema::table('product_categories', function (Blueprint $table) {
+            $table->dropForeign(['product_id']);
+            $table->dropForeign(['category_id']);
             $table->foreign('product_id')->references('id')->on('products');
             $table->foreign('category_id')->references('id')->on('categories');
         });

@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('storages', function (Blueprint $table) {
-            $table->dropForeign('storages_attribute_option_id_foreign');
+            $table->dropForeign(['attribute_option_id']);
         });
     }
 };
