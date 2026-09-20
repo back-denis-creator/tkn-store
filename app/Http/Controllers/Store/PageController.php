@@ -40,6 +40,9 @@ class PageController extends Controller
                 ->map(fn (HeroSlide $slide) => [
                     'id' => $slide->id,
                     'url' => $slide->getFirstMediaUrl('image'),
+                    'title' => $slide->title,
+                    'description' => $slide->description,
+                    'show_button' => $slide->show_button,
                 ])
                 ->filter(fn (array $slide) => $slide['url'] !== '')
                 ->values(),

@@ -83,7 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy')->middleware('admin');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index')->middleware('admin');
     Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update')->middleware('admin');
-    Route::resource('/hero-slides', HeroSlideController::class)->only(['index', 'store', 'destroy'])->middleware('admin');
+    // The hero slides are edited inside the settings page, which renders them,
+    // so these write routes have no index of their own.
+    Route::resource('/hero-slides', HeroSlideController::class)->only(['store', 'update', 'destroy'])->middleware('admin');
     Route::patch('/hero-slides-reorder', [HeroSlideController::class, 'reorder'])->name('hero-slides.reorder')->middleware('admin');
 });
 

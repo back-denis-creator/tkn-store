@@ -19,6 +19,7 @@ class SettingController extends Controller
                 'announcement_custom_text' => $settings->announcement_custom_text,
                 'free_shipping_threshold' => $settings->free_shipping_threshold / 100,
             ],
+            'heroSlides' => HeroSlideController::slidesForAdmin(),
         ]);
     }
 

@@ -28,7 +28,7 @@ class HeroSlideTest extends TestCase
             'image' => UploadedFile::fake()->image('banner.png', 1920, 800),
         ]);
 
-        $response->assertRedirect(route('hero-slides.index'));
+        $response->assertSessionHasNoErrors();
 
         $slide = HeroSlide::sole();
         $media = $slide->getFirstMedia('image');
@@ -86,13 +86,74 @@ class HeroSlideTest extends TestCase
         $this->assertSame([], $this->get('/')->viewData('page')['props']['heroSlides']);
     }
 
+    public function test_the_admin_can_set_the_text_and_the_button_of_a_slide(): void
+    {
+        $slide = HeroSlide::create(['sort_order' => 1]);
+
+        $this->actingAs($this->admin())
+            ->patch(route('hero-slides.update', $slide), [
+                'title' => 'Осіння колекція',
+                'description' => "Перший рядок\nДругий рядок",
+                'show_button' => false,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $slide->refresh();
+
+        $this->assertSame('Осіння колекція', $slide->title);
+        $this->assertSame("Перший рядок\nДругий рядок", $slide->description);
+        $this->assertFalse($slide->show_button);
+    }
+
+    public function test_clearing_the_text_of_a_slide_brings_back_the_default(): void
+    {
+        $slide = HeroSlide::create(['sort_order' => 1, 'title' => 'Щось', 'description' => 'Щось іще']);
+
+        $this->actingAs($this->admin())->patch(route('hero-slides.update', $slide), [
+            'title' => '',
+            'description' => '',
+            'show_button' => true,
+        ]);
+
+        $slide->refresh();
+
+        $this->assertNull($slide->title);
+        $this->assertNull($slide->description);
+    }
+
+    public function test_the_settings_page_lists_the_slides(): void
+    {
+        $this->actingAs($this->admin())->post('/hero-slides', [
+            'image' => UploadedFile::fake()->image('banner.png'),
+        ]);
+
+        HeroSlide::sole()->update(['title' => 'Осіння колекція', 'show_button' => false]);
+
+        $slides = $this->actingAs($this->admin())
+            ->get(route('settings.index'))
+            ->viewData('page')['props']['heroSlides'];
+
+        $this->assertCount(1, $slides);
+        $this->assertSame('Осіння колекція', $slides[0]['title']);
+        $this->assertFalse($slides[0]['show_button']);
+        $this->assertStringContainsString('.webp', $slides[0]['url']);
+    }
+
     public function test_a_guest_cannot_manage_the_slides(): void
     {
         $this->post('/hero-slides', [
             'image' => UploadedFile::fake()->image('banner.png'),
         ])->assertRedirect(route('login'));
 
-        $this->assertSame(0, HeroSlide::count());
+        $slide = HeroSlide::create(['sort_order' => 1, 'title' => 'Оригінал']);
+
+        $this->patch(route('hero-slides.update', $slide), [
+            'title' => 'Зламано',
+            'show_button' => false,
+        ])->assertRedirect(route('login'));
+
+        $this->assertSame(1, HeroSlide::count());
+        $this->assertSame('Оригінал', $slide->fresh()->title);
     }
 
     public function test_the_homepage_gets_the_slides_in_playback_order(): void

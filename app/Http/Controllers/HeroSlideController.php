@@ -5,24 +5,26 @@ namespace App\Http\Controllers;
 use App\Models\HeroSlide;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Inertia\Inertia;
 use Spatie\Image\Image;
 
 class HeroSlideController extends Controller
 {
     /**
-     * Display a listing of the homepage hero's slides, in playback order.
+     * The homepage hero's slides, in playback order, for the settings page
+     * that edits them.
      */
-    public function index()
+    public static function slidesForAdmin(): Collection
     {
-        return Inertia::render('HeroSlides/Index', [
-            'slides' => HeroSlide::orderBy('sort_order')->get()->map(fn (HeroSlide $slide) => [
-                'id' => $slide->id,
-                'url' => $slide->getFirstMediaUrl('image'),
-                'preview_url' => $slide->getFirstMediaUrl('image', 'preview'),
-            ]),
+        return HeroSlide::orderBy('sort_order')->get()->map(fn (HeroSlide $slide) => [
+            'id' => $slide->id,
+            'url' => $slide->getFirstMediaUrl('image'),
+            'preview_url' => $slide->getFirstMediaUrl('image', 'preview'),
+            'title' => $slide->title,
+            'description' => $slide->description,
+            'show_button' => $slide->show_button,
         ]);
     }
 
@@ -50,7 +52,27 @@ class HeroSlideController extends Controller
                 ->toMediaCollection('image');
         });
 
-        return redirect()->route('hero-slides.index')->with('message', 'Слайд додано');
+        return back()->with('message', 'Слайд додано');
+    }
+
+    /**
+     * Update the text this slide shows over its image.
+     */
+    public function update(Request $request, HeroSlide $heroSlide)
+    {
+        $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'show_button' => 'required|boolean',
+        ]);
+
+        $heroSlide->update([
+            'title' => $validated['title'] ?: null,
+            'description' => $validated['description'] ?: null,
+            'show_button' => $validated['show_button'],
+        ]);
+
+        return back()->with('message', 'Слайд збережено');
     }
 
     /**
@@ -61,7 +83,7 @@ class HeroSlideController extends Controller
         $heroSlide->clearMediaCollection();
         $heroSlide->delete();
 
-        return redirect()->route('hero-slides.index')->with('message', 'Слайд видалено');
+        return back()->with('message', 'Слайд видалено');
     }
 
     /**

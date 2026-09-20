@@ -14,18 +14,35 @@
       </div>
 
       <div
-        class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white lg:items-start lg:text-left"
+        v-for="(slide, index) in displaySlides"
+        :key="`text-${slide.id ?? 'default'}`"
+        class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white transition-opacity duration-1000 ease-in-out lg:items-start lg:text-left"
+        :class="index === activeIndex ? 'opacity-100' : 'pointer-events-none opacity-0'"
       >
-        <h1 class="text-3xl font-bold sm:text-6xl leading-tight drop-shadow-lg">
-          {{ $t('HeroHeadline') }}
-        </h1>
-        <p class="pt-5 text-sm sm:text-xl lg:w-3/5 font-light leading-relaxed">
-          {{ $t('HeroSubline') }}
-        </p>
-        <p class="text-sm sm:text-xl lg:w-4/5 font-light leading-relaxed">
-          {{ $t('HeroSubline2') }}
-        </p>
+        <!-- Only the slide on screen carries the h1: the hidden slides stay in
+             the DOM for the crossfade, and a page with one h1 per slide would
+             hand a crawler several competing headlines. -->
+        <component
+          :is="index === activeIndex ? 'h1' : 'p'"
+          class="text-3xl font-bold sm:text-6xl leading-tight drop-shadow-lg"
+        >
+          {{ slide.title || $t('HeroHeadline') }}
+        </component>
+        <template v-if="slide.description">
+          <p class="whitespace-pre-line pt-5 text-sm sm:text-xl lg:w-4/5 font-light leading-relaxed">
+            {{ slide.description }}
+          </p>
+        </template>
+        <template v-else>
+          <p class="pt-5 text-sm sm:text-xl lg:w-3/5 font-light leading-relaxed">
+            {{ $t('HeroSubline') }}
+          </p>
+          <p class="text-sm sm:text-xl lg:w-4/5 font-light leading-relaxed">
+            {{ $t('HeroSubline2') }}
+          </p>
+        </template>
         <button
+          v-if="slide.show_button"
           @click="openConsultation"
           class="mx-auto mt-8 bg-amber-400 px-8 py-3 text-black font-semibold rounded-sm duration-200 hover:bg-yellow-300 transform hover:-translate-y-1 transition-all lg:mx-0 shadow-lg"
         >
@@ -65,7 +82,9 @@
   // Falls back to the original static image whenever the admin hasn't
   // uploaded any slides yet — the hero must never render blank.
   const displaySlides = computed(() => (
-      props.heroSlides.length ? props.heroSlides : [{ id: null, url: '/images/hero-bg.webp' }]
+      props.heroSlides.length
+          ? props.heroSlides
+          : [{ id: null, url: '/images/hero-bg.webp', title: null, description: null, show_button: true }]
   ));
 
   const activeIndex = ref(0);

@@ -4,12 +4,17 @@ import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
+import HeroSlidesManager from "@/Components/HeroSlidesManager.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
     settings: {
         type: Object,
         required: true,
+    },
+    heroSlides: {
+        type: Array,
+        default: () => ([]),
     },
 });
 
@@ -99,6 +104,12 @@ const submit = () => {
                                 Зберегти
                             </PrimaryButton>
                         </form>
+                    </div>
+                </div>
+
+                <div class="mt-6 overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <HeroSlidesManager :slides="heroSlides" />
                     </div>
                 </div>
             </div>
