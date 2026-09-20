@@ -36,7 +36,7 @@ const showingNavigationDropdown = ref(false);
                                     Відгуки
                                 </NavLink>
                                 <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
-                                    Новини
+                                    Блог
                                 </NavLink>
                                 <NavLink :href="route('products.index')" :active="route().current('products.index')">
                                     Товари
@@ -140,7 +140,7 @@ const showingNavigationDropdown = ref(false);
                             Відгуки
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
-                            Новини
+                            Блог
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.index')">
                             Товари

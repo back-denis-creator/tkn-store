@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\NormalizesEditorHtml;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, NormalizesEditorHtml;
 
     protected $fillable = [
         'name',
@@ -47,25 +48,9 @@ class Product extends Model
         'max_price',
     ];
 
-    /**
-     * The admin's Quill editor exports its HTML with every single space
-     * written as a non-breaking one. A paragraph then holds no place a
-     * browser may break at, so it runs off the side of a phone screen and
-     * widens the whole page. Cleaned on the way in, so the editor cannot
-     * store it again, and on the way out, so descriptions saved before this
-     * wrap as well.
-     */
     protected function description(): Attribute
     {
-        return Attribute::make(
-            get: fn (?string $value) => $this->withBreakableSpaces($value),
-            set: fn (?string $value) => $this->withBreakableSpaces($value),
-        );
-    }
-
-    private function withBreakableSpaces(?string $value): ?string
-    {
-        return $value === null ? null : str_replace(["\u{00A0}", '&nbsp;'], ' ', $value);
+        return $this->editorHtml();
     }
 
     public function getDefaultImageAttribute()

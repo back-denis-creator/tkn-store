@@ -1,70 +1,47 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import TextInput from '@/Components/TextInput.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { Head, useForm } from "@inertiajs/vue3";
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import BlogForm from '@/Pages/Blogs/Form.vue';
+import { Head, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     blog: {
         type: Object,
-        default: () => ({}),
+        required: true,
     },
 });
 
 const form = useForm({
-    id: props.blog.id,
     title: props.blog.title,
-    content: props.blog.content,
+    slug: props.blog.slug,
+    excerpt: props.blog.excerpt ?? '',
+    content: props.blog.content ?? '',
+    cover: null,
+    remove_cover: false,
 });
 
-
 const submit = () => {
-    form.put(route("blogs.update", props.blog.id));
+    // POST with _method, not patch(): a PATCH cannot carry a file upload.
+    form.transform((data) => ({ ...data, _method: 'patch' }))
+        .post(route('blogs.update', props.blog.id), { forceFormData: true });
 };
 </script>
 
 <template>
-    <Head title="Blog Edit" />
+    <Head title="Редагування допису" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Blog Edit
-            </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Редагування допису</h2>
         </template>
 
         <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
-                        <form @submit.prevent="submit">
-                            <div>
-                                <InputLabel for="title" value="Title" />
-
-                                <TextInput id="title" type="text" class="mt-1 block w-full" v-model="form.title" required
-                                    autofocus autocomplete="username" />
-
-                                <InputError :message="form.errors.title" />
-                            </div>
-                            <div class="my-6">
-                                <label for="slug"
-                                    class="block mb-2 text-sm font-medium text-gray-900">Content</label>
-                                <textarea type="text" v-model="form.content" name="content" id=""
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
-
-                                <div v-if="form.errors.content" class="text-sm text-red-600">
-                                    {{ form.errors.content }}
-                                </div>
-                            </div>
-                            <PrimaryButton type="submit" :class="{ 'opacity-25': form.processing }"
-                                :disabled="form.processing">
-                                Submit
-                            </PrimaryButton>
-                        </form>
-                    </div>
-                </div>
+            <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                <BlogForm
+                    :form="form"
+                    :current-cover-url="blog.cover_url"
+                    submit-label="Зберегти"
+                    @submit="submit"
+                />
             </div>
         </div>
     </AuthenticatedLayout>

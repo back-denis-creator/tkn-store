@@ -251,5 +251,11 @@
     "Cookie_Consent_Text": "We use cookies that are necessary for the site to work and to improve your browsing experience.",
     "Accept": "Accept",
     "Decline": "Decline",
-    "Free_Shipping_Banner": "Free shipping over ₴:amount"
+    "Free_Shipping_Banner": "Free shipping over ₴:amount",
+    "Blog": "Blog",
+    "Blog_Subtitle": "Stories about textile, how to care for it and how to make a home feel warm",
+    "Blog_Empty": "No posts yet.",
+    "Blog_Read": "Read",
+    "Blog_Back": "All posts",
+    "Blog_More": "Read next"
 }

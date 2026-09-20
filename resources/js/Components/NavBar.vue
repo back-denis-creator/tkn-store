@@ -62,6 +62,7 @@ const navigation = {
         { name: 'About Us', route: 'about', icon: 'pi-info-circle' },
         { name: 'HoReCa', route: 'horeca', icon: 'pi-briefcase' },
         { name: 'Fabrics', route: 'fabrics', icon: 'pi-palette' },
+        { name: 'Blog', route: 'blog', icon: 'pi-book' },
     ],
 }
 

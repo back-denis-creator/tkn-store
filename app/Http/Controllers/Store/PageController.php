@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Models\AttributeOption;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\DefaultColor;
 use App\Models\Delivery;
@@ -331,6 +332,54 @@ class PageController extends Controller
                 ])
                 ->values(),
             'colorGroups' => AttributeOption::COLOR_GROUPS,
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'cart' => fn () => session()->get('cart', []),
+        ]);
+    }
+
+    public function blog()
+    {
+        return Inertia::render('Blog', [
+            'posts' => Blog::latest()->get()->map(fn (Blog $post) => [
+                'id' => $post->id,
+                'title' => $post->title,
+                'slug' => $post->slug,
+                'excerpt' => $post->excerpt,
+                'cover_url' => $post->coverUrl('card'),
+                'published_at' => $post->created_at?->toDateString(),
+            ]),
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'cart' => fn () => session()->get('cart', []),
+        ]);
+    }
+
+    public function blogPost(Blog $blog)
+    {
+        return Inertia::render('BlogPost', [
+            'post' => [
+                'title' => $blog->title,
+                'slug' => $blog->slug,
+                'excerpt' => $blog->excerpt,
+                'content' => $blog->content,
+                'cover_url' => $blog->coverUrl(),
+                'published_at' => $blog->created_at?->toDateString(),
+            ],
+            // Something to read next, so the post is not a dead end.
+            'morePosts' => Blog::whereKeyNot($blog->id)->latest()->limit(3)->get()
+                ->map(fn (Blog $post) => [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'slug' => $post->slug,
+                    'excerpt' => $post->excerpt,
+                    'cover_url' => $post->coverUrl('card'),
+                    'published_at' => $post->created_at?->toDateString(),
+                ]),
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use App\Models\Product;
 use Illuminate\Http\Response;
 
@@ -18,9 +19,19 @@ class SitemapController extends Controller
             ['loc' => route('horeca'), 'changefreq' => 'monthly', 'priority' => '0.7'],
             ['loc' => route('about'), 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => route('fabrics'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+            ['loc' => route('blog'), 'changefreq' => 'weekly', 'priority' => '0.6'],
             ['loc' => route('contacts'), 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => route('delivery'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ];
+
+        foreach (Blog::select('slug', 'updated_at')->get() as $post) {
+            $urls[] = [
+                'loc' => route('blog.post', $post->slug),
+                'lastmod' => $post->updated_at->toAtomString(),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ];
+        }
 
         foreach (Product::visible()->select('slug', 'updated_at')->get() as $product) {
             $urls[] = [
