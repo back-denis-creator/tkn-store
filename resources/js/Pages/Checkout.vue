@@ -103,7 +103,7 @@
               </div>
             </section>
             <!-- /form  -->
-            <Summary />
+            <Summary submits-order :processing="form.processing" @submit="submitOrder" />
           </section>
           <ConsBages />
         </div>

@@ -14,7 +14,12 @@
                     <p>{{ total }} грн.</p>
                 </div>
 
-                <Button class="w-full px-5 py-2" @click="goToCheckout()" :disabled="!$page.props.cart.length">
+                <Button
+                    class="w-full px-5 py-2"
+                    :loading="processing"
+                    :disabled="!$page.props.cart.length"
+                    @click="onClick"
+                >
                     {{ $t("Make an order") }}
                 </Button>
             </div>
@@ -24,6 +29,22 @@
 <script setup>
 import { router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
+const props = defineProps({
+    // On the checkout page this button has to place the order: leading to
+    // checkout from checkout did nothing at all, and it is the button most
+    // buyers press there, being the largest one on the page.
+    submitsOrder: {
+        type: Boolean,
+        default: false,
+    },
+    processing: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+const emit = defineEmits(['submit']);
 
 const page = usePage();
 
@@ -35,6 +56,10 @@ const total = computed(() => {
 
 const goToCheckout = () => {
     router.visit(route('checkout'), { preserveScroll: true })
+}
+
+const onClick = () => {
+    props.submitsOrder ? emit('submit') : goToCheckout()
 }
 </script>
 <style scope>
