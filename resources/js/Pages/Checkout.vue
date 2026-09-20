@@ -15,7 +15,7 @@
               class="grid w-full max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10"
             >
               <div class="card flex justify-center">
-                  <Stepper value="1" class="basis-[50rem]">
+                  <Stepper v-model:value="activeStep" class="basis-[50rem]">
                       <StepList>
                           <Step value="1">Контактна інформація</Step>
                           <Step value="2">Доставка</Step>
@@ -53,7 +53,9 @@
                                   </div>
                                   <Textarea v-model="form.comment" rows="5" cols="30" class="w-full mt-4" placeholder="Коментар" />
                                   <p v-if="form.errors.name" class="text-sm text-red-600 mt-2">{{ form.errors.name }}</p>
+                                  <p v-if="form.errors.surname" class="text-sm text-red-600 mt-2">{{ form.errors.surname }}</p>
                                   <p v-if="form.errors.phone" class="text-sm text-red-600 mt-2">{{ form.errors.phone }}</p>
+                                  <p v-if="form.errors.email" class="text-sm text-red-600 mt-2">{{ form.errors.email }}</p>
                                 </div>
                               </div>
                               <div class="flex pt-6 justify-between">
@@ -73,6 +75,7 @@
                                       <AutoComplete v-model="selectedWarehous" placeholder="№ Відділення" optionLabel="Description" :suggestions="warehouses" @complete="getNPWarehouses" inputClass="w-full" dropdown :disabled="!selectedCity?.Ref" />
                                     </div>
                                   </Transition>
+                                  <p v-if="form.errors.delivery_method" class="text-sm text-red-600">{{ form.errors.delivery_method }}</p>
                                   <p v-if="form.errors.np_city_ref" class="text-sm text-red-600">{{ form.errors.np_city_ref }}</p>
                                   <p v-if="form.errors.np_warehouse_ref" class="text-sm text-red-600">{{ form.errors.np_warehouse_ref }}</p>
                               </div>
@@ -88,6 +91,7 @@
                                       <label :for="`payment_${id}`">{{ name }}</label>
                                   </div>
                               </div>
+                              <p v-if="form.errors.payment_method" class="text-sm text-red-600">{{ form.errors.payment_method }}</p>
                               <p v-if="form.errors.cart" class="text-sm text-red-600">{{ form.errors.cart }}</p>
                               <div class="flex pt-6 justify-between">
                                   <Button label="Назад" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('2')" />
@@ -257,8 +261,28 @@ const getNPWarehouses = (event = false) => {
     })
 }
 
+const activeStep = ref('1')
+
+// Which step each field belongs to, so a rejected order can open the step
+// that actually needs fixing. Without this a missing name is reported while
+// the buyer looks at the payment step, and the button just does nothing.
+const STEP_OF_FIELD = {
+    name: '1', surname: '1', phone: '1', email: '1', comment: '1',
+    delivery_method: '2', np_city_ref: '2', np_warehouse_ref: '2',
+    payment_method: '3', cart: '3',
+}
+
 const submitOrder = () => {
-    form.post(route('order.store'))
+    form.post(route('order.store'), {
+        onError: (errors) => {
+            const steps = Object.keys(errors)
+                .map((field) => STEP_OF_FIELD[field])
+                .filter(Boolean)
+                .sort()
+
+            if (steps.length) activeStep.value = steps[0]
+        },
+    })
 }
 
 </script>

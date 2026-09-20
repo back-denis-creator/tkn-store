@@ -36,6 +36,24 @@ class OrderController extends Controller
             'np_warehouse_ref' => 'required_if:delivery_method,'.Delivery::NOVA_POSHTA.'|nullable|string',
             'np_warehouse_name' => 'nullable|string',
             'payment_method' => "required|integer|in:{$paymentIds}",
+        ], [
+            // Checkout is the one form a buyer cannot walk away from, so its
+            // errors say what to do next instead of naming the column that
+            // failed ("np city ref is required when delivery method is 1").
+            'name.required' => "Вкажіть, будь ласка, ваше ім'я.",
+            'name.max' => "Ім'я занадто довге — максимум 255 символів.",
+            'surname.max' => 'Прізвище занадто довге — максимум 255 символів.',
+            'phone.required' => 'Вкажіть номер телефону — ми зателефонуємо, щоб підтвердити замовлення.',
+            'phone.max' => 'Номер телефону занадто довгий.',
+            'email.email' => 'Перевірте пошту: здається, в адресі помилка.',
+            'delivery_method.required' => 'Оберіть спосіб доставки.',
+            'delivery_method.in' => 'Оберіть спосіб доставки зі списку.',
+            'delivery_method.integer' => 'Оберіть спосіб доставки зі списку.',
+            'np_city_ref.required_if' => 'Оберіть місто зі списку Нової Пошти.',
+            'np_warehouse_ref.required_if' => 'Оберіть відділення Нової Пошти.',
+            'payment_method.required' => 'Оберіть спосіб оплати.',
+            'payment_method.in' => 'Оберіть спосіб оплати зі списку.',
+            'payment_method.integer' => 'Оберіть спосіб оплати зі списку.',
         ]);
 
         $cart = CartService::hydrate();
