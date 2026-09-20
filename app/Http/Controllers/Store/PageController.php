@@ -311,9 +311,18 @@ class PageController extends Controller
     public function fabrics()
     {
         return Inertia::render('Fabrics', [
+            // Ordered by the default color each fabric is tied to, so every
+            // group on the page runs through the same color sequence the rest
+            // of the shop uses. A fabric on several default colors sorts by
+            // the first of them; one on none sorts last, by name.
             'fabricOptions' => AttributeOption::whereHas('attribute', fn ($q) => $q->where('is_color_attribute', true))
-                ->with('media')
-                ->get(),
+                ->with(['media', 'defaultColors'])
+                ->get()
+                ->sortBy(fn (AttributeOption $option) => [
+                    $option->defaultColors->min('sort_order') ?? PHP_INT_MAX,
+                    $option->value,
+                ])
+                ->values(),
             'colorGroups' => AttributeOption::COLOR_GROUPS,
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),

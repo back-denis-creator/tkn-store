@@ -78,6 +78,19 @@ const toggleGroup = (id) => {
     next.has(id) ? next.delete(id) : next.add(id);
     openGroupIds.value = next;
 };
+
+// Subcategories collapse on their own, for the same reason: a category like
+// "Геометричні" opens to a list of its subcategories, not to every fabric
+// in all of them at once.
+const openSubGroupIds = ref(new Set());
+
+const isSubGroupOpen = (id) => openSubGroupIds.value.has(id);
+
+const toggleSubGroup = (id) => {
+    const next = new Set(openSubGroupIds.value);
+    next.has(id) ? next.delete(id) : next.add(id);
+    openSubGroupIds.value = next;
+};
 </script>
 
 <template>
@@ -142,11 +155,29 @@ const toggleGroup = (id) => {
                     <!-- Category has subcategories (e.g. "Геометричні") —
                          a labeled sub-section per subcategory. -->
                     <template v-if="group.subGroups">
-                        <div v-for="subGroup in group.subGroups" :key="subGroup.id" class="mb-8 last:mb-0">
-                            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-                                {{ subGroup.name }} <span class="font-normal text-gray-400">({{ subGroup.options.length }})</span>
-                            </h3>
-                            <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                        <div
+                            v-for="subGroup in group.subGroups"
+                            :key="subGroup.id"
+                            class="mb-3 last:mb-0 rounded-lg bg-gray-50 px-5"
+                        >
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between gap-3 py-4 text-left group/sub"
+                                :aria-expanded="isSubGroupOpen(subGroup.id)"
+                                @click="toggleSubGroup(subGroup.id)"
+                            >
+                                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-3">
+                                    <span class="w-5 h-1 bg-amber-400 rounded-full"></span>
+                                    {{ subGroup.name }}
+                                    <span class="text-sm font-medium text-gray-400">({{ subGroup.options.length }})</span>
+                                </h3>
+                                <ChevronDownIcon
+                                    class="h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200 group-hover/sub:text-gray-600"
+                                    :class="{ 'rotate-180': isSubGroupOpen(subGroup.id) }"
+                                />
+                            </button>
+
+                            <div v-if="isSubGroupOpen(subGroup.id)" class="grid grid-cols-2 gap-6 pb-6 sm:grid-cols-3 lg:grid-cols-4">
                                 <FabricOptionCard v-for="option in subGroup.options" :key="option.id" :option="option" />
                             </div>
                         </div>
