@@ -248,7 +248,7 @@
 
       <section class="container mx-auto max-w-[1200px] px-5 py-5 lg:py-10">
         <h2 class="text-xl">Опис товара</h2>
-        <div class="mt-4 lg:w-3/4" v-html="product.description"></div>
+        <div class="rich-text mt-4 lg:w-3/4" v-html="product.description"></div>
       </section>
       <!-- /product details  -->
 

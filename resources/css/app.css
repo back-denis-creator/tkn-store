@@ -1,3 +1,99 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Text written in the admin's Quill editor and printed on the storefront with
+ * v-html (a product description). Tailwind's preflight flattens headings to
+ * body text, drops list markers and zeroes every block margin, so the
+ * storefront showed one undifferentiated column where the editor showed a
+ * structured description. These rules put back what the editor draws.
+ */
+.rich-text {
+    line-height: 1.6;
+}
+
+/*
+ * Quill gives its blocks no margin of their own: an author separates them by
+ * pressing Enter, which the editor stores as an empty paragraph. An empty
+ * <p></p> has no height, so without this every gap the author typed is lost
+ * — this is what made the storefront text read as one solid block.
+ */
+.rich-text p,
+.rich-text h1,
+.rich-text h2,
+.rich-text h3,
+.rich-text h4,
+.rich-text h5,
+.rich-text h6,
+.rich-text ul,
+.rich-text ol,
+.rich-text blockquote,
+.rich-text pre {
+    margin: 0;
+}
+
+.rich-text p:empty {
+    min-height: 1em;
+}
+
+.rich-text h1 { font-size: 2em; font-weight: 700; }
+.rich-text h2 { font-size: 1.5em; font-weight: 700; }
+.rich-text h3 { font-size: 1.17em; font-weight: 700; }
+.rich-text h4 { font-size: 1em; font-weight: 700; }
+.rich-text h5 { font-size: 0.83em; font-weight: 700; }
+.rich-text h6 { font-size: 0.67em; font-weight: 700; }
+
+.rich-text ul { list-style: disc; padding-left: 1.5em; }
+.rich-text ol { list-style: decimal; padding-left: 1.5em; }
+
+/* Quill 2 writes every list as an <ol> and marks each item's own kind with
+   data-list, so the tag alone no longer says whether an item is a bullet or
+   a number. It draws the marker itself from an empty .ql-ui span, which only
+   works with Quill's own stylesheet — real list markers are used instead. */
+.rich-text li[data-list="bullet"] { list-style-type: disc; }
+.rich-text li[data-list="ordered"] { list-style-type: decimal; }
+.rich-text .ql-ui { display: none; }
+
+.rich-text strong { font-weight: 700; }
+.rich-text em { font-style: italic; }
+.rich-text u { text-decoration: underline; }
+.rich-text s { text-decoration: line-through; }
+
+.rich-text a {
+    color: #b45309;
+    text-decoration: underline;
+}
+
+.rich-text img {
+    max-width: 100%;
+    height: auto;
+}
+
+.rich-text blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+}
+
+.rich-text pre {
+    white-space: pre-wrap;
+    border-radius: 0.5rem;
+    background-color: #f3f4f6;
+    padding: 0.75rem 1rem;
+    font-family: monospace;
+}
+
+/* Alignment, size and indentation are stored by Quill as classes of its own,
+   so they do nothing on the storefront unless they are defined here too. */
+.rich-text .ql-align-center { text-align: center; }
+.rich-text .ql-align-right { text-align: right; }
+.rich-text .ql-align-justify { text-align: justify; }
+
+.rich-text .ql-size-small { font-size: 0.75em; }
+.rich-text .ql-size-large { font-size: 1.5em; }
+.rich-text .ql-size-huge { font-size: 2.5em; }
+
+.rich-text .ql-indent-1 { padding-left: 3em; }
+.rich-text .ql-indent-2 { padding-left: 6em; }
+.rich-text .ql-indent-3 { padding-left: 9em; }
+.rich-text .ql-indent-4 { padding-left: 12em; }
