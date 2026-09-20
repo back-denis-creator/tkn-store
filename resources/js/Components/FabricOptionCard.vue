@@ -16,14 +16,7 @@ const image = computed(() => props.option.media?.[0]?.original_url ?? null);
 
 <template>
     <div class="group flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md">
-        <component
-            :is="image ? 'button' : 'div'"
-            :type="image ? 'button' : null"
-            :aria-label="image ? `${option.value} — на весь екран` : null"
-            class="relative aspect-square w-full overflow-hidden rounded-xl border border-gray-200 bg-white text-left"
-            :class="image ? 'cursor-zoom-in' : ''"
-            @click="image && emit('open')"
-        >
+        <div class="relative aspect-square w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
             <img
                 v-if="image"
                 :src="image"
@@ -40,11 +33,22 @@ const image = computed(() => props.option.media?.[0]?.original_url ?? null);
                  so it never pushes the grid around. -->
             <div
                 v-if="option.description"
-                class="absolute inset-0 flex items-end bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 opacity-0 translate-y-1 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0"
+                class="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 opacity-0 translate-y-1 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0"
             >
                 <p class="text-sm text-white leading-snug">{{ option.description }}</p>
             </div>
-        </component>
+
+            <!-- A plain overlay button, not a <component :is="'button'"> — that
+                 string resolves to PrimeVue's globally registered Button
+                 component, which brings its own amber border with it. -->
+            <button
+                v-if="image"
+                type="button"
+                :aria-label="`${option.value} — на весь екран`"
+                class="absolute inset-0 z-10 cursor-zoom-in"
+                @click="emit('open')"
+            ></button>
+        </div>
 
         <div>
             <p class="font-semibold text-gray-900">{{ option.value }}</p>

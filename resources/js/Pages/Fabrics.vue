@@ -237,12 +237,12 @@ const openViewer = (options, option) => {
                 }"
             >
                 <template #item="slotProps">
-                    <figure class="flex flex-col items-center">
-                        <img :src="slotProps.item.image" :alt="slotProps.item.value" class="max-h-[85vh] object-contain" />
-                        <!-- The fullscreen mask is only semi-transparent, so
-                             the page behind shows through — the caption needs
-                             a ground of its own to stay readable over it. -->
-                        <figcaption class="mt-4 rounded-full bg-black/70 px-5 py-2 text-center text-white">
+                    <!-- w-fit, so the figure is exactly as wide as the image
+                         and the caption sits on the photo itself rather than
+                         under it, on empty mask. -->
+                    <figure class="relative w-fit">
+                        <img :src="slotProps.item.image" :alt="slotProps.item.value" class="block max-h-[85vh] object-contain" />
+                        <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-5 pb-5 pt-10 text-center text-white">
                             <p class="text-lg font-semibold">{{ slotProps.item.value }}</p>
                             <p v-if="slotProps.item.article" class="mt-1 text-xs uppercase tracking-wide text-gray-300">
                                 {{ $t('Article') }}: {{ slotProps.item.article }}
