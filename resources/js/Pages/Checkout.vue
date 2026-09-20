@@ -87,7 +87,7 @@
                           <StepPanel v-slot="{ activateCallback }" value="3">
                               <div class="card flex flex-col h-48 justify-center gap-4">
                                   <div v-for="(name, id) in payments" :key="id" class="flex items-center gap-2">
-                                      <RadioButton v-model="form.payment_method" :inputId="`payment_${id}`" name="payment" :value="Number(id)" :disabled="isPaymentDisabled(id)" />
+                                      <RadioButton v-model="form.payment_method" @update:modelValue="changePayment" :inputId="`payment_${id}`" name="payment" :value="Number(id)" :disabled="isPaymentDisabled(id)" />
                                       <label :for="`payment_${id}`">{{ name }}</label>
                                   </div>
                               </div>
@@ -165,6 +165,7 @@ const props = defineProps({
 const DELIVERY_NOVA_POSHTA = 1
 const DELIVERY_SAMOVUVOZ = 2
 const PAYMENT_CASH = 1
+const PAYMENT_TRANSFER = 2
 const PAYMENT_COD = 3
 
 // Which delivery method each payment option is restricted to (empty = any).
@@ -173,15 +174,36 @@ const PAYMENT_DELIVERY_RESTRICTIONS = {
     [PAYMENT_COD]: [DELIVERY_NOVA_POSHTA],
 }
 
+// The payment each delivery usually goes with, offered ready-made so the last
+// step needs no thought.
+const DEFAULT_PAYMENT_OF_DELIVERY = {
+    [DELIVERY_NOVA_POSHTA]: PAYMENT_COD,
+    [DELIVERY_SAMOVUVOZ]: PAYMENT_TRANSFER,
+}
+
 const isPaymentDisabled = (paymentId) => {
     const restriction = PAYMENT_DELIVERY_RESTRICTIONS[paymentId]
     return !!restriction && !restriction.includes(form.delivery_method)
 }
 
+// Tells a payment the buyer picked from one this page filled in for them.
+// Without it, a default that happens to fit both deliveries (a money
+// transfer) would survive a change of delivery and quietly stand in for the
+// default the new delivery actually calls for.
+const paymentChosenByBuyer = ref(false)
+
+const changePayment = () => {
+    paymentChosenByBuyer.value = true
+}
+
 const changeDelivery = () => {
-    if (isPaymentDisabled(form.payment_method)) {
-        form.payment_method = null
-    }
+    // The buyer's own choice stays, as long as the new delivery still allows
+    // it. Anything else — an untouched default, or a choice this delivery
+    // cannot take — gives way to the default of the delivery now selected.
+    if (paymentChosenByBuyer.value && !isPaymentDisabled(form.payment_method)) return
+
+    paymentChosenByBuyer.value = false
+    form.payment_method = DEFAULT_PAYMENT_OF_DELIVERY[form.delivery_method] ?? null
 }
 
 const backToCart = () => {
@@ -205,7 +227,7 @@ const form = useForm({
     np_city_name: null,
     np_warehouse_ref: null,
     np_warehouse_name: null,
-    payment_method: null,
+    payment_method: DEFAULT_PAYMENT_OF_DELIVERY[DELIVERY_NOVA_POSHTA],
 })
 
 const cityModel = ref('');
