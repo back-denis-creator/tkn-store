@@ -162,7 +162,12 @@
                       <!-- group/swatch (not a bare "group") — this row can sit
                            inside other hover-driven UI, and a bare group would
                            also react to those ancestors' hover state. -->
-                      <div v-for="option in group.options" :key="option.value" class="group/swatch relative">
+                      <div
+                        v-for="option in group.options"
+                        :key="option.value"
+                        class="group/swatch relative"
+                        @mouseleave="hideSwatchPreview"
+                      >
                         <button
                           type="button"
                           :title="option.value"
@@ -708,10 +713,24 @@ const groupedVisibleColorOptions = computed(() => {
 const previewedOptionValue = ref(null)
 let previewTimer = null
 
+const hasHover = () => typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches
+
 const showSwatchPreview = (value) => {
+    // Where a pointer exists, :hover already opens the preview and leaving
+    // the swatch closes it at once. Holding it open on a timer there made it
+    // linger for seconds after a click, long after the cursor had moved away.
+    if (hasHover()) return
+
     previewedOptionValue.value = value
     clearTimeout(previewTimer)
     previewTimer = setTimeout(() => { previewedOptionValue.value = null }, 2500)
+}
+
+// A hybrid device can report a pointer and still be tapped; if the tap state
+// was set, moving the pointer off the swatch clears it.
+const hideSwatchPreview = () => {
+    clearTimeout(previewTimer)
+    previewedOptionValue.value = null
 }
 
 onUnmounted(() => clearTimeout(previewTimer))
