@@ -50,6 +50,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('settings.index')" :active="route().current('settings.index')">
                                     Налаштування
                                 </NavLink>
+                                <NavLink :href="route('hero-slides.index')" :active="route().current('hero-slides.index')">
+                                    Головний банер
+                                </NavLink>
                             </div>
                         </div>
 
@@ -153,6 +156,9 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('settings.index')" :active="route().current('settings.index')">
                             Налаштування
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('hero-slides.index')" :active="route().current('hero-slides.index')">
+                            Головний банер
                         </ResponsiveNavLink>
                     </div>
 

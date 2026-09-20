@@ -18,7 +18,7 @@
             <NavBar class="order-1 lg:order-2" />
         </div>
         <main>
-            <WelcomeBlock />
+            <WelcomeBlock :hero-slides="heroSlides" />
             <ConsBages />
             <CathegoriesBlock />
             <ProductSlider />
@@ -58,6 +58,10 @@ defineProps({
     productSlider: {
         type: Array,
         required: true
+    },
+    heroSlides: {
+        type: Array,
+        default: () => ([]),
     }
 });
 

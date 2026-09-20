@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HeroSlideController;
 use App\Http\Controllers\LiqPayController;
 use App\Http\Controllers\NPController;
 use App\Http\Controllers\OrderController;
@@ -82,6 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy')->middleware('admin');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index')->middleware('admin');
     Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update')->middleware('admin');
+    Route::resource('/hero-slides', HeroSlideController::class)->only(['index', 'store', 'destroy'])->middleware('admin');
+    Route::patch('/hero-slides-reorder', [HeroSlideController::class, 'reorder'])->name('hero-slides.reorder')->middleware('admin');
 });
 
 require __DIR__.'/auth.php';

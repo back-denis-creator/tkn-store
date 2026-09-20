@@ -8,16 +8,17 @@ use App\Models\AttributeOption;
 use App\Models\Category;
 use App\Models\DefaultColor;
 use App\Models\Delivery;
+use App\Models\HeroSlide;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Sku;
 use App\Services\CartService;
 use Cocur\Slugify\Slugify;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 class PageController extends Controller
 {
@@ -28,16 +29,25 @@ class PageController extends Controller
     {
         $products = Product::with([
             'categories',
-            'skus'
+            'skus',
         ])->inRandomOrder()->limit(12)->get();
 
         return Inertia::render('Welcome', [
             'productSlider' => $products,
+            // A slide with no image would show as a blank frame and still take
+            // its turn in the rotation, so only complete slides go to the hero.
+            'heroSlides' => HeroSlide::orderBy('sort_order')->get()
+                ->map(fn (HeroSlide $slide) => [
+                    'id' => $slide->id,
+                    'url' => $slide->getFirstMediaUrl('image'),
+                ])
+                ->filter(fn (array $slide) => $slide['url'] !== '')
+                ->values(),
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', [])
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -48,7 +58,7 @@ class PageController extends Controller
             'skus.attributeOptions.attribute',
             'skus.attributeOptions.media',
             'skus.attributeOptions.defaultColors',
-            'categories'
+            'categories',
         ]);
 
         $product = $query->first();
@@ -75,22 +85,22 @@ class PageController extends Controller
             ->get();
 
         return Inertia::render('Product', [
-            'product' => fn() => $product,
+            'product' => fn () => $product,
             'colorGroups' => AttributeOption::COLOR_GROUPS,
             // Fabric is decoupled from this product's own Skus (see
             // has_fabric_selection): the same complete global catalog is
             // shown on every product that opts in, so it's fetched
             // independently of $product->skus.
-            'fabricOptions' => fn() => $product?->has_fabric_selection
+            'fabricOptions' => fn () => $product?->has_fabric_selection
                 ? AttributeOption::whereHas('attribute', fn ($q) => $q->where('is_color_attribute', true))
                     ->with(['attribute', 'defaultColors', 'media'])
                     ->get()
                 : [],
-            'defaultColors' => fn() => $product?->has_fabric_selection
+            'defaultColors' => fn () => $product?->has_fabric_selection
                 ? DefaultColor::orderBy('sort_order')->get()
                 : [],
-            'relatedProducts' => fn() => $relatedProducts,
-            'myReview' => fn() => (auth()->check() && $product)
+            'relatedProducts' => fn () => $relatedProducts,
+            'myReview' => fn () => (auth()->check() && $product)
                 ? Review::where('product_id', $product->id)->where('user_id', auth()->id())->first()
                 : null,
             'canLogin' => Route::has('login'),
@@ -98,7 +108,7 @@ class PageController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
             'status' => session('status'),
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -107,17 +117,17 @@ class PageController extends Controller
         $query = Product::with([
             'skus',
             'skus.attributeOptions.attribute',
-            'categories'
+            'categories',
         ]);
 
         // Фильтрация по категории, array или string category
-        if($request->has('category')) {
-            if(is_array($request->category)) {
-                $query = $query->whereHas('categories', function ($q) use($request) {
+        if ($request->has('category')) {
+            if (is_array($request->category)) {
+                $query = $query->whereHas('categories', function ($q) use ($request) {
                     $q->whereIn('id', $request->category);
                 });
-            } else if(is_string($request->category)) {
-                $query = $query->whereHas('categories', function ($q) use($request) {
+            } elseif (is_string($request->category)) {
+                $query = $query->whereHas('categories', function ($q) use ($request) {
                     $q->where('id', $request->category);
                 });
             }
@@ -135,7 +145,7 @@ class PageController extends Controller
         $filteredProductIds = $query->whereHas('skus', function ($query) use ($request, $minPrice, $maxPrice) {
             $query->whereBetween('price', [
                 $request->min_price ? $request->min_price * 100 : $minPrice,
-                $request->max_price ? $request->max_price * 100 : $maxPrice
+                $request->max_price ? $request->max_price * 100 : $maxPrice,
             ]);
         })->pluck('id');
 
@@ -165,17 +175,17 @@ class PageController extends Controller
             }
         }
 
-        $slugify = new Slugify();
-        $attributesWithFirstImage = $attributes->map(function ($attribute) use($slugify, $request, $query) {
+        $slugify = new Slugify;
+        $attributesWithFirstImage = $attributes->map(function ($attribute) use ($slugify, $request, $query) {
             $slug = $slugify->slugify($attribute->name);
             $checked = [];
-            if($request->has($slug)) {
+            if ($request->has($slug)) {
                 $checked = $request[$slug];
                 // Фильтрация по всем атрибутам кроме цвета
-                if(!$attribute->is_color_attribute) {
+                if (! $attribute->is_color_attribute) {
                     $query->whereHas('skus', function ($query) use ($checked, $attribute) {
                         $query->whereHas('attributeOptions', function ($query) use ($checked, $attribute) {
-                            $query->whereHas('attribute', function ($query) use($attribute) {
+                            $query->whereHas('attribute', function ($query) use ($attribute) {
                                 $query->where('name', $attribute->name);
                             })->whereIn('value', $checked);
                         });
@@ -199,7 +209,10 @@ class PageController extends Controller
                     ];
                 }),
             ];
-            if($attribute->is_color_attribute) $data['color_groups'] = AttributeOption::COLOR_GROUPS;
+            if ($attribute->is_color_attribute) {
+                $data['color_groups'] = AttributeOption::COLOR_GROUPS;
+            }
+
             return $data;
         });
 
@@ -207,7 +220,7 @@ class PageController extends Controller
         // абсолютно любой колір/тканину (весь глобальний каталог), тому
         // повинен збігатись з фільтром незалежно від того, який саме колір
         // обрано, навіть якщо ця тканина не прив'язана до жодного його Sku.
-        if($request->colors) {
+        if ($request->colors) {
             $query->where(function ($query) use ($request) {
                 $query->whereHas('skus', function ($query) use ($request) {
                     $query->whereHas('attributeOptions', function ($query) use ($request) {
@@ -225,7 +238,7 @@ class PageController extends Controller
         $filters = [
             'attributes' => $attributesWithFirstImage,
             'categories' => $categories,
-            'prices' => [ 'min' => $minPrice / 100, 'max' => $maxPrice / 100 ]
+            'prices' => ['min' => $minPrice / 100, 'max' => $maxPrice / 100],
         ];
 
         // The sort dropdown used to be decorative — nothing here ever called
@@ -255,7 +268,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -266,7 +279,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -277,7 +290,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -288,7 +301,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -303,7 +316,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -314,7 +327,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -325,7 +338,7 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'cart' => fn() => session()->get('cart', []),
+            'cart' => fn () => session()->get('cart', []),
         ]);
     }
 
@@ -337,7 +350,7 @@ class PageController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
             'status' => session('status'),
-            'cart' => fn() => CartService::hydrate(),
+            'cart' => fn () => CartService::hydrate(),
         ]);
     }
 
@@ -348,12 +361,12 @@ class PageController extends Controller
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
-            'status' => fn() => session('status'),
-            'cities' => fn() => session('cities'),
-            'warehouses' => fn() => session('warehouses'),
-            'cart' => fn() => CartService::hydrate(),
-            'deliveries' => fn() => Delivery::ALL,
-            'payments' => fn() => Order::PAYMENT_NAMES,
+            'status' => fn () => session('status'),
+            'cities' => fn () => session('cities'),
+            'warehouses' => fn () => session('warehouses'),
+            'cart' => fn () => CartService::hydrate(),
+            'deliveries' => fn () => Delivery::ALL,
+            'payments' => fn () => Order::PAYMENT_NAMES,
         ]);
     }
 }
