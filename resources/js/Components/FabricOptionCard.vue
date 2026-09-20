@@ -1,20 +1,32 @@
 <script setup>
+import { computed } from 'vue';
 import { SwatchIcon } from '@heroicons/vue/24/outline';
 
-defineProps({
+const props = defineProps({
     option: {
         type: Object,
         required: true,
     },
 });
+
+const emit = defineEmits(['open']);
+
+const image = computed(() => props.option.media?.[0]?.original_url ?? null);
 </script>
 
 <template>
     <div class="group flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md">
-        <div class="relative aspect-square w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <component
+            :is="image ? 'button' : 'div'"
+            :type="image ? 'button' : null"
+            :aria-label="image ? `${option.value} — на весь екран` : null"
+            class="relative aspect-square w-full overflow-hidden rounded-xl border border-gray-200 bg-white text-left"
+            :class="image ? 'cursor-zoom-in' : ''"
+            @click="image && emit('open')"
+        >
             <img
-                v-if="option.media?.[0]?.original_url"
-                :src="option.media[0].original_url"
+                v-if="image"
+                :src="image"
                 :alt="option.value"
                 loading="lazy"
                 class="h-full w-full object-cover"
@@ -32,7 +44,7 @@ defineProps({
             >
                 <p class="text-sm text-white leading-snug">{{ option.description }}</p>
             </div>
-        </div>
+        </component>
 
         <div>
             <p class="font-semibold text-gray-900">{{ option.value }}</p>

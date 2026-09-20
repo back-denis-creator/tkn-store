@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { SwatchIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 import FabricOptionCard from '@/Components/FabricOptionCard.vue';
+import Galleria from 'primevue/galleria';
 
 const props = defineProps({
     fabricOptions: {
@@ -90,6 +91,26 @@ const toggleSubGroup = (id) => {
     const next = new Set(openSubGroupIds.value);
     next.has(id) ? next.delete(id) : next.add(id);
     openSubGroupIds.value = next;
+};
+
+// Fullscreen viewer — the same Galleria lightbox the product page uses for
+// its photos. Arrows walk the section the fabric was opened from (its
+// subcategory, or its category when it has none), which is the run of
+// fabrics the visitor was already looking at.
+const galleryVisible = ref(false);
+const galleryItems = ref([]);
+const activeIndex = ref(0);
+
+const openViewer = (options, option) => {
+    const withImage = options.filter((item) => item.media?.[0]?.original_url);
+
+    galleryItems.value = withImage.map((item) => ({
+        image: item.media[0].original_url,
+        value: item.value,
+        article: item.article,
+    }));
+    activeIndex.value = Math.max(withImage.findIndex((item) => item.id === option.id), 0);
+    galleryVisible.value = true;
 };
 </script>
 
@@ -178,7 +199,12 @@ const toggleSubGroup = (id) => {
                             </button>
 
                             <div v-if="isSubGroupOpen(subGroup.id)" class="grid grid-cols-2 gap-6 pb-6 sm:grid-cols-3 lg:grid-cols-4">
-                                <FabricOptionCard v-for="option in subGroup.options" :key="option.id" :option="option" />
+                                <FabricOptionCard
+                                    v-for="option in subGroup.options"
+                                    :key="option.id"
+                                    :option="option"
+                                    @open="openViewer(subGroup.options, option)"
+                                />
                             </div>
                         </div>
                     </template>
@@ -186,10 +212,45 @@ const toggleSubGroup = (id) => {
                     <!-- Category has no subcategories (e.g. "Однотонні") —
                          the same flat grid as before. -->
                     <div v-else class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-                        <FabricOptionCard v-for="option in group.options" :key="option.id" :option="option" />
+                        <FabricOptionCard
+                            v-for="option in group.options"
+                            :key="option.id"
+                            :option="option"
+                            @open="openViewer(group.options, option)"
+                        />
                     </div>
                 </div>
             </div>
+
+            <Galleria
+                v-model:activeIndex="activeIndex"
+                v-model:visible="galleryVisible"
+                :value="galleryItems"
+                :circular="true"
+                :fullScreen="true"
+                :showItemNavigators="galleryItems.length > 1"
+                :showThumbnails="false"
+                :pt="{
+                    prevButton: { class: '!border-2 !border-solid !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
+                    nextButton: { class: '!border-2 !border-solid !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
+                    closeButton: { class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center !transition-all focus:!ring-2 focus:!ring-amber-400 !outline-none' }
+                }"
+            >
+                <template #item="slotProps">
+                    <figure class="flex flex-col items-center">
+                        <img :src="slotProps.item.image" :alt="slotProps.item.value" class="max-h-[85vh] object-contain" />
+                        <!-- The fullscreen mask is only semi-transparent, so
+                             the page behind shows through — the caption needs
+                             a ground of its own to stay readable over it. -->
+                        <figcaption class="mt-4 rounded-full bg-black/70 px-5 py-2 text-center text-white">
+                            <p class="text-lg font-semibold">{{ slotProps.item.value }}</p>
+                            <p v-if="slotProps.item.article" class="mt-1 text-xs uppercase tracking-wide text-gray-300">
+                                {{ $t('Article') }}: {{ slotProps.item.article }}
+                            </p>
+                        </figcaption>
+                    </figure>
+                </template>
+            </Galleria>
         </section>
     </GuestLayout>
 </template>
