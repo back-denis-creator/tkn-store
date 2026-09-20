@@ -168,7 +168,7 @@
                         <button
                           type="button"
                           :title="option.value"
-                          @click="attrModels[attribute.name] = option.value"
+                          @click="attrModels[attribute.name] = option.value; showSwatchPreview(option.value)"
                           class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
                           :class="{'ring-2 ring-amber-400 ring-offset-1': attrModels[attribute.name] === option.value}"
                         >
@@ -180,12 +180,16 @@
                           />
                         </button>
 
-                        <!-- Enlarged preview on hover — the swatch itself is
-                             too small (32px) to judge a fabric's texture or
-                             print by. -->
+                        <!-- Enlarged preview — the swatch itself is too small
+                             (32px) to judge a fabric's texture or print by.
+                             The hover variant is behind (hover: hover) so a
+                             phone never enters it: there the tap above opens
+                             the preview, and the same tap keeps changing the
+                             variation. -->
                         <div
                           v-if="option.image_url"
-                          class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 flex -translate-x-1/2 scale-95 flex-col items-center opacity-0 transition-all duration-150 group-hover/swatch:scale-100 group-hover/swatch:opacity-100"
+                          class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 flex -translate-x-1/2 flex-col items-center transition-all duration-150 [@media(hover:hover)]:group-hover/swatch:scale-100 [@media(hover:hover)]:group-hover/swatch:opacity-100"
+                          :class="previewedOptionValue === option.value ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
                         >
                           <div class="h-64 w-64 overflow-hidden rounded-lg border border-gray-200 shadow-xl">
                             <img :src="option.image_url" :alt="option.value" class="h-full w-full object-cover" />
@@ -697,6 +701,22 @@ const groupedVisibleColorOptions = computed(() => {
             options,
         }))
 })
+
+// The fabric swatch's enlarged preview used to be driven by :hover alone. On
+// a phone the first tap only applies that hover state and the click never
+// arrives, so the preview opened but the variation did not change and the
+// buyer had to tap twice. The tap now drives the preview itself, and hover is
+// left to devices that really have a pointer.
+const previewedOptionValue = ref(null)
+let previewTimer = null
+
+const showSwatchPreview = (value) => {
+    previewedOptionValue.value = value
+    clearTimeout(previewTimer)
+    previewTimer = setTimeout(() => { previewedOptionValue.value = null }, 2500)
+}
+
+onUnmounted(() => clearTimeout(previewTimer))
 
 // "Мультиколор" has no fixed hex (that's the point of it) — a rainbow ring
 // instead of a solid fill, matching the same treatment in the admin editor.
