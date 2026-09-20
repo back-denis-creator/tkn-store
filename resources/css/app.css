@@ -11,6 +11,9 @@
  */
 .rich-text {
     line-height: 1.6;
+    /* A long unbreakable run — a link, an article number — must fold instead
+       of pushing the page wider than a phone screen. */
+    overflow-wrap: break-word;
 }
 
 /*
