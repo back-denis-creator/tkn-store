@@ -161,21 +161,38 @@
                   <div v-for="group in groupedVisibleColorOptions" :key="group.key">
                     <p v-if="group.name" class="pb-1 text-[11px] uppercase tracking-wide text-gray-400">{{ group.name }}</p>
                     <div class="flex flex-wrap gap-2">
-                      <button
-                        v-for="option in group.options" :key="option.value"
-                        type="button"
-                        :title="option.value"
-                        @click="attrModels[attribute.name] = option.value"
-                        class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
-                        :class="{'ring-2 ring-amber-400 ring-offset-1': attrModels[attribute.name] === option.value}"
-                      >
-                        <img
-                            v-if="option.image_url"
-                            :src="option.image_url"
-                            :alt="option.value"
-                            class="h-full w-full object-cover"
-                        />
-                      </button>
+                      <!-- group/swatch (not a bare "group") — this row can sit
+                           inside other hover-driven UI, and a bare group would
+                           also react to those ancestors' hover state. -->
+                      <div v-for="option in group.options" :key="option.value" class="group/swatch relative">
+                        <button
+                          type="button"
+                          :title="option.value"
+                          @click="attrModels[attribute.name] = option.value"
+                          class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-shadow"
+                          :class="{'ring-2 ring-amber-400 ring-offset-1': attrModels[attribute.name] === option.value}"
+                        >
+                          <img
+                              v-if="option.image_url"
+                              :src="option.image_url"
+                              :alt="option.value"
+                              class="h-full w-full object-cover"
+                          />
+                        </button>
+
+                        <!-- Enlarged preview on hover — the swatch itself is
+                             too small (32px) to judge a fabric's texture or
+                             print by. -->
+                        <div
+                          v-if="option.image_url"
+                          class="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 flex -translate-x-1/2 scale-95 flex-col items-center opacity-0 transition-all duration-150 group-hover/swatch:scale-100 group-hover/swatch:opacity-100"
+                        >
+                          <div class="h-64 w-64 overflow-hidden rounded-lg border border-gray-200 shadow-xl">
+                            <img :src="option.image_url" :alt="option.value" class="h-full w-full object-cover" />
+                          </div>
+                          <p class="mt-1 whitespace-nowrap rounded bg-gray-900 px-2 py-0.5 text-xs text-white">{{ option.value }}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
