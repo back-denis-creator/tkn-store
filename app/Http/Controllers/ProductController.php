@@ -54,6 +54,7 @@ class ProductController extends Controller
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:20000',
             'category_ids' => 'array',
+            'is_hidden' => 'boolean',
             'has_fabric_selection' => 'boolean',
             'share_variation_images' => 'boolean',
             'variations' => 'array',
@@ -68,6 +69,7 @@ class ProductController extends Controller
             'name' => $request->name,
             'slug' => $request->slug ?: $slugify->slugify($request->name),
             'description' => $request->description,
+            'is_hidden' => $request->boolean('is_hidden'),
             'has_fabric_selection' => $request->boolean('has_fabric_selection'),
             'share_variation_images' => $request->boolean('share_variation_images'),
         ]);
@@ -153,6 +155,7 @@ class ProductController extends Controller
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:20000',
             'category_ids' => 'array',
+            'is_hidden' => 'boolean',
             'has_fabric_selection' => 'boolean',
             'share_variation_images' => 'boolean',
             'delete_variations_ids' => 'array',
@@ -167,6 +170,7 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->slug = $request->slug ?: $slugify->slugify($request->name);
         $product->description = $request->description;
+        $product->is_hidden = $request->boolean('is_hidden');
         $product->has_fabric_selection = $request->boolean('has_fabric_selection');
         $product->share_variation_images = $request->boolean('share_variation_images');
         $product->save();

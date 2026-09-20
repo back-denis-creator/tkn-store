@@ -44,6 +44,7 @@ const form = useForm({
     name: props.product.name,
     slug: props.product.slug,
     description: props.product.description,
+    is_hidden: props.product.is_hidden,
     has_fabric_selection: props.product.has_fabric_selection,
     share_variation_images: props.product.share_variation_images,
     category_ids: [...props.categories.map((category) => {
@@ -252,6 +253,29 @@ const isVideoFile = (file) => (file.type || file.mime_type || '').startsWith('vi
                         </div>
                         <div class="p-6">
                             <CheckboxArray :items="categoryItems" @update:checked="handleUpdateCategories" />
+                        </div>
+                    </div>
+
+                    <!-- Visibility -->
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Видимість</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2">
+                                <Checkbox
+                                    id="is_hidden"
+                                    v-model:checked="form.is_hidden"
+                                />
+                                <label for="is_hidden" class="text-sm font-medium text-gray-900">
+                                    Приховати товар з вітрини
+                                </label>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">
+                                Товар зникне з каталогу, головної та пошуку, але залишиться тут разом
+                                з усіма замовленнями. Хто перейде за старим посиланням на нього —
+                                потрапить до каталогу.
+                            </p>
                         </div>
                     </div>
 

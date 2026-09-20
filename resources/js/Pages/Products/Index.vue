@@ -65,6 +65,15 @@
                                                         </td>
                                                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap">
                                                             <h2 class="font-medium text-gray-800">{{ product.name }}</h2>
+                                                            <!-- A hidden product looks exactly like a live one in this
+                                                                 list otherwise, and the only way to tell would be to
+                                                                 open each of them. -->
+                                                            <span
+                                                                v-if="product.is_hidden"
+                                                                class="mt-1 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
+                                                            >
+                                                                Прихований
+                                                            </span>
                                                         </td>
                                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
                                                             <p class="text-gray-500">{{ product.categories.map((c) => c.name).join(', ') || '—' }}</p>

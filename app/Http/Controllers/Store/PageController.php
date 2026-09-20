@@ -27,7 +27,7 @@ class PageController extends Controller
      */
     public function index()
     {
-        $products = Product::with([
+        $products = Product::visible()->with([
             'categories',
             'skus',
         ])->inRandomOrder()->limit(12)->get();
@@ -66,6 +66,13 @@ class PageController extends Controller
 
         $product = $query->first();
 
+        // A buyer who ordered this product keeps its link, and the admin may
+        // hide it afterwards. Rather than an empty page, send them to the
+        // catalog, where they can find what is still for sale.
+        if ($product && $product->is_hidden) {
+            return redirect()->route('catalog');
+        }
+
         $product?->categories->each(function (Category $category) {
             $category->full_path = $category->fullPath();
         });
@@ -80,7 +87,7 @@ class PageController extends Controller
 
         $categoryIds = $product?->categories->pluck('id') ?? collect();
 
-        $relatedProducts = $categoryIds->isEmpty() ? collect() : Product::with('skus')
+        $relatedProducts = $categoryIds->isEmpty() ? collect() : Product::visible()->with('skus')
             ->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds))
             ->where('id', '!=', $product->id)
             ->inRandomOrder()
@@ -117,7 +124,7 @@ class PageController extends Controller
 
     public function catalog(Request $request)
     {
-        $query = Product::with([
+        $query = Product::visible()->with([
             'skus',
             'skus.attributeOptions.attribute',
             'categories',

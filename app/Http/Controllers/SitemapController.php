@@ -22,7 +22,7 @@ class SitemapController extends Controller
             ['loc' => route('delivery'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ];
 
-        foreach (Product::select('slug', 'updated_at')->get() as $product) {
+        foreach (Product::visible()->select('slug', 'updated_at')->get() as $product) {
             $urls[] = [
                 'loc' => route('product', $product->slug),
                 'lastmod' => $product->updated_at->toAtomString(),
