@@ -231,8 +231,8 @@ const openViewer = (options, option) => {
                 :showItemNavigators="galleryItems.length > 1"
                 :showThumbnails="false"
                 :pt="{
-                    prevButton: { class: '!border-2 !border-solid !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
-                    nextButton: { class: '!border-2 !border-solid !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
+                    prevButton: { class: '!z-10 !border-2 !border-solid !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
+                    nextButton: { class: '!z-10 !border-2 !border-solid !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
                     closeButton: { class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center !transition-all focus:!ring-2 focus:!ring-amber-400 !outline-none' }
                 }"
             >
