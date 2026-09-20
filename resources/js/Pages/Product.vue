@@ -91,8 +91,6 @@
                 :showItemNavigators="true"
                 :showThumbnails="false"
                 :pt="{
-                    itemPrevButton: { class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
-                    itemNextButton: { class: 'custom-galleria-nav !border-amber-400 !bg-white/10 hover:!bg-amber-400 !text-white hover:!text-black !transition-all !w-12 !h-12 !rounded-full !shadow-lg' },
                     closeButton: { class: '!fixed !top-5 !right-5 !z-[100] !bg-black/50 hover:!bg-black/80 !text-white !p-2 !rounded-full !border-none !w-10 !h-10 !flex !items-center !justify-center !transition-all focus:!ring-2 focus:!ring-amber-400 !outline-none' }
                 }"
             >
