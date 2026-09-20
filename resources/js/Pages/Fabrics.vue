@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { SwatchIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
+import FabricOptionCard from '@/Components/FabricOptionCard.vue';
 
 const props = defineProps({
     fabricOptions: {
@@ -25,19 +26,42 @@ const props = defineProps({
 const OTHER_GROUP_ID = 'other';
 
 const hasGroup = (option) => option.meta !== null && option.meta !== undefined && option.meta !== '';
+const hasSubGroup = (option) => option.sub_meta !== null && option.sub_meta !== undefined && option.sub_meta !== '';
+const OTHER_SUBGROUP_ID = 'other';
 
 const groupedFabrics = computed(() => {
     // Number(null) === 0 and 'Однотон' is group id 0 — an explicit hasGroup()
     // check keeps ungrouped options from silently landing in that group too.
-    const groups = props.colorGroups.map((group) => ({
-        id: group.id,
-        name: group.name,
-        options: props.fabricOptions.filter((option) => hasGroup(option) && Number(option.meta) === group.id),
-    }));
+    const groups = props.colorGroups.map((group) => {
+        const options = props.fabricOptions.filter((option) => hasGroup(option) && Number(option.meta) === group.id);
+
+        // Only some categories have subcategories (e.g. "Геометричні" does,
+        // "Однотонні" doesn't) — those without one show a flat grid exactly
+        // like before; those with one get a labeled sub-section per
+        // subcategory, so hundreds of fabrics under one category (e.g.
+        // "Ботаніка") aren't dumped into a single undifferentiated grid.
+        let subGroups = null;
+        if (group.subcategories?.length) {
+            subGroups = group.subcategories
+                .map((sub) => ({
+                    id: `${group.id}-${sub.id}`,
+                    name: sub.name,
+                    options: options.filter((option) => hasSubGroup(option) && Number(option.sub_meta) === sub.id),
+                }))
+                .filter((sub) => sub.options.length);
+
+            const withoutSubcategory = options.filter((option) => !hasSubGroup(option));
+            if (withoutSubcategory.length) {
+                subGroups.push({ id: `${group.id}-${OTHER_SUBGROUP_ID}`, name: 'Інше', options: withoutSubcategory });
+            }
+        }
+
+        return { id: group.id, name: group.name, options, subGroups };
+    });
 
     const ungrouped = props.fabricOptions.filter((option) => !hasGroup(option));
     if (ungrouped.length) {
-        groups.push({ id: OTHER_GROUP_ID, name: 'Інше', options: ungrouped });
+        groups.push({ id: OTHER_GROUP_ID, name: 'Інше', options: ungrouped, subGroups: null });
     }
 
     return groups.filter((group) => group.options.length);
@@ -114,40 +138,24 @@ const toggleGroup = (id) => {
 
                 <!-- v-if, not v-show — a collapsed group's images must not
                      load at all with hundreds of fabrics on the page. -->
-                <div v-if="isGroupOpen(group.id)" class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 mt-6">
-                    <div
-                        v-for="option in group.options"
-                        :key="option.id"
-                        class="group flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md"
-                    >
-                        <div class="relative aspect-square w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
-                            <img
-                                v-if="option.media?.[0]?.original_url"
-                                :src="option.media[0].original_url"
-                                :alt="option.value"
-                                loading="lazy"
-                                class="h-full w-full object-cover"
-                            />
-                            <div v-else class="flex h-full w-full items-center justify-center text-gray-300">
-                                <SwatchIcon class="h-10 w-10" />
-                            </div>
-
-                            <!-- Descriptions repeat across many fabrics — showing
-                                 them all at once is just noise. Reveal one only
-                                 on hover, as an overlay, so it never pushes the
-                                 grid around. -->
-                            <div
-                                v-if="option.description"
-                                class="absolute inset-0 flex items-end bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 opacity-0 translate-y-1 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0"
-                            >
-                                <p class="text-sm text-white leading-snug">{{ option.description }}</p>
+                <div v-if="isGroupOpen(group.id)" class="mt-6">
+                    <!-- Category has subcategories (e.g. "Геометричні") —
+                         a labeled sub-section per subcategory. -->
+                    <template v-if="group.subGroups">
+                        <div v-for="subGroup in group.subGroups" :key="subGroup.id" class="mb-8 last:mb-0">
+                            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                                {{ subGroup.name }} <span class="font-normal text-gray-400">({{ subGroup.options.length }})</span>
+                            </h3>
+                            <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                                <FabricOptionCard v-for="option in subGroup.options" :key="option.id" :option="option" />
                             </div>
                         </div>
+                    </template>
 
-                        <div>
-                            <p class="font-semibold text-gray-900">{{ option.value }}</p>
-                            <p v-if="option.article" class="mt-2 text-xs uppercase tracking-wide text-gray-400">{{ $t('Article') }}: {{ option.article }}</p>
-                        </div>
+                    <!-- Category has no subcategories (e.g. "Однотонні") —
+                         the same flat grid as before. -->
+                    <div v-else class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                        <FabricOptionCard v-for="option in group.options" :key="option.id" :option="option" />
                     </div>
                 </div>
             </div>

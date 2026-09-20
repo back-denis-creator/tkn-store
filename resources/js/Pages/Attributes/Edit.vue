@@ -40,6 +40,12 @@ const form = useForm({
             new_file: null,
             new_preview: null,
             meta: option.meta ? props.color_groups.find(({id}) => id === Number(option.meta)) : {},
+            // Looked up inside the CHOSEN category's own subcategories list
+            // (not a flat lookup) — the same subcategory id means something
+            // different under a different category.
+            sub_meta: (option.meta && option.sub_meta !== null && option.sub_meta !== undefined && option.sub_meta !== '')
+                ? (props.color_groups.find(({id}) => id === Number(option.meta))?.subcategories?.find(({id}) => id === Number(option.sub_meta)) ?? {})
+                : {},
             description: option.description ?? '',
             article: option.article ?? '',
             default_color_ids: [...(option.default_color_ids ?? [])],

@@ -85,6 +85,7 @@ class AttributeController extends Controller
                 'id' => $attributeOption->id,
                 'value' => $attributeOption->value,
                 'meta' => $attributeOption->meta,
+                'sub_meta' => $attributeOption->sub_meta,
                 'description' => $attributeOption->description,
                 'article' => $attributeOption->article,
                 'img_url' => $attributeOption->getMedia('default')->first()?->getUrl(),
@@ -193,6 +194,15 @@ class AttributeController extends Controller
             // isset(), not empty() — the "Однотон" group's id is 0, which empty() treats as absent.
             if ($attributeOption && $attribute->is_color_attribute && isset($option['meta']['id']) && $option['meta']['id'] !== '') {
                 $attributeOption->update(['meta' => $option['meta']['id']]);
+            }
+
+            if ($attributeOption && $attribute->is_color_attribute) {
+                // Always synced, unlike meta above — a subcategory only means
+                // something under whatever category is currently set, so a
+                // category change or a cleared subcategory must always be
+                // reflected here instead of leaving a stale one behind from a
+                // previously selected category.
+                $attributeOption->update(['sub_meta' => $option['sub_meta']['id'] ?? null]);
             }
 
             if ($attributeOption && $attribute->is_color_attribute) {

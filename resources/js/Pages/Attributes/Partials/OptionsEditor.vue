@@ -37,7 +37,7 @@ const newOptionValue = ref('');
 const addOption = () => {
     const value = newOptionValue.value.trim();
     if (!value) return;
-    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, description: '', article: '', default_color_ids: [], _pendingDelete: false });
+    props.options.push({ id: 'new', value, new_file: null, new_preview: null, src: null, meta: {}, sub_meta: {}, description: '', article: '', default_color_ids: [], _pendingDelete: false });
     newOptionValue.value = '';
 };
 
@@ -173,7 +173,24 @@ watch(() => props.error, (value) => {
                     <TextInput v-model="option.article" placeholder="Артикул" class="w-full" :disabled="option._pendingDelete" />
 
                     <template v-if="isColor">
-                        <Select v-model="option.meta" :options="colorGroups" optionLabel="name" placeholder="Обрати групу" class="w-full" :disabled="option._pendingDelete" />
+                        <Select
+                            v-model="option.meta"
+                            :options="colorGroups"
+                            optionLabel="name"
+                            placeholder="Обрати групу"
+                            class="w-full"
+                            :disabled="option._pendingDelete"
+                            @update:modelValue="option.sub_meta = {}"
+                        />
+                        <Select
+                            v-if="option.meta?.subcategories?.length"
+                            v-model="option.sub_meta"
+                            :options="option.meta.subcategories"
+                            optionLabel="name"
+                            placeholder="Обрати підкатегорію"
+                            class="w-full"
+                            :disabled="option._pendingDelete"
+                        />
                         <FileUpload v-if="!option._pendingDelete" mode="basic" chooseLabel="Завантажити фото" @select="onFileSelect(index, $event)" customUpload auto severity="secondary" class="p-button-outlined w-fit" />
                         <p v-if="isBusy" class="text-xs text-gray-400">Обробка фото…</p>
 

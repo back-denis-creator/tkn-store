@@ -20,6 +20,7 @@ class AttributeOption extends Model implements HasMedia
         'attribute_id',
         'value',
         'meta',
+        'sub_meta',
         'description',
         'article',
     ];
@@ -31,14 +32,54 @@ class AttributeOption extends Model implements HasMedia
             ->fit(Fit::Contain, 300, 300);
     }
 
+    // Fabric print taxonomy for a color/fabric attribute's options — meta
+    // holds a category's id, sub_meta (nullable) holds a subcategory's id
+    // from that category's own "subcategories" list, when it has one. Keep
+    // the name (COLOR_GROUPS): every existing prop/column already uses it,
+    // and it still means "how this color/fabric attribute option is
+    // grouped" even though the groups are prints/categories, not colors.
     const COLOR_GROUPS = [
-        ['id' => 0, 'name' => 'Однотон'],
-        ['id' => 1, 'name' => 'Мармур'],
-        ['id' => 2, 'name' => 'Новий рік'],
-        ['id' => 3, 'name' => 'Пасха'],
-        ['id' => 4, 'name' => 'Квіти'],
-        ['id' => 5, 'name' => 'Геометрія'],
-        ['id' => 6, 'name' => 'Прованс'],
+        ['id' => 0, 'name' => 'Однотонні'],
+        ['id' => 1, 'name' => 'Мармур і Текстура'],
+        ['id' => 2, 'name' => 'Геометричні', 'subcategories' => [
+            ['id' => 0, 'name' => 'Смужки'],
+            ['id' => 1, 'name' => 'Клітинка'],
+            ['id' => 2, 'name' => 'Горошок'],
+            ['id' => 3, 'name' => 'Ромби та трикутники'],
+            ['id' => 4, 'name' => 'Зигзаг'],
+            ['id' => 5, 'name' => 'Абстрактна геометрія'],
+        ]],
+        ['id' => 3, 'name' => 'Ботаніка', 'subcategories' => [
+            ['id' => 0, 'name' => 'Великі квіти та букети'],
+            ['id' => 1, 'name' => 'Дрібні квіти'],
+            ['id' => 2, 'name' => 'Листя'],
+            ['id' => 3, 'name' => 'Трави та гілки'],
+            ['id' => 4, 'name' => 'Фрукти та ягоди'],
+            ['id' => 5, 'name' => 'Туаль де Жуі та класика'],
+            ['id' => 6, 'name' => 'Овочі та зелень'],
+        ]],
+        ['id' => 4, 'name' => 'Тваринні мотиви', 'subcategories' => [
+            ['id' => 0, 'name' => 'Птахи'],
+            ['id' => 1, 'name' => 'Метелики'],
+            ['id' => 2, 'name' => 'Інші тварини'],
+        ]],
+        ['id' => 5, 'name' => 'Орнаментальні та традиційні', 'subcategories' => [
+            ['id' => 0, 'name' => 'Вензелі / монограми'],
+            ['id' => 1, 'name' => 'Класичні орнаменти'],
+            ['id' => 2, 'name' => 'Традиційні'],
+            ['id' => 3, 'name' => 'Абстракція (не геометрична)'],
+        ]],
+        ['id' => 6, 'name' => 'Святкові', 'subcategories' => [
+            ['id' => 0, 'name' => 'Новорічні'],
+            ['id' => 1, 'name' => 'Великодній'],
+            ['id' => 2, 'name' => 'Інші сезонні'],
+        ]],
+        ['id' => 7, 'name' => 'Дитячі'],
+        ['id' => 8, 'name' => 'Інші', 'subcategories' => [
+            ['id' => 0, 'name' => 'Морський'],
+            ['id' => 1, 'name' => 'Сердечка'],
+            ['id' => 2, 'name' => 'Солодкі мотиви'],
+        ]],
     ];
 
     public function attribute(): BelongsTo
