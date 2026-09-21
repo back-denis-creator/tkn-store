@@ -4,22 +4,23 @@
             <meta name="robots" content="noindex, nofollow" />
         </Head>
         <div class="flex-grow">
+          <!-- The order summary comes first on a phone: below the form it sat
+               past the fold, so a buyer could not see what they were paying
+               for. On a wide screen it keeps its place in the right column. -->
           <section
-            class="container mx-auto max-w-[1200px] py-5 lg:flex lg:flex-row lg:py-10"
+            class="container mx-auto flex max-w-[1200px] flex-col py-5 lg:flex-row lg:py-10"
           >
-            <h2 class="mx-auto px-5 text-2xl font-bold md:hidden">
-              Complete Address
-            </h2>
             <!-- form  -->
             <section
-              class="grid w-full max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10"
+              class="order-2 grid w-full min-w-0 max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10 lg:order-1"
             >
               <div class="card flex justify-center">
-                  <Stepper v-model:value="activeStep" class="basis-[50rem]">
+                  <Stepper v-model:value="activeStep" class="w-full min-w-0 lg:basis-[50rem]">
                       <StepList>
-                          <Step value="1">Контактна інформація</Step>
-                          <Step value="2">Доставка</Step>
-                          <Step value="3">Оплата</Step>
+                          <Step v-for="step in steps" :key="step.value" :value="step.value">
+                              <span v-if="activeStep === step.value" class="text-xs sm:hidden">{{ step.short }}</span>
+                              <span class="hidden sm:inline">{{ step.label }}</span>
+                          </Step>
                       </StepList>
                       <StepPanels>
                           <StepPanel v-slot="{ activateCallback }" value="1">
@@ -51,7 +52,7 @@
                                           <InputText v-model="form.email" placeholder="Пошта" />
                                       </InputGroup>
                                   </div>
-                                  <Textarea v-model="form.comment" rows="5" cols="30" class="w-full mt-4" placeholder="Коментар" />
+                                  <Textarea v-model="form.comment" rows="4" class="mt-4 w-full" placeholder="Коментар" />
                                   <p v-if="form.errors.name" class="text-sm text-red-600 mt-2">{{ form.errors.name }}</p>
                                   <p v-if="form.errors.surname" class="text-sm text-red-600 mt-2">{{ form.errors.surname }}</p>
                                   <p v-if="form.errors.phone" class="text-sm text-red-600 mt-2">{{ form.errors.phone }}</p>
@@ -64,7 +65,7 @@
                               </div>
                           </StepPanel>
                           <StepPanel v-slot="{ activateCallback }" value="2">
-                              <div class="card flex flex-col h-48 justify-center gap-4">
+                              <div class="card flex flex-col justify-center gap-4 py-4">
                                   <div v-for="delivery in deliveries" :key="delivery.id" class="flex items-center gap-2">
                                       <RadioButton v-model="form.delivery_method" @update:modelValue="changeDelivery" :inputId="`delivery_${delivery.id}`" name="delivery" :value="delivery.id" />
                                       <label :for="`delivery_${delivery.id}`">{{ delivery.name }}</label>
@@ -85,7 +86,7 @@
                               </div>
                           </StepPanel>
                           <StepPanel v-slot="{ activateCallback }" value="3">
-                              <div class="card flex flex-col h-48 justify-center gap-4">
+                              <div class="card flex flex-col justify-center gap-4 py-4">
                                   <div v-for="(name, id) in payments" :key="id" class="flex items-center gap-2">
                                       <RadioButton v-model="form.payment_method" @update:modelValue="changePayment" :inputId="`payment_${id}`" name="payment" :value="Number(id)" :disabled="isPaymentDisabled(id)" />
                                       <label :for="`payment_${id}`">{{ name }}</label>
@@ -103,7 +104,12 @@
               </div>
             </section>
             <!-- /form  -->
-            <Summary submits-order :processing="form.processing" @submit="submitOrder" />
+            <Summary
+              class="order-1 lg:order-2"
+              submits-order
+              :processing="form.processing"
+              @submit="submitOrder"
+            />
           </section>
           <ConsBages />
         </div>
@@ -282,6 +288,14 @@ const getNPWarehouses = (event = false) => {
         only: ['warehouses'],
     })
 }
+
+// Three labels never fit side by side on a phone. There only the step being
+// filled in names itself, and the first one does so in a word that fits.
+const steps = [
+    { value: '1', label: 'Контактна інформація', short: 'Контакти' },
+    { value: '2', label: 'Доставка', short: 'Доставка' },
+    { value: '3', label: 'Оплата', short: 'Оплата' },
+]
 
 const activeStep = ref('1')
 
