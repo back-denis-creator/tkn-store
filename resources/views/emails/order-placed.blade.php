@@ -4,18 +4,18 @@
 Номер замовлення: **{{ substr($order->uuid, 0, 8) }}**
 
 <x-mail::table>
-| Товар | К-сть | Сума |
+| Товар | Шт. | Сума |
 | :--- | :---: | ---: |
 @foreach ($order->orderItems as $item)
 @php
     $label = $item->product_name.($item->attributes_summary ? ' — '.$item->attributes_summary : '');
     $productUrl = $item->product?->slug ? route('product', $item->product->slug) : null;
 @endphp
-| {{ $productUrl ? "[$label]($productUrl)" : $label }} | {{ $item->quantity }} | {{ number_format($item->price * $item->quantity / 100, 2) }} грн |
+| {{ $productUrl ? "[$label]($productUrl)" : $label }} | {{ $item->quantity }} | {{ number_format($item->price * $item->quantity / 100, 2, ',', "\u{00A0}") }}&nbsp;грн |
 @endforeach
 </x-mail::table>
 
-**Всього: {{ number_format($order->total_amount / 100, 2) }} грн**
+**Всього: {{ number_format($order->total_amount / 100, 2, ',', "\u{00A0}") }}&nbsp;грн**
 
 <x-mail::button :url="route('order.success', $order)">
 Переглянути замовлення

@@ -197,7 +197,7 @@ img {
 .table th {
     border-bottom: 1px solid #edeff2;
     margin: 0;
-    padding-bottom: 8px;
+    padding: 0 12px 8px;
 }
 
 .table td {
@@ -205,7 +205,20 @@ img {
     font-size: 15px;
     line-height: 18px;
     margin: 0;
-    padding: 10px 0;
+    padding: 10px 12px;
+}
+
+/* The cells had no side padding at all, so a long product name squeezed the
+   quantity column down to the width of its own header, which then broke in
+   two. The outer edges stay flush with the text above the table. */
+.table th:first-child,
+.table td:first-child {
+    padding-left: 0;
+}
+
+.table th:last-child,
+.table td:last-child {
+    padding-right: 0;
 }
 
 .content-cell {
