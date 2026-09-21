@@ -18,7 +18,7 @@
         >
           <DataView :value="cart">
               <template #list="slotProps">
-                  <div>
+                  <div class="space-y-4">
                       <!-- A phone has no room for four columns: the name was left
                            squeezed into a sliver and broke over three lines. There
                            the photo and the name share the top line, the way they
@@ -29,19 +29,18 @@
                       <div
                           v-for="(item, index) in slotProps.items"
                           :key="index"
-                          class="flex flex-wrap items-start gap-x-4 gap-y-3 py-4 md:grid md:grid-cols-[auto_1fr_auto_auto] md:gap-x-8"
-                          :class="index !== 0 ? 'border-t border-surface-200' : ''"
+                          class="flex flex-wrap items-start gap-x-4 gap-y-3 rounded-lg border border-gray-200 p-5 shadow-sm md:grid md:grid-cols-[auto_1fr_auto_auto] md:gap-x-8"
                       >
                           <Link :href="route('product', item.slug)" class="order-1 w-24 shrink-0 md:order-none md:w-40">
                               <img class="block mx-auto rounded max-h-24" :src="item.skus[0]?.media[0]?.original_url" :alt="item.name" />
                           </Link>
 
                           <div class="order-2 flex min-w-[8rem] flex-1 flex-col items-start gap-2 md:order-none md:min-w-0 md:flex-none">
-                              <div>
-                                  <span class="font-medium text-surface-500 text-sm">{{ item.category }}</span>
-                                  <Link :href="route('product', item.slug)" class="block text-lg font-medium mt-2 hover:text-amber-600">{{ item.name }}</Link>
+                              <div class="flex flex-col gap-1">
+                                  <span v-if="item.category" class="font-medium text-surface-500 text-sm">{{ item.category }}</span>
+                                  <Link :href="route('product', item.slug)" class="block text-lg font-medium leading-tight hover:text-amber-600">{{ item.name }}</Link>
                               </div>
-                              <div v-if="item.skus[0]?.attribute_options?.length || item.selected_fabric" class="bg-surface-100 p-1 text-xs" style="border-radius: 30px">
+                              <div v-if="item.skus[0]?.attribute_options?.length || item.selected_fabric" class="text-xs text-surface-500">
                                   <div v-for="option in item.skus[0]?.attribute_options">
                                     <span>{{ option.attribute.name }}: {{ option.value }}</span>
                                   </div>
@@ -61,7 +60,7 @@
                               </InputGroupAddon>
                           </InputGroup>
 
-                          <div @click="deleteFromCart(item.skus[0]?.id, item.selected_fabric?.id)" class="order-4 ml-auto mt-3 h-5 w-5 shrink-0 cursor-pointer self-center md:order-none md:ml-0 md:mt-2 md:self-start">
+                          <div @click="deleteFromCart(item.skus[0]?.id, item.selected_fabric?.id)" class="order-4 ml-auto h-5 w-5 shrink-0 cursor-pointer self-center md:order-none md:ml-0 md:mt-3 md:self-start">
                               <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   viewBox="0 0 20 20"
