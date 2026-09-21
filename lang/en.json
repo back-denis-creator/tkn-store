@@ -257,5 +257,7 @@
     "Blog_Empty": "No posts yet.",
     "Blog_Read": "Read",
     "Blog_Back": "All posts",
-    "Blog_More": "Read next"
+    "Blog_More": "Read next",
+    "Cart_Empty": "Your cart is empty",
+    "Cart_Empty_Action": "Go to the catalogue"
 }

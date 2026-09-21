@@ -17,6 +17,17 @@
           class="w-full max-w-[1200px] grid grid-cols-1 gap-3 px-5 pb-10 lg:max-h-[600px] lg:overflow-auto"
         >
           <DataView :value="cart">
+              <!-- Without this, an empty cart shows DataView's own English
+                   "No available options", which says nothing about a cart. -->
+              <template #empty>
+                  <div class="py-10 text-center">
+                      <p class="text-gray-400">{{ $t('Cart_Empty') }}</p>
+                      <Link :href="route('catalog')" class="mt-3 inline-block font-semibold text-amber-600 hover:text-amber-700">
+                          {{ $t('Cart_Empty_Action') }}
+                      </Link>
+                  </div>
+              </template>
+
               <template #list="slotProps">
                   <div class="space-y-4">
                       <!-- A phone has no room for four columns: the name was left
