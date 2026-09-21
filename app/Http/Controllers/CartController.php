@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Services\CartService;
@@ -22,7 +21,10 @@ class CartController extends Controller
                 'quantity' => $product->quantity,
                 'price' => $product->skus[0]->price,
                 'sku_id' => $product->skus[0]->id,
-                'image' => $product->skus[0]->media[0]?->original_url,
+                // first(), not media[0]: indexing an empty collection raises
+                // "Undefined array key 0" before ?-> ever gets a say, so one
+                // product without a photo took the whole preview down with it.
+                'image' => $product->skus[0]->media->first()?->original_url,
                 'attributes' => $product->skus[0]->attributeOptions->map(fn ($option) => [
                     'name' => $option->attribute->name,
                     'value' => $option->value,
@@ -43,7 +45,7 @@ class CartController extends Controller
             // — the same Sku can be in the cart once per chosen fabric, so this
             // travels alongside sku_id as its own line-identifying field.
             'fabric_attribute_option_id' => $fabricAttributeOptionId !== null ? (int) $fabricAttributeOptionId : null,
-            'quantity' => $addedQuantity
+            'quantity' => $addedQuantity,
         ];
 
         // Получаем текущую корзину из сессии
@@ -65,7 +67,7 @@ class CartController extends Controller
             }
         }
 
-        if($existProductIndex !== null) {
+        if ($existProductIndex !== null) {
             $cart[$existProductIndex]['quantity'] = (int) $cart[$existProductIndex]['quantity'] + $addedQuantity;
         } else {
             $cart[] = $productData;
@@ -87,8 +89,8 @@ class CartController extends Controller
             ? (int) $request->fabricAttributeOptionId
             : null;
 
-        $updated = array_map(function ($item) use($request, $fabricAttributeOptionId) {
-            if($request->has('skuId') && (int) $request->skuId !== (int) $item['sku_id']) {
+        $updated = array_map(function ($item) use ($request, $fabricAttributeOptionId) {
+            if ($request->has('skuId') && (int) $request->skuId !== (int) $item['sku_id']) {
                 return $item;
             }
             $itemFabricId = ($item['fabric_attribute_option_id'] ?? null) !== null ? (int) $item['fabric_attribute_option_id'] : null;
@@ -110,11 +112,12 @@ class CartController extends Controller
             ? (int) $request->fabricAttributeOptionId
             : null;
 
-        $updated = array_map(function ($item) use($request, $fabricAttributeOptionId) {
+        $updated = array_map(function ($item) use ($request, $fabricAttributeOptionId) {
             $itemFabricId = ($item['fabric_attribute_option_id'] ?? null) !== null ? (int) $item['fabric_attribute_option_id'] : null;
-            if($request->has('skuId') && (int) $request->skuId === (int) $item['sku_id'] && $itemFabricId === $fabricAttributeOptionId) {
+            if ($request->has('skuId') && (int) $request->skuId === (int) $item['sku_id'] && $itemFabricId === $fabricAttributeOptionId) {
                 $item['quantity'] = $request->quantity;
             }
+
             return $item;
         }, $cart);
 
@@ -155,6 +158,5 @@ class CartController extends Controller
 
     //     return response()->json(['message' => 'Заказ успешно создан']);
     // }
-
 
 }
