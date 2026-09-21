@@ -4,15 +4,12 @@
             <meta name="robots" content="noindex, nofollow" />
         </Head>
         <div class="flex-grow">
-          <!-- The order summary comes first on a phone: below the form it sat
-               past the fold, so a buyer could not see what they were paying
-               for. On a wide screen it keeps its place in the right column. -->
           <section
             class="container mx-auto flex max-w-[1200px] flex-col py-5 lg:flex-row lg:py-10"
           >
             <!-- form  -->
             <section
-              class="order-2 grid w-full min-w-0 max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10 lg:order-1"
+              class="grid w-full min-w-0 max-w-[1200px] grid-cols-1 gap-3 px-5 pb-10"
             >
               <div class="card flex justify-center">
                   <Stepper v-model:value="activeStep" class="w-full min-w-0 lg:basis-[50rem]">
@@ -105,7 +102,6 @@
             </section>
             <!-- /form  -->
             <Summary
-              class="order-1 lg:order-2"
               submits-order
               :processing="form.processing"
               @submit="submitOrder"

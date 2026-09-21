@@ -8,23 +8,35 @@
         class="container mx-auto flex-grow max-w-[1200px] border-b py-5 lg:flex lg:flex-row lg:py-10"
       >
         <!-- Cart table (responsive: DataView items stack on mobile via flex-col) -->
+        <!-- The list used to be a 600px box whatever it held, so a cart with
+             one item pushed the order summary an empty screen down. It keeps
+             its own scrollbar on a wide screen, where a long list would
+             otherwise run past the summary beside it, but on a phone it is
+             simply as tall as its items. -->
         <section
-          class="h-[600px] w-full max-w-[1200px] grid grid-cols-1 gap-3 px-5 pb-10 overflow-auto"
+          class="w-full max-w-[1200px] grid grid-cols-1 gap-3 px-5 pb-10 lg:max-h-[600px] lg:overflow-auto"
         >
           <DataView :value="cart">
               <template #list="slotProps">
-                  <!-- Single grid for the whole list (not one grid per row) so the image/name/qty/delete
-                       columns share the exact same width across every row — a fixed-width name column
-                       would either clip long titles or waste space on short ones. -->
-                  <div class="grid grid-cols-[auto_1fr_auto_auto] items-start gap-x-4 gap-y-4 sm:gap-x-6 md:gap-x-8">
-                      <template v-for="(item, index) in slotProps.items" :key="index">
-                          <div v-if="index !== 0" class="col-span-full border-t border-surface-200"></div>
-
-                          <Link :href="route('product', item.slug)" class="w-24 md:w-40 shrink-0">
+                  <div>
+                      <!-- A phone has no room for four columns: the name was left
+                           squeezed into a sliver and broke over three lines. There
+                           the photo and the name share the top line, the way they
+                           read together, and the quantity and the bin drop to a
+                           line of their own. From md up the row is the same
+                           four-column grid as before, so the columns still line up
+                           from one item to the next. -->
+                      <div
+                          v-for="(item, index) in slotProps.items"
+                          :key="index"
+                          class="flex flex-wrap items-start gap-x-4 gap-y-3 py-4 md:grid md:grid-cols-[auto_1fr_auto_auto] md:gap-x-8"
+                          :class="index !== 0 ? 'border-t border-surface-200' : ''"
+                      >
+                          <Link :href="route('product', item.slug)" class="order-1 w-24 shrink-0 md:order-none md:w-40">
                               <img class="block mx-auto rounded max-h-24" :src="item.skus[0]?.media[0]?.original_url" :alt="item.name" />
                           </Link>
 
-                          <div class="flex flex-col items-start gap-2">
+                          <div class="order-2 flex min-w-[8rem] flex-1 flex-col items-start gap-2 md:order-none md:min-w-0 md:flex-none">
                               <div>
                                   <span class="font-medium text-surface-500 text-sm">{{ item.category }}</span>
                                   <Link :href="route('product', item.slug)" class="block text-lg font-medium mt-2 hover:text-amber-600">{{ item.name }}</Link>
@@ -39,7 +51,7 @@
                               </div>
                           </div>
 
-                          <InputGroup>
+                          <InputGroup class="order-3 !w-auto md:order-none">
                               <InputGroupAddon>
                                   <Button icon="pi pi-minus" severity="secondary" @click="updateQuantity(index, '-')" class="minus" />
                               </InputGroupAddon>
@@ -49,7 +61,7 @@
                               </InputGroupAddon>
                           </InputGroup>
 
-                          <div @click="deleteFromCart(item.skus[0]?.id, item.selected_fabric?.id)" class="m-0 mt-2 h-5 w-5 cursor-pointer">
+                          <div @click="deleteFromCart(item.skus[0]?.id, item.selected_fabric?.id)" class="order-4 ml-auto mt-3 h-5 w-5 shrink-0 cursor-pointer self-center md:order-none md:ml-0 md:mt-2 md:self-start">
                               <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   viewBox="0 0 20 20"
@@ -62,7 +74,7 @@
                                   />
                               </svg>
                           </div>
-                      </template>
+                      </div>
                   </div>
               </template>
           </DataView>
