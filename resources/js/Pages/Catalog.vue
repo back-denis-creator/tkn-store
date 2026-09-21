@@ -70,12 +70,11 @@
                                 </AccordionPanel>
                             </Accordion>
                         </div>
-                        <div class="flex flex-col gap-2" v-else>
-                            <div v-for="option in attribute.attribute_options" :key="option.id" class="flex items-center gap-2">
-                                <Checkbox v-model="attribute.checked" @update:modelValue="handleUpdateOption(attribute.slug, $event)" :inputId="String(option.id)" name="category" :value="option.value" />
-                                <label :for="option.id" class="text-sm text-gray-700">{{ option.value }}</label>
-                            </div>
-                        </div>
+                        <FilterOptionList
+                            v-else
+                            :attribute="attribute"
+                            @change="handleUpdateOption(attribute.slug, $event)"
+                        />
                     </div>
                 </div>
             </section>
@@ -143,12 +142,11 @@
                                 </AccordionPanel>
                             </Accordion>
                         </div>
-                        <div class="flex flex-col gap-2" v-else>
-                            <div v-for="option in attribute.attribute_options" :key="option.id" class="flex items-center gap-2">
-                                <Checkbox v-model="attribute.checked" @update:modelValue="handleUpdateOption(attribute.slug, $event)" :inputId="String(option.id)" name="category" :value="option.value" />
-                                <label :for="option.id" class="text-sm text-gray-700">{{ option.value }}</label>
-                            </div>
-                        </div>
+                        <FilterOptionList
+                            v-else
+                            :attribute="attribute"
+                            @change="handleUpdateOption(attribute.slug, $event)"
+                        />
                     </div>
                 </div>
 
@@ -277,6 +275,7 @@ import AccordionContent from 'primevue/accordioncontent';
 import Tree from 'primevue/tree';
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import ProductImageCarousel from '@/Components/ProductImageCarousel.vue'
+import FilterOptionList from '@/Components/FilterOptionList.vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import { ref, reactive, onMounted, computed } from "vue"
 import { useToast } from "primevue/usetoast"

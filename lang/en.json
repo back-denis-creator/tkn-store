@@ -260,5 +260,7 @@
     "Blog_More": "Read next",
     "Cart_Empty": "Your cart is empty",
     "Cart_Empty_Action": "Go to the catalogue",
-    "Currency": "UAH"
+    "Currency": "UAH",
+    "Filters_ShowMore": "Show more",
+    "Filters_ShowLess": "Show less"
 }

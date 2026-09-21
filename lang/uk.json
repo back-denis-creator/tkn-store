@@ -312,5 +312,7 @@
     "Blog_More": "Читайте також",
     "Cart_Empty": "Ваш кошик порожній",
     "Cart_Empty_Action": "Перейти до каталогу",
-    "Currency": "грн."
+    "Currency": "грн.",
+    "Filters_ShowMore": "Показати більше",
+    "Filters_ShowLess": "Згорнути"
 }
