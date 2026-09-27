@@ -287,7 +287,12 @@ const brokenImages = reactive(new Set())
 // The catalog card mirrors Product::getDefaultImageAttribute()'s source (the
 // first sku's media) rather than aggregating every variant's images, so the
 // carousel reads as "more photos of this item" and not a mix of variants.
-const productImages = (product) => product.skus?.[0]?.media || []
+// Videos are filtered out here rather than handled by the carousel: it renders
+// every item as an <img>, so a .mov sitting among the photos fired @error,
+// flagged the whole product as broken and left the card showing the
+// placeholder while four perfectly good photos sat right behind it.
+const productImages = (product) => (product.skus?.[0]?.media || [])
+    .filter((media) => (media.mime_type || '').startsWith('image/'))
 const props = defineProps({
     canLogin: {
         type: Boolean,

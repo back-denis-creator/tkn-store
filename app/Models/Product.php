@@ -56,12 +56,15 @@ class Product extends Model
     public function getDefaultImageAttribute()
     {
         $sku = $this->defaultSku();
-        $media = $sku?->media;
-        if ($media && count($media)) {
-            return $media[0]->original_url;
-        }
 
-        return null;
+        // A variation can hold a video alongside its photos, and nothing keeps
+        // one out of first place. Taking media[0] blindly put a .mov URL into
+        // og:image, the JSON-LD image, the related-product thumbnail and the
+        // admin product list.
+        $image = $sku?->media
+            ?->first(fn ($media) => str_starts_with((string) $media->mime_type, 'image/'));
+
+        return $image?->original_url;
     }
 
     public function getDefaultPriceAttribute()
