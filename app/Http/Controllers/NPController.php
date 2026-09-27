@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Overrides\Address;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class NPController extends Controller
 {
@@ -27,7 +26,6 @@ class NPController extends Controller
         } else if($request->has('city_ref')) {
             $warehouses = $adr->getWarehouses($request->city_ref, false);
         }
-        Log::info(['$warehouses' => $warehouses]);
         return back()->with('warehouses', $warehouses['result'] ?: []);
     }
 }

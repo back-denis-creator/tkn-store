@@ -20,6 +20,7 @@ import { Head, Link, useForm } from "@inertiajs/vue3";
 import CheckboxArray from '@/Components/CheckboxArray.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import { ref, computed } from 'vue';
+import { imagesToWebp } from '@/imageToWebp';
 
 const props = defineProps({
     products: {
@@ -49,7 +50,24 @@ const form = useForm({
 
 const submit = () => {
     form.variations = variations.value
-    form.post(route("products.store"))
+    // Same reason as the edit form: the option catalogue behind every
+    // AutoComplete is UI state, not payload, and Inertia would turn all of it
+    // into POST variables. Here 'images' really is the picked files, so it goes
+    // through as is.
+    form.transform((data) => ({
+        ...data,
+        variations: data.variations.map((variation) => ({
+            id: variation.id,
+            code: variation.code,
+            price: variation.price,
+            images: variation.images,
+            attributes: variation.attributes.map((attribute) => ({
+                id: attribute.id,
+                value: attribute.value,
+                unit: attribute.unit,
+            })),
+        })),
+    })).post(route("products.store"))
 }
 
 const buildCategoryTree = (categories, parentId = null) => {
@@ -152,8 +170,26 @@ const variations = ref([{
     })
 }])
 
-const onFilesVariation = (e) => {
-    variations.value[selectedVariation.value].images = e.files
+const preparingImages = ref(false)
+
+// Code and price render their own errors next to the input. The truncated-form
+// error and anything the file rules reject (wrong type, too big) had nowhere to
+// appear at all, so a refused photo looked like a save that quietly did nothing.
+const formLevelErrors = computed(() => Object.entries(form.errors)
+    .filter(([key]) => key === 'variations' || key.includes('images'))
+    .map(([, message]) => message))
+
+const onFilesVariation = async (e) => {
+    // The tab the admin is on can change while the photos are being re-encoded,
+    // so the target is captured before the first await.
+    const index = selectedVariation.value
+
+    preparingImages.value = true
+    try {
+        variations.value[index].images = await imagesToWebp(e.files)
+    } finally {
+        preparingImages.value = false
+    }
 }
 
 // A freshly picked (not yet uploaded) File has .type; an already-saved Sku
@@ -381,14 +417,21 @@ const removeVariationImage = (index) => {
                         </div>
                     </div>
 
+                    <ul v-if="formLevelErrors.length" class="space-y-1 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <li v-for="(message, index) in formLevelErrors" :key="index">{{ message }}</li>
+                    </ul>
+
                     <div class="flex items-center gap-4">
                         <PrimaryButton
                             type="submit"
-                            :class="{ 'opacity-25': form.processing }"
-                            :disabled="form.processing"
+                            :class="{ 'opacity-25': form.processing || preparingImages }"
+                            :disabled="form.processing || preparingImages"
                         >
                             Створити
                         </PrimaryButton>
+                        <span v-if="preparingImages" class="text-sm text-gray-500">
+                            Готуємо зображення…
+                        </span>
                         <Link :href="route('products.index')" class="text-sm text-gray-500 hover:text-gray-700">
                             Скасувати
                         </Link>

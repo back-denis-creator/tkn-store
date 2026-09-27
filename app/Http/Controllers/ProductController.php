@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Sku;
 use Cocur\Slugify\Slugify;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -62,6 +63,8 @@ class ProductController extends Controller
             'variations.*.price' => 'required|numeric|min:0',
             'variations.*.images.*' => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:20000',
         ]);
+
+        $this->assertVariationsArrivedIntact($request);
 
         $slugify = new Slugify;
 
@@ -165,6 +168,8 @@ class ProductController extends Controller
             'variations.*.new_images.*' => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:20000',
         ]);
 
+        $this->assertVariationsArrivedIntact($request);
+
         $slugify = new Slugify;
 
         $product->name = $request->name;
@@ -182,24 +187,42 @@ class ProductController extends Controller
         // UPDATE OR DELETE EXIST VARIATIONS
         $skusIds = array_column($request->variations, 'id');
         $product->skus()->each(function (object $sku) use ($request, $skusIds) {
+            // A Sku the form did not send back — the admin removed that variation
+            // in the UI — gives array_search() false, and $request->variations[false]
+            // is PHP for $request->variations[0]: the Sku on its way out first got
+            // overwritten with the first variation's price, code and photos. Skip it;
+            // the delete_variations_ids check below still runs.
             $index = array_search($sku->id, $skusIds);
-            if (isset($request->variations[$index])) {
+            if ($index !== false && isset($request->variations[$index])) {
                 $sku->update([
                     'price' => $request->variations[$index]['price'],
                     'code' => $request->variations[$index]['code'],
                 ]);
                 // DELETE VARIATION IMAGES
-                if (isset($request->variations[$index]['images'])) {
-                    // clearMediaCollectionExcept() matches each existing media against
-                    // this list by reading ITS OWN 'id' key (Media::getKeyName()) — so
-                    // it needs actual Media models here, not raw ids. Raw ids (e.g. a
-                    // plain [2]) never match, since data_get(2, 'id') is always null,
-                    // and every image in the collection gets deleted regardless of
-                    // what the client asked to keep.
-                    $keptMediaIds = collect($request->variations[$index]['images'])->pluck('id')->all();
-                    $keptMedia = $sku->getMedia('variation_images')->whereIn('id', $keptMediaIds);
-                    $sku->clearMediaCollectionExcept('variation_images', $keptMedia);
-                }
+                // No 'images' key at all means the admin removed every photo:
+                // multipart/FormData drops an empty array instead of sending [].
+                // (It can no longer mean a truncated payload — assertVariationsArrivedIntact()
+                // has already checked that, since 'images' is serialized before the
+                // 'attributes' key it looks for.) Guarding with isset() here left
+                // those photos in place, so "delete all" silently did nothing.
+                //
+                // clearMediaCollectionExcept() matches each existing media against
+                // this list by reading ITS OWN 'id' key (Media::getKeyName()) — so
+                // it needs actual Media models here, not raw ids. Raw ids (e.g. a
+                // plain [2]) never match, since data_get(2, 'id') is always null,
+                // and every image in the collection gets deleted regardless of
+                // what the client asked to keep.
+                //
+                // Two shapes are accepted: the bare id list the form sends now,
+                // and the full media objects it used to send — so an admin whose
+                // tab was open across a deploy does not lose a gallery on save.
+                $keptMediaIds = collect($request->variations[$index]['images'] ?? [])
+                    ->map(fn ($image) => is_array($image) ? ($image['id'] ?? null) : $image)
+                    ->filter()
+                    ->map(fn ($id) => (int) $id)
+                    ->all();
+                $keptMedia = $sku->getMedia('variation_images')->whereIn('id', $keptMediaIds);
+                $sku->clearMediaCollectionExcept('variation_images', $keptMedia);
                 // CREATE VARIATION IMAGES
                 if (isset($request->variations[$index]['new_images'])) {
                     foreach ($request->variations[$index]['new_images'] as $image) {
@@ -274,6 +297,27 @@ class ProductController extends Controller
         $this->syncSharedVariationImages($product);
 
         return redirect()->route('products.index')->with('message', 'Product Updated Successfully');
+    }
+
+    /**
+     * PHP truncates a POST that goes over max_input_vars from the end, without
+     * telling the application — and 'attributes' is the last key serialized
+     * inside every variation, so a variation that arrives without it means the
+     * browser sent more than PHP accepted. Both store() and update() would then
+     * die on a null key deep inside the variation loop (500), which reads like
+     * a broken product rather than a payload that never fully arrived. Tell the
+     * admin what actually happened instead.
+     */
+    private function assertVariationsArrivedIntact(Request $request): void
+    {
+        foreach ($request->input('variations', []) as $variation) {
+            if (! isset($variation['attributes'])) {
+                throw ValidationException::withMessages([
+                    'variations' => 'Форма не дійшла на сервер повністю — забагато даних за один раз. '
+                        .'Збережіть товар з меншою кількістю варіацій або зображень, а решту додайте окремо.',
+                ]);
+            }
+        }
     }
 
     /**

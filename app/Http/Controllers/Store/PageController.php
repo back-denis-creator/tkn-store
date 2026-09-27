@@ -67,26 +67,31 @@ class PageController extends Controller
 
         $product = $query->first();
 
+        // A slug that matches nothing used to fall through and render the page
+        // with product: null — a Vue prop-type warning in the log, a broken
+        // page for the visitor, and a soft 404 for Google. A hidden product is
+        // the separate case handled below: that one is a real product whose
+        // link buyers still hold.
+        abort_if($product === null, 404);
+
         // A buyer who ordered this product keeps its link, and the admin may
         // hide it afterwards. Rather than an empty page, send them to the
         // catalog, where they can find what is still for sale.
-        if ($product && $product->is_hidden) {
+        if ($product->is_hidden) {
             return redirect()->route('catalog');
         }
 
-        $product?->categories->each(function (Category $category) {
+        $product->categories->each(function (Category $category) {
             $category->full_path = $category->fullPath();
         });
 
-        if ($product) {
-            $product->load(['reviews' => fn ($q) => $q->approved()->latest()]);
-            $product->reviews_count = $product->reviews->count();
-            $product->average_rating = $product->reviews_count
-                ? round($product->reviews->avg('rating'), 1)
-                : null;
-        }
+        $product->load(['reviews' => fn ($q) => $q->approved()->latest()]);
+        $product->reviews_count = $product->reviews->count();
+        $product->average_rating = $product->reviews_count
+            ? round($product->reviews->avg('rating'), 1)
+            : null;
 
-        $categoryIds = $product?->categories->pluck('id') ?? collect();
+        $categoryIds = $product->categories->pluck('id');
 
         $relatedProducts = $categoryIds->isEmpty() ? collect() : Product::visible()->with('skus')
             ->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds))

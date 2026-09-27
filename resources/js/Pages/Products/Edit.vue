@@ -21,6 +21,7 @@ import CheckboxArray from '@/Components/CheckboxArray.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import { ref, computed, onMounted } from 'vue';
 import { usePrimeVue } from 'primevue/config';
+import { imagesToWebp } from '@/imageToWebp';
 
 const $primevue = usePrimeVue();
 
@@ -99,7 +100,32 @@ const searchOptionVariations = (index) => {
 }
 
 const submit = () => {
-    form.post(route("products.update", props.product.id));
+    // The form object carries everything the UI needs: the option catalogue
+    // behind every AutoComplete, the complete media record of every uploaded
+    // photo, which variation tab is open. The server reads none of it — and
+    // Inertia flattens the whole object into one POST variable per scalar, so
+    // a product with a few variations and photos used to blow past PHP's
+    // max_input_vars and arrive truncated (the "Undefined array key attributes"
+    // 500s). Send only what ProductController::update() actually reads.
+    form.transform((data) => ({
+        ...data,
+        variations: data.variations.map((variation) => ({
+            id: variation.id,
+            code: variation.code,
+            price: variation.price,
+            // Ids are enough — the controller loads the Media models itself.
+            images: variation.images.map((media) => media.id),
+            new_images: variation.new_images,
+            attributes: variation.attributes.map((attribute) => ({
+                id: attribute.id,
+                // Either a string the admin typed or a {id, value} option they
+                // picked; the controller branches on that difference, so this
+                // one goes through untouched.
+                value: attribute.value,
+                unit: attribute.unit,
+            })),
+        })),
+    })).post(route("products.update", props.product.id));
 }
 
 const buildCategoryTree = (categories, parentId = null) => {
@@ -182,8 +208,26 @@ const formatSize = (bytes) => {
     return `${formattedSize} ${sizes[i]}`
 }
 
-const onFilesVariation = (e) => {
-    form.variations[selectedVariation.value].new_images = e.files
+const preparingImages = ref(false)
+
+// Code and price render their own errors next to the input. The truncated-form
+// error and anything the file rules reject (wrong type, too big) had nowhere to
+// appear at all, so a refused photo looked like a save that quietly did nothing.
+const formLevelErrors = computed(() => Object.entries(form.errors)
+    .filter(([key]) => key === 'variations' || key.includes('images'))
+    .map(([, message]) => message))
+
+const onFilesVariation = async (e) => {
+    // The tab the admin is on can change while the photos are being re-encoded,
+    // so the target is captured before the first await.
+    const index = selectedVariation.value
+
+    preparingImages.value = true
+    try {
+        form.variations[index].new_images = await imagesToWebp(e.files)
+    } finally {
+        preparingImages.value = false
+    }
 }
 
 const deleteUploadedFileCallback = (index) => {
@@ -434,11 +478,18 @@ const isVideoFile = (file) => (file.type || file.mime_type || '').startsWith('vi
                         </div>
                     </div>
 
+                    <ul v-if="formLevelErrors.length" class="space-y-1 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <li v-for="(message, index) in formLevelErrors" :key="index">{{ message }}</li>
+                    </ul>
+
                     <div class="flex items-center gap-4">
-                        <PrimaryButton type="submit" :class="{ 'opacity-25': form.processing }"
-                            :disabled="form.processing">
+                        <PrimaryButton type="submit" :class="{ 'opacity-25': form.processing || preparingImages }"
+                            :disabled="form.processing || preparingImages">
                             Зберегти
                         </PrimaryButton>
+                        <span v-if="preparingImages" class="text-sm text-gray-500">
+                            Готуємо зображення…
+                        </span>
                         <Link :href="route('products.index')" class="text-sm text-gray-500 hover:text-gray-700">
                             Скасувати
                         </Link>

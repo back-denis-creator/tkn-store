@@ -36,6 +36,17 @@ class HiddenProductTest extends TestCase
         $this->get(route('product', 'prykhovana'))->assertRedirect(route('catalog'));
     }
 
+    /**
+     * A hidden product is a real product whose link buyers still hold, so it
+     * redirects. A slug that matches nothing is a different thing entirely —
+     * it used to render the page with product: null, which logged a Vue
+     * prop-type warning and left Google with a soft 404.
+     */
+    public function test_an_unknown_slug_is_a_404(): void
+    {
+        $this->get(route('product', 'nemaye-takogo'))->assertNotFound();
+    }
+
     public function test_a_visible_product_still_opens(): void
     {
         $this->product('Серветка', 'servetka', false);
