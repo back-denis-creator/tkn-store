@@ -220,7 +220,7 @@ class ProductController extends Controller
                             $sku->addMedia($image)->toMediaCollection('variation_images');
                         }
                     }
-                    $sku->attributeOptions()->sync($this->resolveOptionIds($request->variations[$index]['attributes']));
+                    $sku->attributeOptions()->sync($this->resolveOptionIds($request->variations[$index]['attributes'], $sku));
                 }
                 if ($request->has('delete_variations_ids')) {
                     $indexForDelete = array_search($sku->id, $request->delete_variations_ids);
@@ -294,9 +294,10 @@ class ProductController extends Controller
      * a typed string, which is how the catalogue ended up with two "150*200см"
      * rows under Розмір.
      */
-    private function resolveOptionIds(array $attributes): array
+    private function resolveOptionIds(array $attributes, ?Sku $sku = null): array
     {
         $optionIds = [];
+        $alreadyOn = $sku ? $sku->attributeOptions()->get() : null;
 
         foreach ($attributes as $attribute) {
             $picked = is_array($attribute['value'] ?? null) ? $attribute['value'] : null;
@@ -320,6 +321,14 @@ class ProductController extends Controller
             $option = filled($picked['id'] ?? null)
                 ? $model->attributeOptions()->whereKey($picked['id'])->first()
                 : null;
+
+            // A bare string cannot tell two same-named options apart. When the
+            // variation already holds one of that attribute with this very value,
+            // that is the one on the admin's screen — keep it, so re-saving a
+            // product it did not touch leaves the choice alone.
+            $option ??= $alreadyOn?->first(
+                fn ($current) => (int) $current->attribute_id === (int) $attribute['id'] && $current->value === $value
+            );
 
             $option ??= $model->attributeOptions()->where('value', $value)->first()
                 ?: $model->attributeOptions()->create(['value' => $value]);

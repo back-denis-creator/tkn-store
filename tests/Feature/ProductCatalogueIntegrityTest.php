@@ -153,6 +153,46 @@ class ProductCatalogueIntegrityTest extends TestCase
         $this->assertNotSame($first->id, $attached->id);
     }
 
+    /**
+     * Found by saving a real product on production: the edit form used to
+     * pre-fill the attribute field with the option's text alone, so re-saving a
+     * product nobody had touched re-resolved that text and swapped N-9 for N-3.
+     * The form now carries the id, and this is the server-side half: a bare
+     * string must not move an option the variation already holds.
+     */
+    public function test_re_saving_a_variation_keeps_the_option_it_already_has(): void
+    {
+        $attribute = Attribute::create(['name' => 'Тканина']);
+        $first = AttributeOption::create(['attribute_id' => $attribute->id, 'value' => 'Жовтогарячий', 'article' => 'N-3']);
+        $second = AttributeOption::create(['attribute_id' => $attribute->id, 'value' => 'Жовтогарячий', 'article' => 'N-9']);
+
+        $product = Product::create(['name' => 'Скатертина', 'slug' => 'skatertina', 'is_hidden' => false]);
+        $sku = Sku::create(['product_id' => $product->id, 'price' => 100000, 'code' => 'ST-1']);
+        $sku->attributeOptions()->sync([$second->id => ['unit' => '']]);
+
+        $this->actingAs($this->admin())
+            ->post(route('products.update', $product), [
+                'name' => 'Скатертина',
+                'category_ids' => [],
+                'variations' => [
+                    [
+                        'id' => $sku->id,
+                        'code' => 'ST-1',
+                        'price' => '1000',
+                        // What the form sent before it started carrying the id.
+                        'attributes' => [['id' => $attribute->id, 'value' => 'Жовтогарячий', 'unit' => '']],
+                    ],
+                ],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $attached = $sku->fresh()->attributeOptions->first();
+
+        $this->assertSame($second->id, $attached->id, 'Re-saving must not move the variation to the other cloth');
+        $this->assertSame('N-9', $attached->article);
+        $this->assertNotSame($first->id, $attached->id);
+    }
+
     public function test_a_video_among_the_photos_is_not_used_as_the_cover_image(): void
     {
         Storage::fake('public');

@@ -66,7 +66,15 @@ const form = useForm({
                 let findedOption = variation.attribute_options.find(({attribute_id}) => attribute_id === attribute.id)
                 return {
                     name: attribute.name,
-                    value: findedOption ? findedOption.value : '',
+                    // The attached option is carried whole, not as its text alone.
+                    // Two options of one attribute may share a value — Жовтогарячий
+                    // N-3 and N-9 are different cloths — and the id is the only thing
+                    // telling them apart. Pre-filling with the bare string dropped it,
+                    // so merely opening a product and saving it swapped the fabric for
+                    // whichever same-named option had the lower id.
+                    value: findedOption
+                        ? { id: findedOption.id, value: findedOption.value, article: findedOption.article }
+                        : '',
                     unit: findedOption ? findedOption.pivot.unit : '',
                     id: attribute.id,
                     attribute_options: attribute.attribute_options.map(option => {
