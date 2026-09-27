@@ -114,6 +114,45 @@ class ProductCatalogueIntegrityTest extends TestCase
         $this->assertSame('200*300см', AttributeOption::sole()->value);
     }
 
+    /**
+     * Two options of one attribute may legitimately share a value: "Жовтогарячий"
+     * N-3 and N-9 are different cloths sitting in different sub_meta subgroups.
+     * The option the admin picks in the dropdown arrives as {id, value}, and only
+     * that id tells them apart.
+     */
+    public function test_the_option_picked_in_the_dropdown_wins_over_one_with_the_same_value(): void
+    {
+        $attribute = Attribute::create(['name' => 'Тканина']);
+        $first = AttributeOption::create(['attribute_id' => $attribute->id, 'value' => 'Жовтогарячий', 'article' => 'N-3']);
+        $second = AttributeOption::create(['attribute_id' => $attribute->id, 'value' => 'Жовтогарячий', 'article' => 'N-9']);
+
+        $this->actingAs($this->admin())
+            ->post(route('products.store'), [
+                'name' => 'Скатертина',
+                'category_ids' => [],
+                'variations' => [
+                    [
+                        'id' => 'new',
+                        'code' => 'ST-1',
+                        'price' => '100',
+                        'attributes' => [[
+                            'id' => $attribute->id,
+                            'value' => ['id' => $second->id, 'value' => 'Жовтогарячий'],
+                            'unit' => '',
+                        ]],
+                    ],
+                ],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $attached = Sku::sole()->attributeOptions->first();
+
+        $this->assertSame($second->id, $attached->id, 'The cloth the admin picked must be the one that is saved');
+        $this->assertSame('N-9', $attached->article);
+        $this->assertSame(2, AttributeOption::count(), 'Neither option may be duplicated by the save');
+        $this->assertNotSame($first->id, $attached->id);
+    }
+
     public function test_a_video_among_the_photos_is_not_used_as_the_cover_image(): void
     {
         Storage::fake('public');

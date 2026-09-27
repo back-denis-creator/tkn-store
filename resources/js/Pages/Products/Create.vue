@@ -115,7 +115,8 @@ const addVariation = (id) => {
                 attribute_options: attribute.attribute_options.map((option) => {
                     return {
                         id: option.id,
-                        value: option.value
+                        value: option.value,
+                        article: option.article
                     }
                 }),
                 search: (e) => {
@@ -141,6 +142,7 @@ const searchOptionVariations = (index) => {
         return {
             id: option.id,
             value: option.value,
+            article: option.article,
         }
     })
 }
@@ -161,6 +163,7 @@ const variations = ref([{
                 return {
                     id: option.id,
                     value: option.value,
+                    article: option.article,
                 }
             }),
             search: (e) => {
@@ -372,7 +375,17 @@ const removeVariationImage = (index) => {
                                 <div v-for="attribute in variation.attributes" :key="`${attribute.id}${variation.id}`">
                                     <InputLabel :value="attribute.name" />
                                     <div class="mt-1 flex items-start gap-3">
-                                        <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search" />
+                                        <AutoComplete class="w-full" :dataKey="`${attribute.id}${variation.id}`" :inputId="`${attribute.id}${variation.id}`" v-model="attribute.value" optionLabel="value" dropdown :suggestions="attribute.attribute_options" @complete="attribute.search">
+                                            <!-- Two options can share a value and still be different
+                                                 things — Жовтогарячий N-3 and N-9 are separate cloths
+                                                 in separate subgroups. Without the article on screen
+                                                 the list showed the same word twice and the admin
+                                                 picked one of them blind. -->
+                                            <template #option="{ option }">
+                                                <span>{{ option.value }}</span>
+                                                <span v-if="option.article" class="ml-2 text-xs text-gray-400">{{ option.article }}</span>
+                                            </template>
+                                        </AutoComplete>
                                         <InputText v-model="attribute.unit" placeholder="Розхід" class="w-28 shrink-0" />
                                     </div>
                                 </div>

@@ -299,9 +299,8 @@ class ProductController extends Controller
         $optionIds = [];
 
         foreach ($attributes as $attribute) {
-            $value = is_array($attribute['value'] ?? null)
-                ? ($attribute['value']['value'] ?? null)
-                : ($attribute['value'] ?? null);
+            $picked = is_array($attribute['value'] ?? null) ? $attribute['value'] : null;
+            $value = $picked ? ($picked['value'] ?? null) : ($attribute['value'] ?? null);
 
             if (blank($value)) {
                 continue;
@@ -313,7 +312,16 @@ class ProductController extends Controller
                 continue;
             }
 
-            $option = $model->attributeOptions()->where('value', $value)->first()
+            // An option picked from the dropdown carries its own id, and that id
+            // is the only thing telling two same-named options apart: Жовтогарячий
+            // N-3 and N-9 are different cloths in different sub_meta subgroups.
+            // Matching on the value alone silently attached whichever one had the
+            // lower id, so choosing one fabric could save the other.
+            $option = filled($picked['id'] ?? null)
+                ? $model->attributeOptions()->whereKey($picked['id'])->first()
+                : null;
+
+            $option ??= $model->attributeOptions()->where('value', $value)->first()
                 ?: $model->attributeOptions()->create(['value' => $value]);
 
             $optionIds[$option->id] = ['unit' => $attribute['unit'] ?? null];
