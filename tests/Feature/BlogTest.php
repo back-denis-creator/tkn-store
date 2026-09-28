@@ -147,6 +147,57 @@ class BlogTest extends TestCase
         $this->assertStringContainsString(route('blog.post', 'yak-doglyadaty'), $sitemap);
     }
 
+    /**
+     * The admin screens address a post by its id, and the public page addresses
+     * it by its slug. The tests above pass the model to route(), which produces
+     * the slug — so they never covered the id the admin screens really send,
+     * and every admin action answered 404 on a live site.
+     */
+    public function test_the_admin_opens_the_edit_screen_by_id(): void
+    {
+        $blog = $this->createPost();
+
+        $this->actingAs($this->admin())
+            ->get(route('blogs.edit', $blog->id))
+            ->assertOk();
+    }
+
+    public function test_the_admin_updates_a_post_by_id(): void
+    {
+        $blog = $this->createPost();
+
+        // The form posts with _method=patch, because a PATCH carries no file.
+        $this->actingAs($this->admin())
+            ->post(route('blogs.update', $blog->id), [
+                '_method' => 'patch',
+                'title' => 'Допис, оновлений',
+                'slug' => $blog->slug,
+                'content' => '<p>Новий текст</p>',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('Допис, оновлений', $blog->fresh()->title);
+    }
+
+    public function test_the_admin_deletes_a_post_by_id(): void
+    {
+        $blog = $this->createPost();
+
+        $this->actingAs($this->admin())
+            ->delete(route('blogs.destroy', $blog->id))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(0, Blog::count());
+    }
+
+    public function test_the_public_page_still_answers_on_the_slug(): void
+    {
+        $blog = $this->createPost();
+
+        // The admin routes moved to the id. The storefront keeps the slug.
+        $this->get(route('blog.post', $blog->slug))->assertOk();
+    }
+
     public function test_a_guest_cannot_write_a_post(): void
     {
         $this->post(route('blogs.store'), [

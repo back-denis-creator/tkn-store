@@ -67,7 +67,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/orders', [OrderController::class, 'myOrders'])->name('orders.mine');
     Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
-    Route::resource('/blogs', BlogController::class)->middleware('admin');
+    // Blog::getRouteKeyName() returns 'slug', which is what the public
+    // /blog/{blog} page needs. The admin screens send the id instead, so every
+    // admin action — edit, update and delete — looked for a post with the slug
+    // "1" and answered 404. Bind these routes by id and leave the public route
+    // on the slug: an admin can rename a slug, and the id in the address bar
+    // must survive that.
+    Route::resource('/blogs', BlogController::class)
+        ->parameters(['blogs' => 'blog:id'])
+        ->middleware('admin');
     Route::resource('/products', ProductController::class, ['except' => ['update']])->middleware('admin');
     Route::post('products/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('admin');
     Route::resource('/categories', CategoryController::class)->middleware('admin');
