@@ -7,6 +7,7 @@ import InputError from "@/Components/InputError.vue";
 import OptionsEditor from "./Partials/OptionsEditor.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+import { attributeOptionsPayload } from "@/attributeOptionsPayload";
 import { ref } from "vue";
 
 const props = defineProps({
@@ -31,7 +32,8 @@ const optionsEditor = ref(null);
 
 const submit = () => {
     if (optionsEditor.value?.isBusy) return;
-    form.post(route("attributes.store"));
+    form.transform(attributeOptionsPayload)
+        .post(route("attributes.store"));
 };
 </script>
 

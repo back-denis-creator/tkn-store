@@ -6,6 +6,7 @@ use App\Models\Attribute;
 use App\Models\AttributeOption;
 use App\Models\DefaultColor;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class AttributeController extends Controller
@@ -20,7 +21,7 @@ class AttributeController extends Controller
         return Inertia::render(
             'Attributes/Index',
             [
-                'attributes' => $attributes
+                'attributes' => $attributes,
             ]
         );
     }
@@ -51,6 +52,8 @@ class AttributeController extends Controller
             'options.*.default_color_ids' => 'array',
             'options.*.default_color_ids.*' => 'exists:default_colors,id',
         ]);
+
+        $this->assertRequestArrivedWhole($request);
 
         $attribute = Attribute::create([
             'name' => $request->name,
@@ -119,6 +122,8 @@ class AttributeController extends Controller
             'options.*.default_color_ids.*' => 'exists:default_colors,id',
         ]);
 
+        $this->assertRequestArrivedWhole($request);
+
         $attribute->name = $request->name;
         $attribute->description = $request->description;
         $attribute->is_color_attribute = $request->boolean('is_color_attribute');
@@ -127,7 +132,7 @@ class AttributeController extends Controller
         $blockedValues = [];
         foreach ($request->input('deleted_option_ids', []) as $id) {
             $option = AttributeOption::find($id);
-            if (!$option) {
+            if (! $option) {
                 continue;
             }
             // A color/size option already picked on an existing product's SKU can't be
@@ -135,6 +140,7 @@ class AttributeController extends Controller
             // quietly lose one of its variant dimensions.
             if ($option->skus()->exists()) {
                 $blockedValues[] = $option->value;
+
                 continue;
             }
             $option->clearMediaCollection();
@@ -145,7 +151,7 @@ class AttributeController extends Controller
 
         if ($blockedValues) {
             return back()->withErrors([
-                'options' => 'Не вдалося видалити (використовується в товарах): ' . implode(', ', $blockedValues),
+                'options' => 'Не вдалося видалити (використовується в товарах): '.implode(', ', $blockedValues),
             ]);
         }
 
@@ -171,6 +177,42 @@ class AttributeController extends Controller
      * and base64's ~33% size inflation made it easier for a real phone photo to trip the
      * host's POST size limit and silently drop the whole request.
      */
+    /**
+     * Read a colour-group or subcategory id off a posted option.
+     *
+     * The forms now send the id. A tab that a user opened before that change
+     * still sends the whole group object, so both shapes are read here. An
+     * absent or empty value means "not set" — but 0 is the "Однотонні" group
+     * and must survive.
+     */
+    /**
+     * PHP drops everything past max_input_vars and reports nothing, so a long
+     * option list used to save only in part: the last options kept their old
+     * values and a deletion was lost. The forms append payload_complete last,
+     * so a missing flag means the request arrived cut short. Refuse it — a
+     * clear error beats a save that quietly keeps half of the screen.
+     */
+    private function assertRequestArrivedWhole(Request $request): void
+    {
+        if ($request->has('payload_complete')) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'options' => 'Забагато значень за один раз — форма не дійшла на сервер повністю. '
+                .'Збережіть меншими частинами або зверніться до розробника.',
+        ]);
+    }
+
+    private static function groupId(mixed $value): ?int
+    {
+        if (is_array($value)) {
+            $value = $value['id'] ?? null;
+        }
+
+        return ($value === null || $value === '') ? null : (int) $value;
+    }
+
     private function syncOptions(Request $request, Attribute $attribute): void
     {
         $options = $request->input('options', []);
@@ -191,18 +233,18 @@ class AttributeController extends Controller
                 ]);
             }
 
-            // isset(), not empty() — the "Однотон" group's id is 0, which empty() treats as absent.
-            if ($attributeOption && $attribute->is_color_attribute && isset($option['meta']['id']) && $option['meta']['id'] !== '') {
-                $attributeOption->update(['meta' => $option['meta']['id']]);
-            }
-
             if ($attributeOption && $attribute->is_color_attribute) {
-                // Always synced, unlike meta above — a subcategory only means
-                // something under whatever category is currently set, so a
-                // category change or a cleared subcategory must always be
-                // reflected here instead of leaving a stale one behind from a
-                // previously selected category.
-                $attributeOption->update(['sub_meta' => $option['sub_meta']['id'] ?? null]);
+                $meta = self::groupId($option['meta'] ?? null);
+
+                $attributeOption->update([
+                    // A cleared category leaves the old one in place, as before.
+                    ...($meta === null ? [] : ['meta' => $meta]),
+                    // The subcategory is always synced, unlike the category
+                    // above: a subcategory only means something under whatever
+                    // category is set now, so a category change or a cleared
+                    // subcategory must not leave a stale one behind.
+                    'sub_meta' => self::groupId($option['sub_meta'] ?? null),
+                ]);
             }
 
             if ($attributeOption && $attribute->is_color_attribute) {
